@@ -1,0 +1,109 @@
+documentation of used networks:
+
+
+
+be careful:
+optimization in pytorch minimizes to 0
+
+MNIST:
+- used MLP from SLS
+- Epochs based on:
+    https://www.tensorflow.org/tutorials/keras/classification
+    https://www.tensorflow.org/tutorials/images/classification
+    also in graphs seems like 20 is enough maybe even 15
+
+- wdecay:
+    0.001 as used in https://www.tensorflow.org/tutorials/keras/overfit_and_underfit#strategies_to_prevent_overfitting
+    (rough number is gotten from dividing by number of batch examples: 128)
+    also tried 0.01 which is worse, 0.0001 roughly same loss and acc -> take model with more reguralization
+
+- lr: 1e-2 is best (tried 1e-1 to 1e-4)
+
+"mnist1":{"dataset":"mnist",
+            "model":"mlp",
+            "loss_func": {"name":"softmax_loss", "distance":False, "factor":0.001},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001},
+            "acc_func":"softmax_accuracy",
+            "batch_size":128,
+            "max_epochs":20}
+
+
+- Distance:
+    used RBF Kernel
+    
+    first tried Variation of strength factor:
+    the higher the value, the more distant to the last minimum the network becomes
+    seems to have no influence on performance (at least in mid term)
+    as distance converges, seems to converge also in accuracy -> does it really descent along valleys or just random walks and then converges??
+
+    variation of width
+    the width seems to control how fast a network converges, but also how strong? connection to strength
+
+
+    theroretical influence of width and strength:
+    strength should control how fast a network converges, but not that much at what value
+    width should determine how far away a network converges, and also harm the speed of distancing
+
+
+-> works well on mnist, but need to go to cifar to see if it really follows valleys or just randomly moves to new point and then converges
+
+
+
+CIFAR-10
+
+- used ResNet-34 from SLS
+- hyperparams:
+    lr:1e-3 best, 1e-2 quite similar but more unstable
+    epochs: 60 seems appropiate maybe also 70
+    regularization factor: 1e-3 only used maybe also test 1e-2 and e-4 to prevent from getting too high
+    chose e-2 for convergence of distance
+
+
+"cifar10_1":{"dataset":"cifar10",
+            "model":"resnet34",
+            "loss_func": {"name":"softmax_loss", "distance":False, "factor":1, "width":1},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-3, "regularization":0.001},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":100}
+
+- distance:
+    1e-2 seems best convergence factor, 1e-1 converges too low
+    maybe also 1e-3 has to look for longer run (maybe nearly no gradient so does take very long)
+    -> solution seems to add a factor in front to let gradient get higher while let distance stay roughly the same
+
+    no matter the method validation accuracy stays rougly the same to baseline model
+
+
+- learning rate schedule:
+    let drop by 0.1 every 50 epochs
+    seems to increase validation accuracy
+    first drop let distance decrease again, second lets distance get to convergence, why?
+
+    validation accuracy same to baseline model, only w3_f2 is worse
+
+
+
+
+
+possible next steps:
+incorporate multiple minima
+ensemble
+see if it traverses valleys
+
+
+learnrate drop trennt von distanzdrop
+anderes metzwerkr
+netzwerk mit mehren minima weitertrainieren
+welches minima ist wichtigste
+
+
+
+
+
+
+
+
+
+
+
