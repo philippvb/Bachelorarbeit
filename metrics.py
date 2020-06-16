@@ -1,5 +1,4 @@
 import torch 
-# import tqdm
 from torch.utils.data import DataLoader
 
 def get_metric(metric_dict, eval_flag=False):
@@ -18,9 +17,12 @@ def get_metric(metric_dict, eval_flag=False):
 
     if distance and not eval_flag:
         print("used distance function")
-        return distance_wrapper(loss_function, distance_factor, distance_width)
+        if metric_dict.get("distance_func") is "tanh":
+            return distance_wrapper(loss_function, distance_factor, distance_width, Tanh_kernel)
+        else:
+            return distance_wrapper(loss_function, distance_factor, distance_width, RBF_kernel)
     else:
-        return loss_function
+        return remove_distance(loss_function)
 
     
 
@@ -41,7 +43,7 @@ def compute_metric_on_dataset(model, dataset, metric_dict, cuda):
         if cuda:
             images, labels = images.cuda(), labels.cuda()
 
-        score_sum += metric_function(model, images, labels).item() * images.shape[0] 
+        score_sum += metric_function(model, images, labels, None).item() * images.shape[0] 
             
     score = float(score_sum / len(loader.dataset))
 
@@ -76,14 +78,39 @@ def softmax_accuracy(model, images, labels):
 
 
 
-def distance_wrapper(loss_function, distance_factor, distance_width):
+def remove_distance(loss_function):
+
+    def loss_with_distance(model, images, labels, minimum_list):
+        return loss_function(model, images, labels)
+
+    return loss_with_distance
+
+
+def merge_distance(minimum_list):
+    minimum = []
+
+    for i in range(len(minimum_list[0])):
+        element = [elem[i] for elem in minimum_list]
+        minimum.append(sum(element)/len(minimum_list))
+
+    return minimum
+
+
+def RBF_kernel(x, width):
+    return torch.exp(-1 * width * x)
+
+def Tanh_kernel(x, width):
+    return 1 - torch.tanh(width * x)
+
+
+def distance_wrapper(loss_function, distance_factor, distance_width, kernel_function):
 
     def loss_distance(model, images, labels, minimum_list):
         loss = 0
         classify_loss = loss_function(model, images, labels)
         loss += classify_loss
         for minimum in minimum_list:
-            loss += distance_factor/len(minimum_list) * torch.exp(-1* distance_width * computedistance(minimum, model)) # divided by length to be the same as before
+            loss += distance_factor/len(minimum_list) * kernel_function(computedistance(minimum, model), distance_width)  # divided by length to be the same as before
 
         return loss
 

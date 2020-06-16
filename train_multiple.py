@@ -8,6 +8,7 @@ import numpy as np
 import time
 import argparse
 import torch
+import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 import uuid
 
@@ -17,9 +18,10 @@ import sys
 
 
 import datasets
-import optimizers, model_configurations
+import optimizers
 import models
 import metrics
+import model_configurations
 
 
 
@@ -72,14 +74,24 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
     # load model and optimizer
     model = models.get_Model(experiment_dictionary['model'], experiment_dictionary['dataset'])
     if gpu_exists:
+        model = nn.DataParallel(model) # for multiple gpus
         model.cuda()
 
     opt = optimizers.get_optimizer(experiment_dictionary['optimizer'], model.parameters())
 
-    if experiment_dictionary['optimizer'].get("scheduler"):
-        scheduler = torch.optim.lr_scheduler.StepLR(opt, experiment_dictionary["optimizer"].get("step"), 0.1)
+    scheduler = None
+    scheduler_name = experiment_dictionary['optimizer'].get("scheduler", None)
+
+    if scheduler_name is not None:
+        if scheduler_name is "step":
+            scheduler = torch.optim.lr_scheduler.StepLR(opt, experiment_dictionary["optimizer"].get("step"), 0.1)
+
+        if scheduler_name is "cosine":
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(opt, T_0=experiment_dictionary["optimizer"].get("cycle"))
 
     loss_function = metrics.get_metric(experiment_dictionary['loss_func'])
+
+    minimum_list = []
 
 
 
@@ -90,11 +102,16 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
 
     if continue_Training:
         model.load_state_dict(torch.load(os.path.join(base_model_directory, 'model.pth')))
-        opt.load_state_dict(torch.load(os.path.join(base_model_directory, 'opt_state_dict.pth'), map_location=torch.device('cpu'))) #, map_location=torch.device('cpu') if cpu
+        opt.load_state_dict(torch.load(os.path.join(base_model_directory, 'opt_state_dict.pth'))) # map_location=torch.device('cpu') if cpu
         set_lr(opt, experiment_dictionary['optimizer'].get("lr")) # if new learn rate is wished for example in step decay but momentum should be kept
+
+        # save current state as minimum
+        minimum = create_minimum(model)
+        minimum_list.append(minimum)
 
         score_list = pickle.load(open(os.path.join(base_model_directory, 'score_list.pkl'), 'rb'))
         next_epoch = score_list[-1]['epoch'] + 1
+
     else:
         score_list = []
         initial_loss = metrics.compute_metric_on_dataset(model, train_set,
@@ -114,14 +131,6 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
         next_epoch = 1
 
 
-
-    # save current state as minimum
-    minimum = create_minimum(model)
-
-    # add it to list of minimums:
-
-    minimum_list = []
-    minimum_list.append(minimum)
 
 
 
@@ -148,8 +157,6 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
 
         end_time = time.time()
 
-        if experiment_dictionary['optimizer'].get("scheduler"):
-            scheduler.step()
 
         # evaluate model
         
@@ -164,17 +171,11 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
             total_distance = np.sum(distance_list)
             print('Current distance to last minimum checkpoint: %f' % total_distance)
 
-
-        if (epoch-next_epoch+1) % experiment_dictionary["loss_func"].get("step") == 0:
-            new_minimum = create_minimum(model)
-            minimum_list.append(new_minimum)
-            if experiment_dictionary["optimizer"].get("scheduler"):
-                set_lr(opt, experiment_dictionary['optimizer'].get("lr"))
-
-
-
+        # log evaluation
+        
         writer.add_scalar('Train_loss', train_loss, epoch)
         writer.add_scalar('Validation_accuracy', val_acc, epoch)
+        writer.add_scalar('train_epoch_time', end_time - start_time, epoch)
         writer.add_scalar('lr', get_lr(opt), epoch)
         for distance, i in zip(distance_list, range(len(distance_list))):
             writer.add_scalar('distance' + str(i), distance, epoch)
@@ -188,7 +189,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
         score_dict["val_acc"] = val_acc
         score_dict["batch_size"] =  train_loader.batch_size
         score_dict["train_epoch_time"] = end_time - start_time
-        score_dict["distance"] = distance
+        #score_dict["distance"] = distance
         score_list += [score_dict]
 
         with open(score_list_path, 'wb') as outfile:
@@ -197,7 +198,21 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
         torch.save(opt.state_dict(), opt_path)
 
 
+        # prepare for next epoch
+        if experiment_dictionary["loss_func"].get("multiple") and (epoch-next_epoch+1) % experiment_dictionary["loss_func"].get("step") == 0 and epoch is not 1:
+            new_minimum = create_minimum(model)
+            minimum_list.append(new_minimum)
+            if experiment_dictionary["loss_func"].get("merge"):
+                minimum_list = [metrics.merge_distance(minimum_list)]
+                print("The length of the minimum list is:")
+                print(len(minimum_list))
+
+        if experiment_dictionary['optimizer'].get("scheduler"):
+            scheduler.step()
         
+        if experiment_dictionary["optimizer"].get("scheduler") is "step" and (epoch-next_epoch+1) % experiment_dictionary["optimizer"].get("cycle") == 0:
+                set_lr(opt, experiment_dictionary['optimizer'].get("lr"))
+
 
         # flush printer
         sys.stdout.flush()
@@ -208,6 +223,9 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
     print(pd.DataFrame(score_list))
 
 
+
+
+# functions
 
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:

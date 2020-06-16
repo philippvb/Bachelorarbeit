@@ -92,16 +92,89 @@ ensemble
 see if it traverses valleys
 
 
-learnrate drop trennt von distanzdrop
-anderes metzwerkr
-netzwerk mit mehren minima weitertrainieren
-welches minima ist wichtigste
+- better when each minima is weighted the same
+- seems to boost again
+
+
+next week:
+- train MobileNet further
+- train ResNet further
+- other kernel? 
+- make large minima instead of multiple small
+- learnrate drop trennt von distanzdrop
+- back without scheduler?
+- compare benachmarks for mboileNetV2 and train like them
+- cosine decay mit warm restart statt mein scheduler
+
+
+sbatch:
+- long term MobileNet both with and without distance (1000 epochs)
+- small test for other factors
+- ResNet long term both (500?) or even 1000
+- mobilenet benachmarks
+- tanh kernel
+- (resnet or mobilenet without scheduler or time offset just to see distance drop)
+
+
+- resnet no distance with right lr
+- mobilenet v2 1500
+- mobilenet large minimum
+- other kernel?
 
 
 
 
+- mobilenet merge
+- mobilenet tanh
+- resnet no distance
 
 
+clone mobilenet
+initial network anderes training oder direkt mit kernel!!!
+merge machen
+zeit in tensorboard [DONE]
+
+bessere Baseline 
+
+multiple gpus pytorch [DONE]
+cifar 100???
+
+
+grundlagenteil
+related work siehe cosine decay
+wie man eine bachelorarbeit schreibt im netz suchen
+aufbau sanduhr: abstrakter anfang und dann immer detailierter, zum ende wieder offen, auch in absätzen
+referenzen: mit bibtex
+zitieren: mit google scholar unten meistens bibtex
+für sprache: von deepl zweimal übersetzen lassen, dann bessere formulierung
+
+
+
+mobilenet 800 epoch direkt training
+mobilenet 800 epoch baseline
+mobilenet 800 epoch merge
+
+mobilenet 800 richtig, wahrscheinlich hebt direktes minimum l2 auf
+
+
+merge neue runs
+clonen mobilenet
+resnet 32 runs
+weniger regularization
+
+
+
+nimm falsche lr und schau mit distanz
+merge nochmal (metrics neu!!!) für mobile und res
+kernel mehr gewichte!!! vlt als zusammenhang mit lr scheduler
+regularisierung
+lass lr klein und nehme nur distanzfunktion
+
+normalize gradient descent??
+
+überblick machen
+
+schlechtes netzwerk nehmen
 
 
 
