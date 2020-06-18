@@ -137,3 +137,15 @@ dmypy.json
 *.pth
 
 
+# for latex
+*.abb
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.pdf
+*.synctex.gz
+*.toc
+
+

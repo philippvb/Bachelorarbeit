@@ -178,5 +178,21 @@ schlechtes netzwerk nehmen
 
 
 
+nächste woche:
+- bei lr1 kann man unterscheid replizieren?
+- noscheduler nochmal
+- ensemble methods? 
+- factor mit cosine
+- intervalle länger
+- lr später kleiner bei distanz
+- intervalle länger auch für lr 0.1
+- lr 0.1 auch resnet
+- run ohne regularisierung ohne distanz
+
+
+
+- überschriften für methoden ergebnis teil
+
+
 
 

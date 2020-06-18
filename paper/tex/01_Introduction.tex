@@ -1,0 +1,166 @@
+\chapter{Introduction}
+\section{Optimization in Neural Networks}
+Optimization is a core part of the current deep neural networks, as it is used
+in the learning process of the neural network. However, optimization in the
+context of deep learning differs from the traditional optimization in serveral
+ways. In traditional optimization, we usually optimize on the data directly.
+However in deep learning, we don't have access to the test set. That's why we
+use the training set to optimize indirectly. Our hope is, that the distribution
+of the training set is close to the one of the later test set, so that reducing
+training error will result in reducing test error.
+
+Formally, we want to reduce the test error given by
+\begin{align}\label{eq:1}
+    J(\theta) = E_{(x,y)\sim p_{data}} L(f(x;\theta), y)
+\end{align}
+This equation is known as risk.
+However, during the training process, we only have acces to the training data,
+so we can only optimize
+\begin{align}
+    J(\theta) = E_{(x,y)\sim \hat{p}_{data}} L(f(x;\theta), y)
+\end{align}
+To overcome this issue, we use a technique called empirical risk minimization.
+
+\subsection{Empirical risk minimization}\label{sub:1}
+As we have already seen, although we want to reduce the generalization risk of
+equation \ref{eq:1}, this is not possible, as we only have acces to the training data.
+To convert the problem back to a normal optimization problem, we use the
+expectation over the empirical distribution. This is known as empirical risk
+minimization. Here, we use the mean as an unbiased estimator for the true mean
+of $\hat{p}_{data}$.
+\begin{align}\label{eq:3}
+    J(\theta) = E_{(x,y)\sim \hat{p}_{data}} L(f(x;\theta), y) = \frac{1}{m} \sum_{i=1}^m L(f(x^{(i)}; \theta), y^{(i)})
+\end{align}
+As the training set from the empirical distribution is restricted in size, this
+quickly leads to overfitting, where the network memorizes the training set. In
+addition, it is normally not sufficient to use the normal loss function [TODO:
+see if 8.1.2 also has to be summarized]
+
+\subsection{Minibatch Algorithms}
+We have seen in equation \ref{eq:3} that we use the mean over the whole training
+set to approximate the empirical risk. From a computational perspective, this is
+rather expensive. That's why we normally only use a subset of the training set
+for each parameter update. Some statistical considerations justify this.
+
+The standard error of mean is given by $\frac{\sigma}{n}$, where $n$ is the
+number of training examples. The root in the denominator means that, when
+increasing the number of training examples, the standard error of mean while
+only decrease sublinear. That's why it is unattractable to use large batches of
+training data.
+
+The second factor is redundancy in the training set. As some examples might be
+quite similar to each other, the mean of a subset will not differ much from the
+whole training data, but requires much less computation time.
+
+
+[TODO, where to add formula 8.4]
+
+Optimization algorithms which use the whole trainig set are called batch or
+deterministic algorithms, while deterministic is preffered, as the term batch is
+also used in minibatch methods.
+The other extreme are stochastic or online methods, where only one training
+example is processed at a time.
+In between lie the methods, where more than one training example is used, but
+not all. These are called minibatch or stochastic methods and are most commonly
+used in machine learning.\newline
+An typical example for stochastic methods is stochastic gradient descent.
+While large batches offer a more accurate esimate of the gradient, small batches
+can add a regularization effect by adding noise to the gradient.
+
+The effect of batch size is also sensitive to the choice of the optimization
+algorithm. In particular, second-order algorithms suffer from a small batch
+size. Hessian matrices H require a much larger sample size to be accurate than
+the gradient. Especially when H is of large condition number, this leads to the
+an amplification of the preexisting errors in g.
+
+To get an unbiased esimate of the gradient, it is important to sample the
+mini-batches randomly. This is a problem in particular when the training data is
+corellated. In practice, autocorellation often arises. The problem can be
+overcome by sampling the minibatches uniformly out of the training data.
+However, that would lead to a large computational effort every time we want to
+construct a batch. Fortunally, it seems sufficient to shuffle and divide the
+training data into batches only once.
+
+Another property is that the gradient of minibatch algorithms like SGD follow
+the true gradient, as long as the training data is only used once.
+
+[TODO: Add mathematical explanation]
+
+\subsection{Challenges in Neural Networks}
+\subsubsection{Ill-Conditioning}
+
+\subsubsection{Local Minima}
+In convex optimization problems, every local minima is guaranteed to be the
+global minima. Therefore finding a minimum is sufficient enough to stop. In
+neural networks however, the loss landscape is highly non-convex. This results
+in that a local minima can have higher cost value than the local minima. Proofs
+that these local minima exist can be constructed quite easily. One example is
+the weight space symetrie. Suppose you swap out the incoming and outgoing
+weights for two node i and j. Then the activation of the networks will stay the
+same, but the networks are located at different places in the loss landscape.
+Although a large number of these local minima exist, they form no problem for
+optimization. As mentioned, they will lead to the same activation, therefore the
+networks will performe the same and the value of these local minimas will be
+equal.
+
+However, there also exist local minima with high cost compare to the global
+minimum. In theorie this was believed to be a problem, but in practice it seemed
+this caused no problem. Recently, some theoretical work support these
+findings. [TODO: Add paper for loss landscape]
+
+\subsubsection{Saddle Points}
+Saddle points are another type of local extrema where the gradient is 0. In
+contrast to local maxima or minima where the Hessian only has negative or
+positive eigenvalues, the Hessian of saddle points has both positive and
+negative eigenvalues.
+
+In fact, saddle points get more common for higher dimensional space. The idea of
+coin flipping [Spin-Glass???] can be used to describe this phenomena. Suppose
+every eigenvalue of the Hessian is generated by flipping a coin. In a
+low-dimensional space, it quite likely that all of these flips will be positive
+or negative, resulting in minima or maxima. The higher the dimension gets
+however, the more likely the Hessian is to have both positive and negative
+eigenvalues. Therefore, there exist more saddle points. [Add saddle points more
+likely for higher loss]
+
+What problems arise from saddle points depends in the choice of the optimization
+algorithm. For first-order algorithms, the situation is unclear. Although the
+gradient might get small in regions close to saddle points and as a result could
+slow down training, in pratice it seems like it isn't a problem for gradient
+descent. [Momentum?]
+For second-order algorithms, saddle points are clearly a problem. Newton's
+algorithm for example explicitly solves for point with zero gradient, and is
+therefore attracted to saddle points or even other extrema like maxima. This is
+partly resolved by the introduction of saddle-free Newton. 
+
+
+\subsubsection{Cliffs and Exploding gradients}
+
+\subsubsection{Poor correspondence betwenn local and global structure}
+
+\subsection{Algorithms}
+\subsubsection{Stochatstic Gradient Descent}
+\subsubsection{Momentum}
+\subsubsection{Nesterov??}
+\subsubsection{Weight init}
+\subsubsection{Adam??}
+
+
+\section{Related work}
+\subsection{Areas of same loss}
+Some paper show that there are cells of same loss, use distance to jump between?
+\subsection{Generalization gap}
+Describe the generalization gap, believed to be for sharp minimas
+\subsection{Cosine decay with warm restart}
+Cosine decay as one way to decrease generalization gap
+\subsection{Ensemble methods}
+describe Ensemble methods, depending on the results of work
+
+
+
+
+
+
+
+
+
