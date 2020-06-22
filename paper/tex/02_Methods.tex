@@ -1,11 +1,165 @@
 \chapter{Methods}
 \section{Distance Function}
 \subsection{Motivation}
-describe the motivation and hopes for distance function
+In chapter \ref{loss_landscape}, we got a brief overview over the loss landscape
+of deep neural networks and the resulting challenges for optimization. Although
+there exists a large number of local minima, most of them have low cost.
+Furthermore, they are arranged in cells, where each minima has low cost and is
+connected to the others via valleys of low loss.
+
+These cells create a challenge for optimization. Suppose the learning gets into
+the area of one of these cells. As mentioned in chapter \ref{loss_landscape} the
+cells are surrounded by nondifferential boundaries and areas of higher loss.
+[TODO: where is this stated?] This will likely cause the algorithm to get stuck
+into this cells. As all of the minimas in this cell are of approximatly same
+loss, there will be a boundary until the algorithm can improve, which may be
+higher than the global optimum. This also poses the question, if continuing to
+train is useful, as after one of the minima in the cell is found, the nearby
+minima ic can reach will offer no significant improvement.
+
+How to overcome this issue? One solution would be to escape these cells and move
+to the next one, hopefully with lower cost. This can be achieved with the use of
+warm restarts, as mentioned in chapter \ref{cosine_decay}. In phases of low
+learning rate, the algorithm exploits the area of a cell. When the learning rate
+is set back up to the inital learning rate, the update steps of the parameters
+get much larger. If the update steps are large enough, this may lead to an
+escape of the cell. However there is no guarantee, because this method relies on
+the gradient beeing large enough.
+
+From a naive point of view, it would be easiest to remember to place of the
+cells, and just move away from it. In a simplified version, thats what our
+algorithm does. It remembers the point which it wants to distance from, and then
+rewards doing so. [describe better]
+ 
+\begin{comment}
+motivations:
+- different values for ensemble method
+- seen that cells exists, escape these cells
+- explore instead of exploit
+
+\end{comment}
+\subsection{idea}
+An easy approach to move away from an area would be to remember the point you
+want to distance from, and then move in whatever direction increases this
+distance. In a sense, this is what our algorithm does. It remembers the current
+parameter values, and decreases the cost the further you are away from this
+point. If one would only use this distance as a cost metric, it would be
+successfull in distancing from the current checkpoint, but the learning would
+stop. That's why we incooperate the distance term into the regular cost
+function, to account for both the distance and the cost value.
 \subsection{Mathematical apporach}
-describe the mathematical formulation and choice of kernel etc.
+\subsubsection{Distance function}\label{distance_function}
+As we want to measure the distance between two points, we need to define a
+distance function. A common choice is the euclidean distance also know as $L_2$
+norm, which is defined as: 
+\begin{align}
+    \rVert x \lVert_2 = \sqrt{\sum_i \lvert x_i \rvert^2}
+\end{align}
+This norm can also be squared to get rid of the root. Squaring does not change
+the direction of the gradient, and is therefore possible. To measure the
+distance between two parameter states $\theta_1$ and $\theta_2$ of the networks,
+this results in:
+\begin{align}\label{eq:distance}
+    d(\theta_1, \theta_2)= \sum_i (\theta_{1_i}-\theta_{2_i})^2
+\end{align}
+The size and shape of the paramters $\theta$ is not important, as each paramter
+is only compared to another state of itself, and is combined via a sum.
+
+Another property is that the values the distance function can take is partly
+dependend on size. Consider two networks $\theta_1$, $\theta_2$ with the same
+classification task, but the size of $\theta_1$ is larger than $\theta_2$.[may
+be confusing with before] If we assume all of the parameters are distributed the
+same way, then $\theta_1$ would output a larger distance than $\theta_2$.
+However it would be desirable for the functions to be in the same bound, as it
+would make the transfer of hyperparameters for example possible. That's why we
+use a function to control for the output to be in a certain bound.
+
+If we take a look at support vector machines, they use kernels to compute the
+similarity between two samples. One popular choice is the radial basis function
+kernel, defined as:
+\begin{align}
+    k(\theta_1, \theta_2)=exp(-\frac{\rVert \theta_1 - \theta_2 \lVert^2}{2\sigma^2})
+\end{align}
+where $exp$ is the exponential function.
+With the use of \ref{eq:distance}, we can convert this to:
+\begin{align}
+    k(\theta_1, \theta_2)=exp(-\frac{d(\theta_1, \theta_2)}{2\sigma^2})
+\end{align}
+This formulation has some nice properties. First of all, the values are now
+bound between 0 an 1, regardless of the size f $\theta$. Second, we can see as
+the values of the distance get larger, the function approaches 0 asymtotically.
+This leads to a really small gradient for extreme distances. Consequently, the
+Kernel will initially push the parameters away from the checkpoint, but when
+this is achieved, will have little influence on the loss function. How far the
+function encourages to distance from the checkpoint can be controlled by the
+parameter $\sigma$, which defines the width of the function and can be tuned as
+a hyperparamter.
+
+
+\subsubsection{Loss function}
+This section will show how the distance function from \ref{distance_function} is
+combined with the normal loss function. The state of the art loss function for
+image classification, which will be used for testing is the cross-entropy-loss
+defined as:
+\begin{align}
+    -\sum_{c} \delta_{yc} log(f(x)_c)
+\end{align}
+Where $\delta$ is the Kronecker-Delta function defined as:
+\begin{align}
+    \delta_{xy} =
+    \begin{cases}
+        1 \textrm{, if } x=y \\
+        0 \textrm{ otherwise}
+    \end{cases}
+\end{align}
+
+To account for the distance term, we just sum it with the cross-entropy-loss:
+\begin{align}
+    L=\sum_{c} \delta_{yc} log(f(x)_c) + distance(\theta, \theta_c)
+\end{align}
+When computing the derivative for the backpropagation, the sum decomposes into
+two terms, so the cross-entropy-loss will be computed the same as before.
+Another property we want to control for is the influence of the distance versus
+the cross-entropy-loss. When training is in later stages, the cross-entropy-loss
+may be very small. If the values of the distance function a too large in
+comparison, this would cause the parameters to be updated only based on the
+distance, which is undesirable as the performance wouldn't be taken into account
+anymore. The same is also true the other way around, if the distance function is
+too small, it wouldn't affect training at all. That's why we introduce a
+hyperparameters $w$ called weight to control this:
+\begin{align}
+    L=\sum_{c} \delta_{yc} log(f(x)_c) + w \cdot distance(\theta, \theta_c)
+\end{align}
+
 \subsection{Pytorch implementation}
-describe the pytorch implementation and how it is used
+
+\subsubsection{Checkpoint creation}
+To measure the distance, we have to create the checkpoint. The model parameters
+in pytorch are stored as matrices for each layer and can be accesed via
+$model.parameters()$, which outputs an iterable. We therefore opt to keep this
+structure and safe the parameters in a list.
+\begin{algorithm}[htbp]
+    \caption{Checkpoint}\label{alg:Checkpoint}
+    \lstset{language=Python}
+    \lstinputlisting{src/createCheckpoint.py}
+\end{algorithm}
+\newline
+First, the checkpoint list is initialized. Then we iterate over the model
+parameters. For each layer, we have to clone the parameters in order to create
+new variables, and not just pointers to the existing ones. In addition they have
+to be detached, to remove connection of the gradient to the model parameters.
+
+\subsubsection{Distance function}
+The L2 norm is implemented the follwing way: We iterate over the checkpoint and
+the current parameter values. For each layer, we compute the difference, and
+then square and add the values to our distance.
+\begin{algorithm}[htbp]
+    \caption{L2 norm}\label{alg:L2Norm}
+    \lstset{language=Python}
+    \lstinputlisting{src/L2.py}
+\end{algorithm}
+
+
 
 \section{Configuration}
 

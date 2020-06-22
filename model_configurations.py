@@ -23,6 +23,14 @@ EXP_GROUPS = {
             "batch_size":128,
             "max_epochs":900},
 
+        "mobileNetV2_ensemble":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 15, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "step", "step": 5, "cycle":15},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":60},
+
         "mobileNetV2_f1_wide":{"dataset":"cifar10",
             "model":"mobileNetV2",
             "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 90, "multiple": True},
@@ -71,4 +79,6 @@ EXP_GROUPS = {
             "batch_size":128,
             "max_epochs":450}
 }
+
+# rename step to cycle in loss_func
 

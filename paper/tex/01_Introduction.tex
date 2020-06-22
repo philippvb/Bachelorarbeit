@@ -1,8 +1,9 @@
 \chapter{Introduction}
 \section{Optimization in Neural Networks}
+\subsection{Difference to normal optimization}\label{sub:1}
 Optimization is a core part of the current deep neural networks, as it is used
 in the learning process of the neural network. However, optimization in the
-context of deep learning differs from the traditional optimization in serveral
+context of deep learning differs from the traditional optimization in several
 ways. In traditional optimization, we usually optimize on the data directly.
 However in deep learning, we don't have access to the test set. That's why we
 use the training set to optimize indirectly. Our hope is, that the distribution
@@ -13,15 +14,16 @@ Formally, we want to reduce the test error given by
 \begin{align}\label{eq:1}
     J(\theta) = E_{(x,y)\sim p_{data}} L(f(x;\theta), y)
 \end{align}
-This equation is known as risk.
-However, during the training process, we only have acces to the training data,
-so we can only optimize
+where $L$ is the Loss-Function, $f(x;\theta)$ the output of the network with
+respect to the input $x$ and parameters $\theta$, and $y$ the labels for the
+input.This equation is known as \textbf{risk}. However, during the training process, we
+only have acces to the training data, so we can only optimize
 \begin{align}
     J(\theta) = E_{(x,y)\sim \hat{p}_{data}} L(f(x;\theta), y)
 \end{align}
 To overcome this issue, we use a technique called empirical risk minimization.
 
-\subsection{Empirical risk minimization}\label{sub:1}
+\subsection{Empirical risk minimization}\label{sub:2}
 As we have already seen, although we want to reduce the generalization risk of
 equation \ref{eq:1}, this is not possible, as we only have acces to the training data.
 To convert the problem back to a normal optimization problem, we use the
@@ -32,40 +34,58 @@ of $\hat{p}_{data}$.
     J(\theta) = E_{(x,y)\sim \hat{p}_{data}} L(f(x;\theta), y) = \frac{1}{m} \sum_{i=1}^m L(f(x^{(i)}; \theta), y^{(i)})
 \end{align}
 As the training set from the empirical distribution is restricted in size, this
-quickly leads to overfitting, where the network memorizes the training set. In
-addition, it is normally not sufficient to use the normal loss function [TODO:
-see if 8.1.2 also has to be summarized]
+quickly leads to overfitting, where the network memorizes the training set.
+Additional measure like Regularization have to be taken to account for that
+problem.
+% In addition, it is normally not sufficient to use the normal loss function [TODO:
+% see if 8.1.2 also has to be summarized]
 
-\subsection{Minibatch Algorithms}
+\subsection{Minibatch Algorithms}\label{sub:3}
 We have seen in equation \ref{eq:3} that we use the mean over the whole training
 set to approximate the empirical risk. From a computational perspective, this is
 rather expensive. That's why we normally only use a subset of the training set
-for each parameter update. Some statistical considerations justify this.
+for each parameter update. These subsets are called batches. Some statistical
+considerations justify this.
 
 The standard error of mean is given by $\frac{\sigma}{n}$, where $n$ is the
 number of training examples. The root in the denominator means that, when
 increasing the number of training examples, the standard error of mean while
 only decrease sublinear. That's why it is unattractable to use large batches of
-training data.
+training data. The second factor is redundancy in the training set. As some
+examples might be quite similar to each other, the mean of a subset will not
+differ much from the whole training data, but requires much less computation
+time.
 
-The second factor is redundancy in the training set. As some examples might be
-quite similar to each other, the mean of a subset will not differ much from the
-whole training data, but requires much less computation time.
+Most loss-functions allow us to divide the data into batches easily. The most
+common example is maximum likelyhood, which is defined as:
 
+\begin{align}
+    \theta_{ML}
+    & = argmax_{\theta} p_{model}(X; \theta) \\
+    & = argmax_{\theta} \prod_{i=1}^m p_{model}(x^{(i)}; \theta)
+\end{align}
 
-[TODO, where to add formula 8.4]
+If we convert it to log-space, the product decomposes into a sum:
 
-Optimization algorithms which use the whole trainig set are called batch or
-deterministic algorithms, while deterministic is preffered, as the term batch is
-also used in minibatch methods.
-The other extreme are stochastic or online methods, where only one training
-example is processed at a time.
-In between lie the methods, where more than one training example is used, but
-not all. These are called minibatch or stochastic methods and are most commonly
-used in machine learning.\newline
-An typical example for stochastic methods is stochastic gradient descent.
-While large batches offer a more accurate esimate of the gradient, small batches
-can add a regularization effect by adding noise to the gradient.
+\begin{align}
+    \theta_{ML} = argmax_{\theta} \sum_{i=1}^m log p_{model}(x^{(i)}; \theta)
+\end{align}
+
+[TODO: add equation 8.7 to 8.9]
+
+In this space, we can easily divide the sum into batches and train on them seperatly
+
+Optimization algorithms which use the whole trainig set are called
+\textbf{batch} or \textbf{deterministic} algorithms, while deterministic is
+preffered, as the term batch is also used in minibatch methods. The other
+extreme are \textbf{stochastic} or \textbf{online} methods, where only one
+training example is processed at a time. In between lie the methods, where more
+than one training example is used, but not all. These are called \textbf{minibatch}
+methods and are most commonly used in machine learning.
+
+An typical example for stochastic methods is stochastic gradient descent. While
+large batches offer a more accurate esimate of the gradient, small batches can
+add a regularization effect by adding noise to the gradient.
 
 The effect of batch size is also sensitive to the choice of the optimization
 algorithm. In particular, second-order algorithms suffer from a small batch
@@ -108,7 +128,7 @@ minimum. In theorie this was believed to be a problem, but in practice it seemed
 this caused no problem. Recently, some theoretical work support these
 findings. [TODO: Add paper for loss landscape]
 
-\subsubsection{Saddle Points}
+\subsubsection{Saddle Points}\label{prob:3}
 Saddle points are another type of local extrema where the gradient is 0. In
 contrast to local maxima or minima where the Hessian only has negative or
 positive eigenvalues, the Hessian of saddle points has both positive and
@@ -135,24 +155,150 @@ partly resolved by the introduction of saddle-free Newton.
 
 
 \subsubsection{Cliffs and Exploding gradients}
+is it important
 
-\subsubsection{Poor correspondence betwenn local and global structure}
+\subsubsection{Poor correspondence betwenn local and global structure}\label{prob:5}
+The previous sections have focused on which problems we are facing when
+computing a gradient or updating locally. However, there is another major factor
+that none of these problems is dealing with [bad sentence!]. That is the poor
+correspondence between local and global structure. Even if we are able to
+perform the best move locally and end up in a local minima, we are not
+guaranteed to be in the globally best area. [Figure 8.4] This can have various
+reasons like a bad starting point, where the initial gradient push us away into
+an area we cannot recover from. Or there is no global minimum. This happens for
+example with the usage of the softmax, where the weights are increased without
+bound even when the accuracy is very good to reach an even lower loss. [Label
+smoothing]
 
+Solutions for this problem primarly focus on choosing the right inital values at
+the moment. [Maybe add solutions]
 \subsection{Algorithms}
-\subsubsection{Stochatstic Gradient Descent}
+\subsubsection{Stochatstic Gradient Descent}\label{SGD}
+Stochastic Gradient Descent is one of the most popular optimization algorithm in
+deep learning. It is also one of the most basic ones, as it only takes the
+gradient at the current position into account. In contrast to normal gradient
+descent, SGD computes the gradient on minibatches, not on the whole dataset.
+Nevertheless, as long as the training data is only used once, SGD gives an
+unbiases estimate of the true gradient (see Section \ref{sub:3}). Algorithm x
+shows a pseudo-code of SGD.
+[TODO: Add pseudo code]
+
+One of the most important hyperparameters of SGD is the learning rate. While the
+optimal learning rate differs for every problem, it is important to decay the
+learning rate with the number of epochs. Initilally, it is good to choose a
+large learning rate. This leads to fast learning at the beginning, and avoids
+the algorithm getting stuck in high loss areas. As the number of epochs
+increases, it is important to shrink the learning rate. As SGD is only a
+stochastic algorithm, the true gradient will never become 0. A low learning rate
+secures to get close to the minimum while not overshooting it repeatedly.
+
+[TODO: Formula 8.12, 8.13] How the learning rate is decayed varies from
+algorithm. A popular decay is step decay, where the learning rate is decayed by
+a constant factor $\gamma$ after a fixed number of epochs.
+\begin{align}
+    lr = lr_0 \cdot \gamma^{\lfloor epoch/stepsize \rfloor}
+\end{align}
+Another popular algorithm is cosine decay, which wil be described in detail in
+section [Add section of cosine decay].
+
 \subsubsection{Momentum}
+Momentum is a popular variation of SGD. It is used to speed up the training of
+SGD. The term momentum is used, as the idea is the same as in the physical
+context. Consider a ball rolling down a hill. The ball builds up speed the
+further it rolls down by adding the aceleration of current gradient to the
+velocity.
+
+In context of deep learning, we use the velocity $v$ to update the parameters
+rather than only the current gradient $g$.
+\begin{align}
+    v_{t+1}=\alpha v_t - \epsilon g
+\end{align}
+Here, $\alpha$ controls how strong the past gradient is taken into account,
+while $\epsilon$ denotes the current learning rate. For the ball to build up
+velocity, it requires a c constant downhill motion. The same is true for this
+case. The gradient can only build up, if it points in the same direction for
+some consecutive updates. Therefore, momentum speed up the gradients of
+parameters, whose gradient is constant in one direction. Parameters with
+alternating gradients for example will only experience small updates. Formally,
+if parameter p experiences the same gradient g every time, it will reach a
+terminal velocity of
+\begin{align}
+    \frac{\epsilon \lVert g \rVert}{1-\alpha}
+\end{align}
+This also shows that $\alpha$ can be used to control the speed up of the
+training. If $\epsilon$ is kept constant, the larger $\alpha$, the faster
+training will become. An value of $0.9$ for example would lead to a speed up
+factor of $10$, while $0.8$ would lead to a speed up of $5$.
+
+Algorithm [TODO add algorithm] shows the implementation of momentum in SGD.
+
+
+
+
 \subsubsection{Nesterov??}
 \subsubsection{Weight init}
 \subsubsection{Adam??}
 
 
 \section{Related work}
-\subsection{Areas of same loss}
-Some paper show that there are cells of same loss, use distance to jump between?
+\subsection{Areas of same loss}\label{loss_landscape}
+In section \ref{prob:5}, we showed that the poor correspondence between local
+and global structure may propose a major issue for optimization. Bad
+initializations may lead to path which moves away from the global otimum, often
+without chance to recover. initialization strategies try to adress this problem,
+but cannot guarantee to solve it.
+
+An open question is if this suboptimal structure is present in deep neural
+networks. Fengxiang et al. [TODO: right reference] showed that there exists
+infinetly many local minima which are of higher cost than the global one.
+Furthermore, these minima are arranged in cells, where each minima of one cell
+is of same loss as the others and also connected with them by valleys of low
+loss. These cells are seperated by nondifferentiable boundaries.
+Unfortunally, it remains unclear if these cells are of different cost. If this
+is the case, this would propose a major problem. When the training process gets
+into one of these cells, it is likely to get stuck, probably in an area of
+suboptimal cost. A trivial way to recover is not present at the moment.
+
+Draxler et al. confirm the finding of [reference], that local minimas are
+connected by valleys. In these valleys, the training loss stays the same to the
+one of the connected minima, while the test error rate slighly increases.
+
 \subsection{Generalization gap}
-Describe the generalization gap, believed to be for sharp minimas
-\subsection{Cosine decay with warm restart}
-Cosine decay as one way to decrease generalization gap
+In section \ref{sub:1}, we saw how learning differs from normal optimization,
+namely that we only have acces to the training set and thus have to optimize
+indirectly. This usually leads to a better performance of the network in the
+training set than in the test set. The difference between those performances is
+known as Generalization gap. Some strategies have developed to adress this
+problem like L2-Regularization. More recently however, reseach has also gone
+into understanding the connection to the loss surface. 
+
+
+\subsection{Cosine decay with warm restart}\label{cosine_decay}
+In section \ref{SGD}, we intoduced learning rate schedulers. The idea was to
+have a high learning rate at the beginning for fast improvements, and then an
+decrease to fine adjust the parameters. One example was step decay, where the lr
+is decayed by a fixed amount. Of course there exist other algorithms to modify
+the learning rate, one of which is cosine annealing. Here, the lr is adjusted by
+a cosine decay.
+
+In the paper of ...., they use this scheduler in combination with another
+tequique, called warm restart. In constrast to the naive approach, where the
+learning rate is only decayed once, warm restart decayes until a fixed number of
+epochs, and then set back up to the inital learning rate. This procedure can be
+repeated for several times. 
+\begin{align}
+    \epsilon_t = \epsilon_{min} + \frac{1}{2} (\epsilon_{max} - \epsilon_{min})(1+cos(\frac{T_{cur}}{T_0}\pi))
+\end{align}
+where $\epsilon_{min}$ and $\epsilon_{max}$ is the range of the lr, $T_cur$ is
+the current and $T_0$ is the maximum number of epochs.
+
+The idea is, that in phases of high learning rate, the network explores the loss
+surface due to large steps. In epochs of low learning rate, the network exploits
+a small area to find the best parameter values. 
+
+The authors report an new state of the art result at 3.14\% test error for
+Wide-Residual-Net 28-20. Their method also perfoms better when compared to step
+decay. [Add paper MAximus cosine optimal??]
 \subsection{Ensemble methods}
 describe Ensemble methods, depending on the results of work
 

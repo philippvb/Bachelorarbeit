@@ -52,6 +52,33 @@ def compute_metric_on_dataset(model, dataset, metric_dict, cuda):
     return score
 
 
+@torch.no_grad()
+def ensemble_accuracy(model_list, dataset, cuda):
+    metric_function = softmax_accuracy_ensemble
+    metric_name = "ensemble softmax accuracy"
+    
+    for model in model_list:
+        model.eval()
+
+    loader = DataLoader(dataset, drop_last=False, batch_size=1024)
+    print("> Computing %s..." % (metric_name))
+
+    score_sum = 0.
+    for images, labels in loader:
+        if cuda:
+            images, labels = images.cuda(), labels.cuda()
+
+        score_sum += metric_function(model_list, images, labels).item() * images.shape[0] 
+            
+    score = float(score_sum / len(loader.dataset))
+
+    print('The current %s value is %f' %(metric_name, score))
+    print("The ensemble consists of %d networks" % len(model_list))
+
+    return score
+
+
+
 
 def softmax_loss(model, images, labels):
     logits = model(images)
@@ -75,6 +102,18 @@ def softmax_accuracy(model, images, labels):
     acc = (pred_labels == labels).float().mean()
 
     return acc
+
+def softmax_accuracy_ensemble(model_list, images, labels):
+    logits= torch.zeros(model_list[0](images).size())
+    for model in model_list:
+        logits += model(images)
+
+    logits = logits/len(model_list) # maybe not even necessary
+    pred_labels = logits.argmax(dim=1)
+    acc = (pred_labels == labels).float().mean()
+
+    return acc
+
 
 
 
