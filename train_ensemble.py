@@ -64,7 +64,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None)
     # load model and optimizer
     model = models.get_Model(experiment_dictionary['model'], experiment_dictionary['dataset'])
     if gpu_exists:
-        # model = nn.DataParallel(model) # 
+        model = nn.DataParallel(model)
         model.cuda()
 
     opt = optimizers.get_optimizer(experiment_dictionary['optimizer'], model.parameters())
@@ -87,8 +87,6 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None)
     model_list = []
     model_list.append(model)
 
-    model_number = 0
-
 
     # create checkpoint
     model_path = os.path.join(save_directory, 'model.pth')
@@ -102,6 +100,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None)
 
     initial_accuracy = metrics.compute_metric_on_dataset(model, val_set,
                                                         metric_dict=experiment_dictionary["acc_func"], cuda=gpu_exists)
+
     writer.add_scalar('Train_loss', initial_loss, 0)
     writer.add_scalar('Validation_accuracy', initial_accuracy, 0)
     writer.add_scalar('Ensemble_accuracy', initial_accuracy, 0)
@@ -188,20 +187,19 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None)
 
 
         # prepare for next epoch
-        if experiment_dictionary["loss_func"].get("multiple") and (epoch-next_epoch+1) % experiment_dictionary["loss_func"].get("step") == 0 and epoch is not 1:
+        if (epoch-next_epoch+1) % experiment_dictionary["loss_func"].get("step") == 0 and epoch is not 1:
             
             # save state for ensemble
-            model_checkpoint_dir = save_directory + "/" + str(model_number)
-            os.makedirs(model_checkpoint_dir, exist_ok=False)
-            model_checkpoint_path = os.path.join(model_checkpoint_dir, 'model.pth')
+            model_name = 'model' + str(epoch) + '.pth'
+            model_checkpoint_path = os.path.join(save_directory, model_name)
             torch.save(model.state_dict(), model_checkpoint_path)
             newmodel = copy.deepcopy(model)
+            newmodel.cuda()
             model_list.append(newmodel)
-            model_number += 1
 
             # add current value as minimum
             new_minimum = create_minimum(model)
-            minimum_list.clear()
+            # minimum_list.clear()
             minimum_list.append(new_minimum)
             
 

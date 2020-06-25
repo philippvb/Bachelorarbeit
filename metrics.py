@@ -104,7 +104,7 @@ def softmax_accuracy(model, images, labels):
     return acc
 
 def softmax_accuracy_ensemble(model_list, images, labels):
-    logits= torch.zeros(model_list[0](images).size())
+    logits= torch.zeros(model_list[0](images).size(), device='cuda:0')
     for model in model_list:
         logits += model(images)
 

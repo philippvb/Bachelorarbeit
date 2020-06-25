@@ -314,6 +314,8 @@ INPUT C:\Program Files\MiKTeX 2.9\fonts\vf\adobe\times\ptmb7t.vf
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\adobe\times\ptmb8r.tfm
 INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\01_Introduction.tex
 INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\01_Introduction.tex
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\adobe\times\ptmr7t.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\adobe\times\ptmr7t.tfm
 INPUT C:\Program Files\MiKTeX 2.9\fonts\vf\adobe\times\zptmcm7m.vf
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\adobe\times\psyro.tfm
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmmi10.tfm
@@ -346,10 +348,9 @@ INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\adobe\times\ptmro8r.tfm
 INPUT C:\Program Files\MiKTeX 2.9\fonts\vf\adobe\times\zptmcm7y.vf
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\public\cm\cmsy10.tfm
 INPUT C:\Users\Philipp Admin\AppData\Local\MiKTeX\2.9\fonts\tfm\public\rsfs\rsfs10.tfm
+INPUT C:\Program Files\MiKTeX 2.9\fonts\vf\adobe\times\ptmr7t.vf
 INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\02_Methods.tex
 INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\02_Methods.tex
-INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\adobe\times\ptmr7t.tfm
-INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\adobe\times\ptmr7t.tfm
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\listings\lstlang1.sty
 INPUT C:\Program Files\MiKTeX 2.9\tex\latex\listings\lstlang1.sty
 INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\src\createCheckpoint.py
@@ -370,8 +371,8 @@ INPUT C:\Program Files\MiKTeX 2.9\fonts\vf\adobe\courier\pcrr7t.vf
 INPUT C:\Program Files\MiKTeX 2.9\fonts\tfm\adobe\courier\pcrr8r.tfm
 INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\03_Results.tex
 INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\03_Results.tex
-INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\04_Diskussion.tex
-INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\04_Diskussion.tex
+INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\04_Discussion.tex
+INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\04_Discussion.tex
 INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\05_Summary.tex
 INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\05_Summary.tex
 INPUT p:\Dokumente\3 Uni\Sose20\Bachelorarbeit\Bachelorarbeit\paper\tex\0B_Glossar.tex
