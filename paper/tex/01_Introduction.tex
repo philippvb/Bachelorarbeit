@@ -48,7 +48,7 @@ When using this loss function with gradient descent however, this would lead to
 no useful gradient as it is 0 everywhere[??]. That's why we use another loss
 function like Cross-Entropy to optimize for this function indirectly.
 
-\subsection{Minibatch Algorithms}\label{sub:3}
+\subsection{Minibatch Algorithms}\label{sub:Minibatch}
 We have seen in equation \ref{eq:3} that we use the mean over the whole training
 set to approximate the empirical risk. From a computational perspective, this is
 rather expensive. That's why we normally only use a subset of the training set
@@ -101,7 +101,11 @@ batches can add a regularization effect. They add some noise to the gradient,
 and therefore leads the optimization algorithm to areas, where a small
 inaccuracy in the gradient converge to the same point. As the point is a very
 stable or wide minimum, this results in a regularization effect which decreases
-the generalization error.
+the generalization error. This is also supported by the work of Keskar et al.
+(2017), who argued that larger batches converge to sharp minimas, whereas small
+converge to flat. As we will argue later flat minima are believed to be better
+in generalization. Therefore, a small batch which ends up in a flat minima
+results in better generalization capabilities.
 
 
 The effect of batch size is also sensitive to the choice of the optimization
@@ -229,7 +233,7 @@ deep learning. It is also one of the most basic ones, as it only takes the
 gradient at the current position into account. In contrast to normal gradient
 descent, SGD computes the gradient on minibatches, not on the whole dataset.
 Nevertheless, as long as the training data is only used once, SGD gives an
-unbiases estimate of the true gradient (see Section \ref{sub:3}). Algorithm x
+unbiases estimate of the true gradient (see Section \ref{sub:Minibatch}). Algorithm x
 shows a pseudo-code of SGD.
 [TODO: Add pseudo code]
 
@@ -260,7 +264,7 @@ Here $\epsilon_{min}$ and $\epsilon_{max}$ define the range of the lr, $T_cur$ i
 the current and $T_0$ is the maximum number of epochs.
 [Maximus paper]
 
-\subsubsection{Momentum}
+\subsubsection{Momentum}\label{sub:Momentum}
 Momentum is a popular variation of SGD. It is used to speed up the training of
 SGD. The term momentum is used, as the underlying idea is the similar to the
 physical context. Consider a frictionless ball rolling down a hill. The ball
@@ -306,15 +310,56 @@ won't stay in a small hole but keep on going, if it's speed is larger enough.
 
 
 \section{Related work}
-\subsection{Generalization gap}
+\subsection{Generalization gap}\label{sub:Generalization}
 In section \ref{sub:1}, we saw how learning differs from normal optimization,
 namely that we only have acces to the training set and thus have to optimize
-indirectly. This usually leads to a better performance of the network in the
-training set than in the test set. The difference between those performances is
-known as Generalization gap. Some strategies have developed to adress this
-problem like L2-Regularization. More recently however, reseach has also gone
-into understanding the connection to the loss surface. 
-[Add paper wide minimization]
+indirectly. With an increasing number of training epochs, the network starts to
+memorize the training data. Because the data distribution of the training data
+is not identical to the distribution of test data, this usually leads to a
+better performance of the network on the training set than on the test set. The
+difference between those performances is known as Generalization gap. 
+
+Strategies that are developed to deal with this problem are subsumed under the
+term \textbf{regularization}. One common Reguralizer is the $L_2$ Reguralizer.
+It's goal is, to encourage the weights to stay small. Small weights have some
+advantages for the generalization capabilities. First of all, small weights
+remove the dependency of a unit to one of it's inputs. Because the weights are
+really small, a strong activation cannot be solely achieved by the presence of
+one input, but rather has to rely on multiple units. Therefore small changes in
+the input will only cause small changes in the output, instead of the absence of
+one feature for example leading to a different output. This benefits the
+generalization, as the distribution of training and test data is slightly
+different. A network with $L_2$ regularization will nevertheless produce a quite
+similar output, in contrast to a normal one. Formally this can be incorporated
+in the loss function by adding the squared $L_2$ norm:
+\begin{align}
+    L= L(f(x;\theta), y)+\lambda \cdot \lVert \theta \rVert_2^2
+\end{align}
+The paramter $\lambda$ controls the strength of the $L_2$ and has to be adjusted
+for each problem.
+
+Other work has gone into understanding the connection to the loss surface.
+Hochreiter \& Schmidhuber (1996) argued that flat minimas have better
+generalization capabilities. A flat minima is a region where the loss stays
+constant in conrtrast to sharp one, where small steps can increase the loss
+significantly. Therefore, flat minimas will perform constantly even for small
+changes in the input, whereas sharp minimas will lead to an increase in
+generalization error. Support also comes from the minimum description length
+theory, which states that fewer bits are needed to describe a flat minimum than
+a sharp. Lower complexity leads to a better generalization error. The idea is,
+that in the network we try to compress the data. The more we compress the data
+while also beeing able to resemble it, the more of the structure of the data we
+uncover. Therefore, a model with lower complexity can fit the underlying data
+better and achieve a better generalization error. Keskar et al. (2017) draw the
+same conclusion. They also provide a solution for finding flat minimas in using
+small batch sizes, see chapter \ref{sub:Minibatch}.
+
+Work from Dinh et al. (2017) however contradicts this view. They argue that the
+notion of flat is problematic in the context of deep learning, as the loss
+surface is highly complex. Based on previous definitions from the papers above,
+they construct parameter values which lie on a sharp point of the surface, but
+are also able to generalize well. Therefore, at least some caution in needed
+when arguing about flatness beeing a reason for generalization capabilities.
 
 \subsection{Areas of same loss}\label{loss_landscape}
 In section \ref{prob:5}, we showed that the poor correspondence between local
@@ -337,6 +382,17 @@ recover is not present at the moment.
 Draxler et al. (2018) get to a smiliar result, that local minimas are connected by
 valleys. In these valleys, the training loss stays the same to the one of the
 connected minima, while the test error rate slighly increases.
+
+Fort \& Jastrzebski put this in a more formal context. For each tuple of
+dimensions, they construct disks to describe the hyperplanes defined by them.
+They calls these hyperplanes wedges. One property is that the valleys of low
+loss described above lay on these wedges. Therefore the connecting valley for
+two points on different wedges has to pass through the intersection of them.
+When viewed from an cross-section, these valleys from a tunnel. Some techniques
+to improve optimization have similar effects on the size of these tunnels,
+namely they widen them. This happens for example for higher $L_2$ regularization
+\ref{sub:Generalization}, smaller batch sizes \ref{sub:Minibatch} or higher
+learning rates.
 
 
 \subsection{Cosine decay with warm restart}\label{cosine_decay}

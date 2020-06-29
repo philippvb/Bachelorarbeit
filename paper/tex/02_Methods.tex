@@ -41,13 +41,26 @@ motivations:
 \subsection{Idea}
 An easy approach to move away from an area would be to remember the point you
 want to distance from, and then move in whatever direction increases this
-distance. In a sense, this is what our algorithm does. It remembers the current
-parameter values, and decreases the cost the further you are away from this
-point. If one would only use this distance as a cost metric, it would be
-successfull in distancing from the current checkpoint, but the learning would
-stop. That's why we incooperate the distance term into the regular cost
-function, to account for both the distance and the cost value.
-\subsection{Mathematical apporach}
+distance. In a sense, this is what our algorithm does. First, we train the
+network until there is no improvement anymore. Then, we remember the current
+parameter values as a checkpoint. The network will now be encouraged to distance
+from this checkpoint, and we keep on training. We can also repeat this procedure
+several times.
+
+The ball analogy from section \ref{sub:Momentum} can also be applied to
+visualize the idea. Consider a ball in a mountain landscape. If we start at a
+random location, the ball will roll down until it reaches the bottom of a
+valley. What the distance function now does, is place a hill at the position
+where the ball has stopped. Thereby, the ball will start to move away from the
+current position again.
+
+Note also, that we still use the normal loss function from the beginning in
+combination. If we would only use the distance function, the network would
+succeed in distancing from the checkpoint but fail to maintain the a good
+performance. That's why we have to combine both terms to account for both
+distancing and performance.
+
+\subsection{Mathematical approach}
 \subsubsection{Distance function}\label{distance_function}
 As we want to measure the distance between two points, we need to define a
 distance function. A common choice is the euclidean distance also know as $L_2$
@@ -86,7 +99,7 @@ With the use of \ref{eq:distance}, we can convert this to:
     k(\theta_1, \theta_2)=exp(-\frac{d(\theta_1, \theta_2)}{2\sigma^2})
 \end{align}
 This formulation has some nice properties. First of all, the values are now
-bound between 0 an 1, regardless of the size f $\theta$. Second, we can see as
+bound between 0 an 1, regardless of the size of $\theta$. Second, we can see as
 the values of the distance get larger, the function approaches 0 asymtotically.
 This leads to a really small gradient for extreme distances. Consequently, the
 Kernel will initially push the parameters away from the checkpoint, but when
@@ -102,7 +115,7 @@ combined with the normal loss function. The state of the art loss function for
 image classification, which will be used for testing is the cross-entropy-loss
 defined as:
 \begin{align}
-    -\sum_{c} \delta_{yc} log(f(x)_c)
+    -\sum_{i} \delta_{yc} log(f(x)_i)
 \end{align}
 Where $\delta$ is the Kronecker-Delta function defined as:
 \begin{align}
@@ -115,18 +128,24 @@ Where $\delta$ is the Kronecker-Delta function defined as:
 
 To account for the distance term, we just sum it with the cross-entropy-loss:
 \begin{align}
-    L=\sum_{c} \delta_{yc} log(f(x)_c) + distance(\theta, \theta_c)
+    L=\sum_{i} \delta_{yi} log(f(x)_i) + distance(\theta, \theta_c)
 \end{align}
-When computing the derivative for the backpropagation, the sum decomposes into
-two terms, so the cross-entropy-loss will be computed the same as before.
-Another property we want to control for is the influence of the distance versus
-the cross-entropy-loss. When training is in later stages, the cross-entropy-loss
-may be very small. If the values of the distance function a too large in
-comparison, this would cause the parameters to be updated only based on the
-distance, which is undesirable as the performance wouldn't be taken into account
-anymore. The same is also true the other way around, if the distance function is
-too small, it wouldn't affect training at all. That's why we introduce a
-hyperparameters $w$ called weight to control this:
+Where $\theta_c$ is the checkpoint.
+Note that we can do this multiple times, so we can incooperate multiple
+checkpoints:
+\begin{align}
+    L=\sum_{i} \delta_{yi} log(f(x)_i) + \sum_c distance(\theta, \theta_c)
+\end{align}
+ When computing the derivative for the backpropagation, the sum
+decomposes into two terms, so the cross-entropy-loss will be computed the same
+as before. Another property we want to control for is the influence of the
+distance versus the cross-entropy-loss. When training is in later stages, the
+cross-entropy-loss may be very small. If the values of the distance function a
+too large in comparison, this would cause the parameters to be updated only
+based on the distance, which is undesirable as the performance wouldn't be taken
+into account anymore. The same is also true the other way around, if the
+distance function is too small, it wouldn't affect training at all. That's why
+we introduce a hyperparameters $w$ called weight to control this:
 \begin{align}
     L=\sum_{c} \delta_{yc} log(f(x)_c) + w \cdot distance(\theta, \theta_c)
 \end{align}
@@ -164,12 +183,122 @@ then square and add the values to our distance.
 \section{Configuration}
 
 \subsection{Library and Training}
-describe pytorch and the training loop
+The code for the network was written in Python [Version], with the use of
+Pytorch as the machine learning library. Data that occured during training was
+logged and plotted with Tensorboard. For a detailed overview of the code, see
+Appendix [add]. Training was done on the TCML Cluster of the university of Tübingen.
 
 \subsection{Datasets}
-describe the used datasets
+Two common datasets were used.
+\begin{itemize}
+    \item MNIST \\
+    MNIST is a classical example of hand-written digits from 0 to 9 that have to
+    be classified accordingly. It contains a train set of 60000 and a test set
+    of 10000 examples.
+    \item CIFAR-10
+    This dataset consists of 60000 32x32 colour images with 10 different
+    classes. The dataset is seperated into 50000 train and 10000 test images.
+    The state of the art accuracy is 97.3\%, reported from Kolesnikov et al.
+    (2019). The dataset can be accessed via https://www.cs.toronto.edu/~kriz/cifar.html.
+\end{itemize}
 \subsection{Networks}
-Describe the networks that are used,
-mention pramaters that are fixed (like SGD) here and variables in the results part??
+\subsubsection{ResNet}
+The Residual Network (ResNet) architecture was first proposed by He et al.
+(2015). The idea of the ResNet was, that it is more easy for a network to learn
+the residuals rather than the full representation. Formally, consider the input
+$x$. The network transfroms $x$ accoring to $H(x)$. Rather than letting the
+network do the full transformation, ResNet produces $H(x)= x +f(x)$, where
+$f(x)$ is the residual transformation learned by the network, and x the identity
+data which is realized by a skip connection. Beside the assumably easier to
+learn representation, ResNet also solves other problems. The issue of the
+vanishing gradient as discussed in section [which?] for example is tackled, as
+skip connections backpropagate the gradient better to earlier layers of the
+network. This allows for deeper networks.
+
+For CIFAR-10, two convolutions are performed and then the residual mapping is
+added. After this block is repeated for a number of times, they number of depth
+channels is increased. The identity mapping is these layers has to be replaced
+by a 1x1 convolution.
+
+
+\subsubsection{MobileNetV2}
+MobileNet was first introduced by Howard et. al (2017) as a lightweight neural
+network for the use on mobile devices. The reduce the computation effort of the
+network, the made use of the depth-wise seperable convolution. Consider a
+32x32x3 image of the CIFAR-10 dataset. A traditional 3x3 convolution with a
+stride and padding of 1 would produce an output of $\frac{32+2-3}{1}+1$ the
+shape 32x32x1. To get more channels, we would need more kernels. For a total of
+k output channels, we would need to do 3x3x3 x32x32 xk multiplications. Instead
+of doing the computation in one kernel, depth-wise seperable convolution divides
+it into two kernels. First they perform a depthwise convolution, where a kernel
+of 3x3x1 is applied to every channel of the input, so in this case we end up
+same size of 32x32x3. To get to k channels, they use a pointwise convolution
+across the channels. This is a 1x1x3 convolution, which upscales the image to
+more channels. So if we want k output channels, we need k 1x1x3 kernels. The
+benefit of this technique is that, while getting the same output size, we only
+need 32x32 3x3x3 multiplications in the first step, and 32x32 1x1x3 xk in the
+second step. This is way less than the from the beginning.
+
+
+With the second iteration called MobileNetV2, they added the concept of inverted
+residuals or as they call it bottlenecks. The ideas is, that intermediate
+representations should be low rather than high dimensional. The bottleneck layer
+starts with a matrix with a small number of depth channels. In the first step,
+the representation is expanded by a pointwise convolution, followed by a Relu6.
+The expansion factor here controls how much channels the intermediate
+representation will have. Then a depthwise convolution is applied as an
+transformation step, followed again by a Relu6. Finally, a pointwise convolution
+is applied again, but this time without a nonlinear transformation following
+afterwards. The idea is that when compressing the data back to a low dimensional
+space, a nonlinearity would only lead to a loss of information. Finally, a skip
+connection from the input to the output is applied to get a residual mapping
+from input to output.
+
+Figure x describes the network in detail.
+
+For ImageNet, MobileNetV2 reaches an top-1 accuracy of 72\%, which outperforms
+the competitors like MobileNetV1 or ShuffleNet 1.5 while having a similar number
+of parameters.
+
+
+\subsection{Network hyperparameters and training loop}
+For both networks, the base hyperparameters are the same. Note that these
+parameters are only standard configurations and may be changed to investigate
+the effects:
+\begin{itemize}
+    \item Optimization Algorithm \\Stochastic Gradient descent combined with
+    Momentum is used. A $\lambda$ of 0.9 is set for Momentum.
+    \item Learning rate \\Initially 1e-2
+    \item Learning rate scheduler \\ Both step decay and cosine decay are used.
+    For step decay, the epochs until a warm restart are divided into 3 parts and
+    in every part, the learning rate is decayed by a factor of 0.1. For other
+    learning rates, see \ref{res:Learning rate}.
+    \item Warm restart \\ A warm restart is performed after 90 epochs (See
+    \ref{res:Epochs} for changes). The learning rate is set back up to the
+    initial learning rate.
+    \item Regularization \\An $L_2$ Regularization as described in chapter
+    \ref{sub:Generalization} is used with a factor of 1e-3.
+    \item Checkpoints for Distance function \\Every time a warm restart is
+    performed, a new checkpoint for the distance function is created.
+    \item Number of epochs \\The number of epochs varies. As this is an
+    explorative analysis, the training is often run for a large number of
+    epochs, to investigate long term changes. Usually an epoch number of 900 is
+    used.
+\end{itemize}
+
+\begin{comment}
 \subsection{Hardware}
-describe hardware used, cluster etc??
+\begin{figure}[h]
+    \centering
+    \includegraphics{images/test.pdf}
+    \caption{Feature Selection Based on Mutual Information}
+    \label{fig:fs_mi}
+\end{figure}
+\end{comment}
+
+\begin{figure}[h]
+    \centering
+    \includesvg{images/nn.svg}
+    \label{fig:fs_mi}
+\end{figure}
+
