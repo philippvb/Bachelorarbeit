@@ -4,11 +4,12 @@ titlepage, 		 % extra Titelseite statt einfacher Überschrift
 twoside,			 % beidseitiger Druck
 headsepline,	 % Trennlinie für die Kopfzeile
 BCOR5mm,			 % Binderand 5 mm
-idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste 
+idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste weggelassen: bibtotoc
 				       % im Inhaltsverzeichnis aufführen
 % Dokumentenklasse ist aus dem KOMA-Script-Paket die SCRReprt-Klasse.
 
 \usepackage{wsi-ra}
+% \usepackage{svg}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Gestaltung der Titelseite     %
@@ -96,8 +97,6 @@ Max Mustermann
 \input{tex/01_Introduction.tex}
 \input{tex/02_Methods.tex}
 \input{tex/03_Results.tex}
-
-
 \input{tex/04_Discussion.tex}
 \input{tex/05_Summary.tex}
 
@@ -108,7 +107,7 @@ Max Mustermann
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
-% \input{tex/06_Appendix.tex}
+\input{tex/0A_Abkuerzungsverzeichnis}
 
 % Erzeuge Glossar und Index.
 \input{tex/0B_Glossar}
@@ -121,7 +120,10 @@ Max Mustermann
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Dadurch werden die Zitate mit abgekürzten Namen der Autoren generiert.
-\bibliographystyle{ra-alpha}
-\bibliography{tex/Literatur}
+\bibliographystyle{alpha}
+\bibliography{tex/literature}
+
+% \addbibresource{tex/literature}
+
 
 \end{document}

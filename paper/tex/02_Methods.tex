@@ -60,6 +60,8 @@ succeed in distancing from the checkpoint but fail to maintain the a good
 performance. That's why we have to combine both terms to account for both
 distancing and performance.
 
+
+
 \subsection{Mathematical approach}
 \subsubsection{Distance function}\label{distance_function}
 As we want to measure the distance between two points, we need to define a
@@ -90,23 +92,32 @@ use a function to control for the output to be in a certain bound.
 If we take a look at support vector machines, they use kernels to compute the
 similarity between two samples. One popular choice is the radial basis function
 kernel, defined as:
-\begin{align}
+\begin{align}\label{eq:RBF}
     k(\theta_1, \theta_2)=exp(-\frac{\rVert \theta_1 - \theta_2 \lVert^2}{2\sigma^2})
 \end{align}
-where $exp$ is the exponential function.
-With the use of \ref{eq:distance}, we can convert this to:
-\begin{align}
+where $exp$ is the exponential function. With the use of \ref{eq:distance}, we
+can convert this to:
+\begin{align}\label{eq:DistanceFinal}
     k(\theta_1, \theta_2)=exp(-\frac{d(\theta_1, \theta_2)}{2\sigma^2})
 \end{align}
-This formulation has some nice properties. First of all, the values are now
-bound between 0 an 1, regardless of the size of $\theta$. Second, we can see as
-the values of the distance get larger, the function approaches 0 asymtotically.
-This leads to a really small gradient for extreme distances. Consequently, the
-Kernel will initially push the parameters away from the checkpoint, but when
-this is achieved, will have little influence on the loss function. How far the
-function encourages to distance from the checkpoint can be controlled by the
-parameter $\sigma$, which defines the width of the function and can be tuned as
-a hyperparamter.
+If we plot this function in the two dimensional case (see Figure
+\ref{fig:Gaussian}), we can see some nice properties.
+\begin{figure}[h]\label{fig:Gaussian}
+    \centering
+    \textbf{Gaussian curve}\par\medskip
+    \includegraphics[scale=0.5]{images/exponentail.pdf}
+    \caption{Plot of the function $f(x)=exp(-\frac{x^2}{\sigma^2})$ for different values of $\sigma$.}
+\end{figure}
+First of all, the values are now bound between 0 an 1, regardless of the size of
+$\theta$. Second, we can see as the values of the distance get larger, the
+function approaches 0 asymtotically. This leads to a really small gradient for
+extreme distances. Consequently, the Kernel will initially push the parameters
+away from the checkpoint, but when this is achieved, will have little influence
+on the loss function. How far the function encourages to distance from the
+checkpoint can be controlled by the parameter $\sigma$, which defines the width
+of the function and can be tuned as a hyperparamter. As $\sigma$ gets larger,
+the function becomes wider. Therefore, the influence of the distance function
+will reach further the larger $\sigma$ is.
 
 
 \subsubsection{Loss function}
@@ -146,7 +157,7 @@ based on the distance, which is undesirable as the performance wouldn't be taken
 into account anymore. The same is also true the other way around, if the
 distance function is too small, it wouldn't affect training at all. That's why
 we introduce a hyperparameters $w$ called weight to control this:
-\begin{align}
+\begin{align}\label{eq:LossDistance}
     L=\sum_{c} \delta_{yc} log(f(x)_c) + w \cdot distance(\theta, \theta_c)
 \end{align}
 
@@ -204,15 +215,15 @@ Two common datasets were used.
 \subsection{Networks}
 \subsubsection{ResNet}
 The Residual Network (ResNet) architecture was first proposed by He et al.
-(2015). The idea of the ResNet was, that it is more easy for a network to learn
-the residuals rather than the full representation. Formally, consider the input
-$x$. The network transfroms $x$ accoring to $H(x)$. Rather than letting the
-network do the full transformation, ResNet produces $H(x)= x +f(x)$, where
-$f(x)$ is the residual transformation learned by the network, and x the identity
-data which is realized by a skip connection. Beside the assumably easier to
-learn representation, ResNet also solves other problems. The issue of the
-vanishing gradient as discussed in section [which?] for example is tackled, as
-skip connections backpropagate the gradient better to earlier layers of the
+\cite{he2016deep}. The idea of the ResNet was, that it is more easy for a
+network to learn the residuals rather than the full representation. Formally,
+consider the input $x$. The network transfroms $x$ accoring to $H(x)$. Rather
+than letting the network do the full transformation, ResNet produces $H(x)= x
++f(x)$, where $f(x)$ is the residual transformation learned by the network, and
+x the identity data which is realized by a skip connection. Beside the assumably
+easier to learn representation, ResNet also solves other problems. The issue of
+the vanishing gradient as discussed in section [which?] for example is tackled,
+as skip connections backpropagate the gradient better to earlier layers of the
 network. This allows for deeper networks.
 
 For CIFAR-10, two convolutions are performed and then the residual mapping is
@@ -222,37 +233,38 @@ by a 1x1 convolution.
 
 
 \subsubsection{MobileNetV2}
-MobileNet was first introduced by Howard et. al (2017) as a lightweight neural
-network for the use on mobile devices. The reduce the computation effort of the
-network, the made use of the depth-wise seperable convolution. Consider a
-32x32x3 image of the CIFAR-10 dataset. A traditional 3x3 convolution with a
-stride and padding of 1 would produce an output of $\frac{32+2-3}{1}+1$ the
-shape 32x32x1. To get more channels, we would need more kernels. For a total of
-k output channels, we would need to do 3x3x3 x32x32 xk multiplications. Instead
-of doing the computation in one kernel, depth-wise seperable convolution divides
-it into two kernels. First they perform a depthwise convolution, where a kernel
-of 3x3x1 is applied to every channel of the input, so in this case we end up
-same size of 32x32x3. To get to k channels, they use a pointwise convolution
-across the channels. This is a 1x1x3 convolution, which upscales the image to
-more channels. So if we want k output channels, we need k 1x1x3 kernels. The
-benefit of this technique is that, while getting the same output size, we only
-need 32x32 3x3x3 multiplications in the first step, and 32x32 1x1x3 xk in the
-second step. This is way less than the from the beginning.
+MobileNet was first introduced by Howard et. al \cite{howard2017mobilenets} as a
+lightweight neural network for the use on mobile devices. The reduce the
+computation effort of the network, the made use of the depth-wise seperable
+convolution. Consider a 32x32x3 image of the CIFAR-10 dataset. A traditional 3x3
+convolution with a stride and padding of 1 would produce an output of
+$\frac{32+2-3}{1}+1$ the shape 32x32x1. To get more channels, we would need more
+kernels. For a total of k output channels, we would need to do 3x3x3 x32x32 xk
+multiplications. Instead of doing the computation in one kernel, depth-wise
+seperable convolution divides it into two kernels. First they perform a
+depthwise convolution, where a kernel of 3x3x1 is applied to every channel of
+the input, so in this case we end up same size of 32x32x3. To get to k channels,
+they use a pointwise convolution across the channels. This is a 1x1x3
+convolution, which upscales the image to more channels. So if we want k output
+channels, we need k 1x1x3 kernels. The benefit of this technique is that, while
+getting the same output size, we only need 32x32 3x3x3 multiplications in the
+first step, and 32x32 1x1x3 xk in the second step. This is way less than the
+from the beginning.
 
 
-With the second iteration called MobileNetV2, they added the concept of inverted
-residuals or as they call it bottlenecks. The ideas is, that intermediate
-representations should be low rather than high dimensional. The bottleneck layer
-starts with a matrix with a small number of depth channels. In the first step,
-the representation is expanded by a pointwise convolution, followed by a Relu6.
-The expansion factor here controls how much channels the intermediate
-representation will have. Then a depthwise convolution is applied as an
-transformation step, followed again by a Relu6. Finally, a pointwise convolution
-is applied again, but this time without a nonlinear transformation following
-afterwards. The idea is that when compressing the data back to a low dimensional
-space, a nonlinearity would only lead to a loss of information. Finally, a skip
-connection from the input to the output is applied to get a residual mapping
-from input to output.
+With the second iteration called MobileNetV2 \cite{sandler2018mobilenetv2}, they
+added the concept of inverted residuals or as they call it bottlenecks. The
+ideas is, that intermediate representations should be low rather than high
+dimensional. The bottleneck layer starts with a matrix with a small number of
+depth channels. In the first step, the representation is expanded by a pointwise
+convolution, followed by a Relu6. The expansion factor here controls how much
+channels the intermediate representation will have. Then a depthwise convolution
+is applied as an transformation step, followed again by a Relu6. Finally, a
+pointwise convolution is applied again, but this time without a nonlinear
+transformation following afterwards. The idea is that when compressing the data
+back to a low dimensional space, a nonlinearity would only lead to a loss of
+information. Finally, a skip connection from the input to the output is applied
+to get a residual mapping from input to output.
 
 Figure x describes the network in detail.
 
@@ -261,7 +273,7 @@ the competitors like MobileNetV1 or ShuffleNet 1.5 while having a similar number
 of parameters.
 
 
-\subsection{Network hyperparameters and training loop}
+\subsection{Network hyperparameters and training loop}\label{sub:Hyperparameters}
 For both networks, the base hyperparameters are the same. Note that these
 parameters are only standard configurations and may be changed to investigate
 the effects:
@@ -294,11 +306,13 @@ the effects:
     \caption{Feature Selection Based on Mutual Information}
     \label{fig:fs_mi}
 \end{figure}
-\end{comment}
+
 
 \begin{figure}[h]
     \centering
     \includesvg{images/nn.svg}
     \label{fig:fs_mi}
 \end{figure}
+
+\end{comment}
 

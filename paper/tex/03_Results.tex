@@ -1,19 +1,50 @@
 \chapter{Results}
-order the results for networks or for topics, like strength of distance??
+Even with such a simple formulation, there are many different variations that
+can be tested. First is the influence of the strength and width parameter of the
+distance function, which will be tested in section \ref{res:Hyperparameters}. We
+will also briefly test different kernels besides the RBF Kernel from equation
+\ref{eq:RBF} in section \ref{res:Kernel}. In section \ref{res:Multiple}, we will
+use more than one checkpoint and will also try to combine these to a global one.
+The interaction of training hyperparameters like learning rate and epochs will
+be discussed in section \ref{res:Training}. Finally, the usage for ensemble
+methods will be tested.
 
-\section{Distance function Hyperparameters}
-\subsection{strength}
+\section{Baseline}
+For the baseline, we use the hyperparameters as defined in section
+\ref{sub:Hyperparameters}. 
+
+\section{Distance function Hyperparameters}\label{res:Hyperparameters}
+Recall the formulation of the distance function from equation
+\ref{eq:DistanceFinal}:
+\begin{align}
+    k(\theta_1, \theta_2)=exp(-\frac{d(\theta_1, \theta_2)}{2\sigma^2})
+\end{align}
+and the total combination with the ordinary loss function from equation
+\ref{eq:LossDistance}:
+\begin{align}
+    L=\sum_{c} \delta_{yc} log(f(x)_c) + w \cdot distance(\theta, \theta_c)
+\end{align}
+Here, we can see the two hyperparameters width $\sigma$ and weight $w$, whose
+influence will be investigated in this chapter.
+\subsection{weight}
+
 \subsection{width}
+We have seen in chapter \ref{distance_function}, how the width $\sigma$
+influences the distance function: The larger $\sigma$ gets, the wider it
+becomes. Therefore, a larger $\sigma$ should result in the network distancing
+more from it's checkpoint than for smaller values.
 
-\section{Kernel}
+
+
+\section{Kernel}\label{res:Kernel}
 
 \section{Regularization}
 
-\section{Multiple Minimas}
+\section{Multiple Minimas}\label{res:Multiple}
 \subsection{multiple}
 \subsection{merge}
 
-\section{Training Hyperparameters}
+\section{Training Hyperparameters}\label{res:Training}
 \subsection{lr}\label{res:Learning rate}
 wrong lr and how scheduler is used
 \subsection{epochs}\label{res:Epochs}
