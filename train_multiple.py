@@ -60,8 +60,8 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
 
     # set seeds
     seed = 1234
-    np.random.seed(seed)
-    torch.manual_seed(seed)
+    np.random.seed()
+    # torch.manual_seed(seed)
 
     # load datasets
     train_set = datasets.getDataSet(experiment_dictionary['dataset'], data_directory, train_flag=True)
@@ -92,6 +92,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
     loss_function = metrics.get_metric(experiment_dictionary['loss_func'])
 
     minimum_list = []
+    first_minimum=True
 
 
 
@@ -199,7 +200,8 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
 
 
         # prepare for next epoch
-        if experiment_dictionary["loss_func"].get("multiple") and (epoch-next_epoch+1) % experiment_dictionary["loss_func"].get("step") == 0 and epoch is not 1:
+        if (first_minimum or experiment_dictionary["loss_func"].get("multiple")) and (epoch-next_epoch+1) % experiment_dictionary["loss_func"].get("step") == 0 and epoch is not 1:
+            first_minimum = False
             new_minimum = create_minimum(model)
             minimum_list.append(new_minimum)
             if experiment_dictionary["loss_func"].get("merge"):
@@ -207,7 +209,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
                 print("The length of the minimum list is:")
                 print(len(minimum_list))
 
-        if experiment_dictionary['optimizer'].get("scheduler"):
+        if scheduler:
             scheduler.step()
         
         if experiment_dictionary["optimizer"].get("scheduler") is "step" and (epoch-next_epoch+1) % experiment_dictionary["optimizer"].get("cycle") == 0:

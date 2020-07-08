@@ -407,7 +407,7 @@ $L_2$ regularization \ref{sub:Generalization}, smaller batch sizes
 \ref{sub:Minibatch} or higher learning rates.
 
 
-\subsection{Cosine decay with warm restart}\label{cosine_decay}
+\subsection{Cosine decay with warm restart}\label{sub:cosine_decay}
 
 In section \ref{SGD}, we introduced learning rate schedulers. The idea was to
 have a high learning rate at the beginning for fast improvements, and then an
@@ -427,4 +427,61 @@ The authors report an new state of the art result at 3.14\% test error for
 Wide-Residual-Net 28-20. Their method also perfoms better when compared to step
 decay.
 \subsection{Ensemble methods}
-describe Ensemble methods, depending on the results of work
+The general idea of ensemble methods is to combine the predictions of multiple
+networks to get a more accurate prediction. The fact that this leads to an
+improvement can be seen in a simple regression problem. Suppose there exist k
+models that make an error of $e_i$ with mean 0, variance $E[e_i^2]=v$ and
+covariances $E[e_i e_j]=c$ on every particular prediction. If these models are
+combined, the variance reduces to 
+\begin{align}
+    E[(\frac{1}{k} \sum_i e_i)^2]=\frac{1}{k^2}E[\sum_i (e_i^2 + \sum_{j\neq i} e_i e_j)]=\frac{1}{k}v+\frac{k-1}{k}c
+\end{align}
+If all models make the same predictions, so $c=v$ for all combinations of
+models, then the sum decomposes to $v$, so the prediction error is the same as
+before. On the other hand, if $c=0$, the prediction error is reduced by a factor
+of $\frac{1}{k}$. Therefore, for ensemble methods to be succesfull, every model
+has to achieve a low prediction error, while the predictions of all models
+should be as different as possible. While the low error is achieved in deep
+learning by standard training of the models, there are several approaches to
+ensure that these models are different. 
+
+The first idea would be to vary the training data for the model. One way this
+can be realized is by k-fold cross-validation. Here, we split the training data
+into k different smaller datasets. Then we train k independent networks on one
+of these subsets. This however decreases the size of the training set for each
+model drastically. Therefore another common approach is bagging
+\cite{breiman1996bagging}, where we draw a subset from the training data, but
+with replacement. Here, individual examples might occur in more than one
+training set. Training on different datasets leads to different models, which we
+can use to our advantage as we have seen above. As the number of training
+examples is limited however, we might not be able to sustain a sufficient low
+error.
+
+To use the whole training data while also creating different models, we can
+alternatively alter the model itself. An naive approach would be to just use
+different model architectures. If we want to use the same architecture for all
+models, we can vary the parameter initilializations. This is often enough to
+create models that have different predictions. However, for every initialization
+a network has to be trained from beginning, which can become very costly. A
+novel approach is to train one network, but to take snapshots of the network
+parameters at different steps. This approach adds no additional cost, as we only
+train one network. To ensure different networks, Huang et al.
+\cite{huang2017snapshot} use the method of cosine decay with warm restarts
+\cite{loshchilov2016sgdr}, as explained in section \ref{sub:cosine_decay}.
+Recall that at each restart, the learning rate is set up to the initial learning
+rate. This results in the optimizer taking larger update steps and consequently,
+the network parameter values will distance from their current state. The
+snapshots of the networks are taken before each restart, as the network
+converges to area of low loss when the learning rate is low. With this method,
+we are able to get different models with low error and no additional cost.
+
+After we have ensured that the conditions for the models are met, we have to
+think about how to combine these predictions. For the case of classification
+with the use of softmax layer, we can use a technique called model averaging.
+Here, we sum the predictions of the individual models, and take the class with
+the highest prediction, as in standard classification. Formally, if the
+probability output of a model i for a given class c is $p_{c_i}$, then we sum
+the propabilites of each individual model: $p_c = \sum_i p_{c_i}$. To predict
+the class we take $argmax_c(p_c)$. If we have reasons to believe in a better
+prediction of one model over another, we can add weights $w_i$ to the
+propabilites of the individual models: $p_c = \sum_i w_i \cdot p_{c_i}$.

@@ -27,7 +27,7 @@ def getDataSet(name, data_directory, train_flag):
         dataset = torchvision.datasets.CIFAR10(
             root=data_directory,
             train=train_flag,
-            download=False,
+            download=True,
             transform=transform_function)
 
     if name == "cifar100":

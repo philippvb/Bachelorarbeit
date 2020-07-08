@@ -1,7 +1,7 @@
 \chapter{Methods}
 \section{Distance Function}
 \subsection{Motivation}
-In chapter \ref{loss_landscape}, we got a brief overview over the loss landscape
+In section \ref{loss_landscape}, we got a brief overview over the loss landscape
 of deep neural networks and the resulting challenges for optimization. Although
 there exists a large number of local minima, most of them have low cost.
 Furthermore, they are arranged in cells, where each minima has low cost and is
@@ -11,11 +11,66 @@ These cells create a challenge for optimization. Suppose the learning gets into
 the area of one of these cells. As mentioned in chapter \ref{loss_landscape} the
 cells are surrounded by nondifferential boundaries and areas of higher loss.
 [TODO: where is this stated?] This will likely cause the algorithm to get stuck
-into this cells. As all of the minimas in this cell are of approximatly same
-loss, there will be a boundary until the algorithm can improve, which may be
-higher than the global optimum. This also poses the question, if continuing to
-train is useful, as after one of the minima in the cell is found, the nearby
-minima ic can reach will offer no significant improvement.
+into this cell. As all of the connected minimas in this cell are of approximatly
+same loss, there will be a boundary until the algorithm can improve, which may
+be higher than the global optimum. This imposes the question, if continuing to
+train is useful, as after one of the minima of the cell is found, the nearby
+minima it can reach will offer no significant improvement and other cells are
+out of reach.
+
+If we reuse the ball analogy from section \ref{sub:Momentum}, the beginning of
+the training process would probably place the ball at the top of a mountain
+landscape. The initial training let's the ball move into one of the valleys.
+This valley may connect the ball to other points of low altitude, like minima
+are connected in a cell. When the ball is only allowed to move downhill however,
+the ball can never reach a spot which he is seperated by a hill. Thus, his
+minimum altitude is bound to the lowest place in his current valley. If we add
+momentum, we have seen that the ball is able to get over hills of certain size
+by using his momentum. Warm restarts add the possibility to jump over a hill
+with a high learning rate at each restart. This can lead to an escape of the
+cell, but without guarantee. What is more likely to happen is that after a large
+step, the ball is in an area of higher altitude, which will let him roll down to
+the same valley again in the next step.
+
+In contrast, we try a different approach. Rather than letting the ball make one
+large steps and then allwoing him to move on freely, we want to constantly push
+the ball away from it's current position. The idea beeing if the ball is only
+surrounded by hills, we have to push it up one of these until it reaches the top
+and can then roll down into another valley, therefore escaping the cell.
+
+Transferred back to a real network, this translates to repeatedly updating the
+parameter values in a way, that the new values will increase their distance to
+the values we want to get away from.
+
+In Pseudo-Code, this looks the following:
+\begin{algorithm}
+    \begin{algorithmic}[1]
+        \caption{Network training with distancing}
+        \REQUIRE a neural network architecture and a dataset
+        \ENSURE a trained neural network
+        \STATE initialize the network, dataset and training parameters
+        \FOR{$i \leftarrow 1$ \textbf{to} desired number of epochs}
+            \STATE compute foward and backward pass of training data
+            \STATE update parameter values with optimizer
+        \ENDFOR
+        \STATE create checkpoint we want to distance from
+        \FOR{$i \leftarrow$ next epoch \textbf{to} end}
+            \STATE compute new parameter values different to checkpoint
+            \STATE update parameter values with optimizer
+        \ENDFOR
+        \STATE \textbf{return: the trained network}
+    \end{algorithmic}
+\end{algorithm}
+
+In the pseudo-code, we can see that the main difference in updating the
+parameter values to be different from the checkpoint, rather than only taking
+the training data into account. But how can this be [add that we have to take
+both loss and distance function into account].
+
+
+
+
+\begin{comment}
 
 How to overcome this issue? One solution would be to escape these cells and move
 to the next one, hopefully with lower cost. This can be achieved with the use of
@@ -31,14 +86,13 @@ cells, and just move away from it. In a simplified version, thats what our
 algorithm does. It remembers the point which it wants to distance from, and then
 rewards doing so. [describe better]
  
-\begin{comment}
+
 motivations:
 - different values for ensemble method
 - seen that cells exists, escape these cells
 - explore instead of exploit
 
-\end{comment}
-\subsection{Idea}
+\subsection{Approach}
 An easy approach to move away from an area would be to remember the point you
 want to distance from, and then move in whatever direction increases this
 distance. In a sense, this is what our algorithm does. First, we train the
@@ -59,6 +113,7 @@ combination. If we would only use the distance function, the network would
 succeed in distancing from the checkpoint but fail to maintain the a good
 performance. That's why we have to combine both terms to account for both
 distancing and performance.
+\end{comment}
 
 
 
@@ -195,7 +250,7 @@ then square and add the values to our distance.
 
 \subsection{Library and Training}
 The code for the network was written in Python [Version], with the use of
-Pytorch as the machine learning library. Data that occured during training was
+Pytorch \cite{NEURIPS2019_9015} as the machine learning library. Data that occured during training was
 logged and plotted with Tensorboard. For a detailed overview of the code, see
 Appendix [add]. Training was done on the TCML Cluster of the university of Tübingen.
 
@@ -249,7 +304,18 @@ convolution, which upscales the image to more channels. So if we want k output
 channels, we need k 1x1x3 kernels. The benefit of this technique is that, while
 getting the same output size, we only need 32x32 3x3x3 multiplications in the
 first step, and 32x32 1x1x3 xk in the second step. This is way less than the
-from the beginning.
+from the beginning. Figure \ref{fig:DSConv} shows a graphical illustration of
+this idea.
+\begin{figure}[h!]\label{fig:DSConv}
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/Depthwise_Separable_Convolution.png}
+    \caption{Depthwise Separable Convolution from \cite[Page 3]{sandler2018mobilenetv2} \newline On the left,
+     a regular convolution with a 3x3xDepth kernel is drwan. On the right, this
+     convolution is separated in depthwise convolution with a 3x3x1 Kernel,
+     followed by a pointwise convolution with a 1x1xDepth Kernel. This methods
+     saves computation time over the standard method, while also allowing
+     interactions between channels.}
+\end{figure}
 
 
 With the second iteration called MobileNetV2 \cite{sandler2018mobilenetv2}, they
@@ -266,11 +332,25 @@ back to a low dimensional space, a nonlinearity would only lead to a loss of
 information. Finally, a skip connection from the input to the output is applied
 to get a residual mapping from input to output.
 
-Figure x describes the network in detail.
+% Figure x describes the network in detail.
+
 
 For ImageNet, MobileNetV2 reaches an top-1 accuracy of 72\%, which outperforms
 the competitors like MobileNetV1 or ShuffleNet 1.5 while having a similar number
 of parameters.
+
+
+
+\begin{figure}[h]\label{fig:InvRes}
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/Inverted_Residual.png}
+    \caption{Inverted Residual Block from \cite[Page 3]{sandler2018mobilenetv2}\newline 
+    First, a Relu 6 followed by a Pointwise Convolution is applied to map the
+     data to a higher dimensional space. Then a depthwise convolution is
+     applied, followed again by a Relu6. Finally, the data is compressed back to
+     the original size. This time, there is no Relu applied to avoid the loss of
+     information.}
+\end{figure}
 
 
 \subsection{Network hyperparameters and training loop}\label{sub:Hyperparameters}

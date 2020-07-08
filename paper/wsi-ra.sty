@@ -8,6 +8,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{comment} % erlaubt blockkommentare
+\usepackage{pgfplots}
 
 %\usepackage{ngerman}		% Unsterstützung der aktuellen deutschen Rechtschreibung
 \usepackage[english]{babel}		    % Unterstützung mehrsprachiger Dokumente, Spache als Option angeben.
@@ -37,7 +38,7 @@
 % PDFLaTeX- bzw. LaTeX-spezifische Einstellungen
 
 \ifpdf
-  \usepackage[pdftex]{graphicx}
+  %\usepackage[pdftex]{graphicx}
   \usepackage[pdfpagemode={UseOutlines},
               pdftitle={},
               pdfauthor={},
@@ -126,8 +127,8 @@
 \lstset{basicstyle=\small\ttfamily, stringstyle=\ttfamily, keywordstyle=\bf\ttfamily}
 
 % Einstellungen für das Algorithmus-Paket:
-\renewcommand{\algorithmicrequire}{\textbf{Erfordert:}}
-\renewcommand{\algorithmicensure}{\textbf{Liefert:}}
+%\renewcommand{\algorithmicrequire}{\textbf{Erfordert:}}
+%\renewcommand{\algorithmicensure}{\textbf{Liefert:}}
 \renewcommand{\listalgorithmname}{Algorithmenverzeichnis}
 % Einstellungen für das Listings-Paket:
 \renewcommand{\lstlistingname}{Quellcodeauszug}

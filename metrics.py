@@ -43,7 +43,7 @@ def compute_metric_on_dataset(model, dataset, metric_dict, cuda):
         if cuda:
             images, labels = images.cuda(), labels.cuda()
 
-        score_sum += metric_function(model, images, labels, None).item() * images.shape[0] 
+        score_sum += metric_function(model, images, labels, None).item() * images.shape[0] # multiplies by how many images in batch
             
     score = float(score_sum / len(loader.dataset))
 
