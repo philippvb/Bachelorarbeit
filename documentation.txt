@@ -209,6 +209,49 @@ einleitung erweitern und verbessern
 
 
 
+results structure:
+
+1.Baseline
+show baseline with and without distance function, no learning rate decay, just fixed one
+
+2. Parameters
+    2.1 width
+    use different widths with fixed lr
+    2.2 strength
+    use different strength with fixed lr
+    2.3 interaction?
+    show interaction of width and strength?? maybe for better runtime
+
+3. Hyperparameters (maybe also after 4., depending on importance of multiple minimas for lr)
+    6.1 lr
+    show how it stabilizes lr
+
+    6.2 number of epochs
+    if more epochs, not better
+
+
+4. multiple minima
+    4.1 multiple
+    multiple minima, fixed lr, maybe two combinations?
+    4.2 merge
+    merge into one large, fixed lr, maybe multiple merge combinations
+
+5. Warm restarts
+use one and multiple with warm restarts, maybe vary width
+compare to distance function as warm restart (gradient boost at the beginning)
+
+
+
+7. ensemble methods
+show ensemble from cosine decay and trained with distance function, maybe also without lr scheduler
+
+
+
+
+
+
+
+
 
 
 

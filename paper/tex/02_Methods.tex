@@ -62,10 +62,74 @@ In Pseudo-Code, this looks the following:
     \end{algorithmic}
 \end{algorithm}
 
-In the pseudo-code, we can see that the main difference in updating the
-parameter values to be different from the checkpoint, rather than only taking
-the training data into account. But how can this be [add that we have to take
-both loss and distance function into account].
+First, we train the network the traiditional way - we compute the foward and
+backward pass of the training data with the resulting gradient, and then update
+the parameter values with an optimizer. After we have reached a sufficiently low
+error, we create the point we want to push away from, which we call
+\textbf{checkpoint}. The difference in the next training loop in contrast to the
+standard one at the beginning is how the parameter values are computed. Here,
+our goal is to distance from the checkpoint. This will also result in a
+gradient, which will be applied the same way as above.
+
+How can we encourage a network to distance from a checkpoint, while at the same
+time not sacrificing the networks performance. Back in the ball analogy, we
+instead of pushing the ball up a hill, we could place a hill at the current
+position, and let the ball roll down. Figure \ref{fig:Distance2D} shows a
+graphical illustration for the 2D case. An advantage of this technique is that
+the hill will only change the loss landscape locally. So when we have distanced
+from the hill, we follow the normal loss landscape again.
+
+\begin{figure}[h!]\label{fig:Distance2D}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=x, % Set the labels
+            ylabel=y,
+            xmin=-2,
+            xmax=3,
+            xtick={-2,-1,0,1,2, 3},
+            ymin=-2,
+            ymax=3,
+            samples=100,
+            legend pos = north west,
+            width=0.7\textwidth,
+            legend style={nodes={scale=0.8, transform shape}}]
+            \addplot[color=red]{x^3-x^2};
+            \addlegendentry{$f(x)=x^3-x^2$}
+            \addplot[color=blue]{exp(-(x-2/3)^2)};
+            \addlegendentry{$g(x)=exp(-(x-\frac{2}{3})^2)$}
+            \addplot[color=black]{x^3-x^2+exp(-(x-2/3)^2)};
+            \addlegendentry{$h(x)=f(x)+g(x)$}
+            \end{axis}
+         \end{tikzpicture}
+        \caption{Example of a function with a local minimum at $x=\frac{2}{3}$. If we place an Gaussian function on top, the minimum disappears. Note, that the black function approaches the red if we distance from the local minimum.}
+    \end{center}
+\end{figure}
+
+Formally, this hill is realised by adding first computing the distance of the
+parameter values to the checkpoint, and then adding a penalty for small
+distances. If we use and exponential Kernel, the idea of the hill can be taken
+quite visually. Section \ref{sub:Mathematical_approach} describes the
+mathematical approach in detail.
+
+What happens when our penalty hill is not large enough to get the ball over the
+hill? This means we would get back to the present parameter values. That's not
+necesarryly a problem, as it would mean that our current position is very
+robust, which would mean a good generalization capability. Therefore our network
+would stay in areas with stable minima, which is a desired property.
+
+For ensemble methods, there are other possible benefits of this approach. Recall
+that for an ensemble to perform well, the errors of the participating networks
+should be uncorellated. SGD with warm restart \cite{loshchilov2016sgdr} tried to
+ensure this with warm restarts, where a high learnin rate increases the distance
+of the networks and therefore leads to uncorellated errors. We could use our
+method as alternative approach, where we ensure the distance between the
+networks not only by high learning rate but by explicitly increasing the
+distance. Of course, the underlying idea for both is that networks which are
+more distant in parameter space will behave more differently, and therefore have
+more uncorellated errors.
 
 
 
@@ -117,7 +181,7 @@ distancing and performance.
 
 
 
-\subsection{Mathematical approach}
+\subsection{Mathematical approach}\label{sub:Mathematical_approach}
 \subsubsection{Distance function}\label{distance_function}
 As we want to measure the distance between two points, we need to define a
 distance function. A common choice is the euclidean distance also know as $L_2$
@@ -223,7 +287,7 @@ To measure the distance, we have to create the checkpoint. The model parameters
 in pytorch are stored as matrices for each layer and can be accesed via
 $model.parameters()$, which outputs an iterable. We therefore opt to keep this
 structure and safe the parameters in a list.
-\begin{algorithm}[htbp]
+\begin{algorithm}[h!]
     \caption{Checkpoint}\label{alg:Checkpoint}
     \lstset{language=Python}
     \lstinputlisting{src/createCheckpoint.py}
@@ -238,7 +302,7 @@ to be detached, to remove connection of the gradient to the model parameters.
 The L2 norm is implemented the follwing way: We iterate over the checkpoint and
 the current parameter values. For each layer, we compute the difference, and
 then square and add the values to our distance.
-\begin{algorithm}[htbp]
+\begin{algorithm}[h!]
     \caption{L2 norm}\label{alg:L2Norm}
     \lstset{language=Python}
     \lstinputlisting{src/L2.py}
@@ -271,20 +335,33 @@ Two common datasets were used.
 \subsubsection{ResNet}
 The Residual Network (ResNet) architecture was first proposed by He et al.
 \cite{he2016deep}. The idea of the ResNet was, that it is more easy for a
-network to learn the residuals rather than the full representation. Formally,
-consider the input $x$. The network transfroms $x$ accoring to $H(x)$. Rather
-than letting the network do the full transformation, ResNet produces $H(x)= x
-+f(x)$, where $f(x)$ is the residual transformation learned by the network, and
-x the identity data which is realized by a skip connection. Beside the assumably
+network to learn the residuals rather than the full transformation of an input.
+Formally, consider the input $x$. The network transforms $x$ accoring to $H(x)$.
+Rather than letting the network do the full transformation, ResNet produces
+$H(x)= x +f(x)$, where $f(x)$ is the residual transformation learned by the
+network, and x the identity data which is realized by a skip connection. Figure
+\ref{fig:Residual_Block} shows a graphical illustration. Beside the assumably
 easier to learn representation, ResNet also solves other problems. The issue of
-the vanishing gradient as discussed in section [which?] for example is tackled,
-as skip connections backpropagate the gradient better to earlier layers of the
-network. This allows for deeper networks.
+the vanishing gradient as discussed in section \ref{sub:Vanishing_gradient} for
+example is tackled, as skip connections backpropagate the gradient better to
+earlier layers of the network. This allows for deeper networks.
 
-For CIFAR-10, two convolutions are performed and then the residual mapping is
-added. After this block is repeated for a number of times, they number of depth
-channels is increased. The identity mapping is these layers has to be replaced
-by a 1x1 convolution.
+\begin{figure}[h]\label{fig:Residual_Block}
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/Residual_Block.png}
+    \caption{Residual Block from \cite[Page 2]{he2016deep}\newline 
+   }
+\end{figure}
+
+ResNet creates basic building blocks by applying a convolution, a Relu and
+another convolution before adding the skip connection with a final Relu. Figure
+\ref{fig:Residual_Block} illustrates this block. The blocks are then stacked
+after each other. To let the network learn a more complex representation, after
+a number of block, they increase the number of channels. Here, the identity
+mapping of the skip connection is replaced by a pointwise convolution to
+increase the number of channels. Alternatively, the new channels are padded with
+0.
+
 
 
 \subsubsection{MobileNetV2}

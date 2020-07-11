@@ -10,8 +10,103 @@ be discussed in section \ref{res:Training}. Finally, the usage for ensemble
 methods will be tested.
 
 \section{Baseline}
+\subsection{Base Network} % get better name
 For the baseline, we use the hyperparameters as defined in section
-\ref{sub:Hyperparameters}.
+\ref{sub:Hyperparameters}. Figure \ref{fig:MobileNetV2_baseline} shows the
+result, if we add a checkpoint after 100 epochs of training. For the validation
+accuray, we can see that it stays similar to the accuracy without the distance
+function. If we plot the distance the network gets to the checkpoint however, we
+can see that the network trained with distance function clearly increases its
+distance more than the one trained without. Furthermore, the red plot follows
+the shape we would expect from the distance function. At the beginning, the
+distance increases relatively fast, as can be expected from the high value of
+the RBF Kernel. But as the distance increases, its gradient becomes smaller,
+similar to the gradient of the Kernel. The blue plot in contrast follows an
+almost linear curve, whith a much smaller gradient. Therefore, the additional
+term succeeds in the initial goal, which was to distance from the checkpoint.
+
+\begin{figure}[h]\label{fig:MobileNetV2_baseline}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={
+                group size=2 by 1,
+                horizontal sep=10pt,
+                group name=G},
+                width=8cm,
+            ]
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch, % Set the labels
+            ylabel=Validation Accuracy,
+            ymin=0.8]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_validation_acuracy.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_validation_acuracy.csv};
+            
+            \nextgroupplot[
+                grid=major, 
+                grid style={dashed,gray!30},
+                xlabel=Epoch, % Set the labels
+                ylabel=Distance,
+                yticklabel pos=right,
+                ylabel near ticks]
+                \addplot[mark=None, color=red] 
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_distance0.csv};
+                \addplot[mark=None, color=blue] 
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_distance0.csv};
+    
+            \end{groupplot}
+        \end{tikzpicture}
+        \caption{Validation accuray and Distance values for a network trained without distance function (red) and with distance function (blue).}
+    \end{center}
+\end{figure}
+
+
+scheduler
+\begin{figure}[h]\label{fig:MobileNetV2_baseline_scheduler}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={
+                group size=2 by 1,
+                horizontal sep=10pt,
+                group name=G},
+                width=8cm,
+            ]
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch, % Set the labels
+            ylabel=Validation Accuracy,
+            ymin=0.8]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_scheduler/MobileNetV2_baseline_scheduler_validation_acuracy.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_scheduler_distance/MobileNetV2_baseline_scheduler_distance_validation_acuracy.csv};
+            
+            \nextgroupplot[
+                grid=major, 
+                grid style={dashed,gray!30},
+                xlabel=Epoch, % Set the labels
+                ylabel=Distance,
+                yticklabel pos=right,
+                ylabel near ticks]
+                \addplot[mark=None, color=red] 
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_scheduler/MobileNetV2_baseline_scheduler_distance0.csv};
+                \addplot[mark=None, color=blue] 
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_scheduler_distance/MobileNetV2_baseline_scheduler_distance_distance0.csv};
+    
+            \end{groupplot}
+        \end{tikzpicture}
+        \caption{Validation accuray and Distance values for a network with a step scheduler and warm restarts. The learning rate is dropped after 50 epochs and restarted after 150.
+        The red curve shows a network trained without distance function and the blue curve with distance function.}
+    \end{center}
+\end{figure}
 
 
 
@@ -37,7 +132,7 @@ influence will be investigated in this chapter.
 We have seen in chapter \ref{distance_function}, how the width $\sigma$
 influences the distance function: The larger $\sigma$ gets, the wider it
 becomes. Therefore, a larger $\sigma$ should result in the network distancing
-more from it's checkpoint than for smaller values.
+more from it's checkpoint than for smaller values. 
 
 
 
@@ -63,20 +158,42 @@ epochs and epoch time
 
 
 example picture:
-\begin{figure}[h]\label{fig:test}
+\begin{figure}[h]\label{fig:MobileNetV2_baseline}
     \begin{center}
         \begin{tikzpicture}
-            \begin{axis}
-                [width=\linewidth, % Scale the plot to \linewidth
+            \begin{groupplot}[
+                group style={
+                group size=2 by 1,
+                horizontal sep=10pt,
+                group name=G},
+                width=8cm,
+            ]
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch, % Set the labels
+            ylabel=Validation Accuracy,
+            ymin=0.8]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_validation_acuracy.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_validation_acuracy.csv};
+            
+            \nextgroupplot[
                 grid=major, 
                 grid style={dashed,gray!30},
-                xlabel=X Axis, % Set the labels
-                ylabel=Y Axis,
-                ymin=0.8]
+                xlabel=Epoch, % Set the labels
+                ylabel=Distance,
+                yticklabel pos=right,
+                ylabel near ticks]
                 \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/run-mobileNetV2_ensemble_distance-tag-Ensemble_accuracy.csv};
-            \end{axis}
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_distance0.csv};
+                \addplot[mark=None, color=blue] 
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_distance0.csv};
+    
+            \end{groupplot}
         \end{tikzpicture}
-        \caption{My first autogenerated plot.}
+        \caption{Validation accuray (left) and Distance values (right) for a network trained without distance function (red) and with distance function (blue).}
     \end{center}
 \end{figure}

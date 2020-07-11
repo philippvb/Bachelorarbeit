@@ -208,12 +208,14 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
                 print("The length of the minimum list is:")
                 print(len(minimum_list))
 
-        if scheduler and scheduler_drop:
-            scheduler.step()
-        
         if experiment_dictionary["optimizer"].get("scheduler") is "step" and (epoch-next_epoch+1) % experiment_dictionary["optimizer"].get("cycle") == 0:
                 # set_lr(opt, experiment_dictionary['optimizer'].get("lr"))
                 scheduler_drop=False
+
+        if scheduler and scheduler_drop:
+            scheduler.step()
+        
+        
 
 
         # flush printer
