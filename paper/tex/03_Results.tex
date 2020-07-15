@@ -10,28 +10,30 @@ be discussed in section \ref{res:Training}. Finally, the usage for ensemble
 methods will be tested.
 
 \section{Baseline}
-\subsection{Base Network} % get better name
 For the baseline, we use the hyperparameters as defined in section
-\ref{sub:Hyperparameters}. Figure \ref{fig:MobileNetV2_baseline} shows the
-result, if we add a checkpoint after 100 epochs of training. For the validation
-accuray, we can see that it stays similar to the accuracy without the distance
-function. If we plot the distance the network gets to the checkpoint however, we
-can see that the network trained with distance function clearly increases its
-distance more than the one trained without. Furthermore, the red plot follows
-the shape we would expect from the distance function. At the beginning, the
-distance increases relatively fast, as can be expected from the high value of
-the RBF Kernel. But as the distance increases, its gradient becomes smaller,
-similar to the gradient of the Kernel. The blue plot in contrast follows an
-almost linear curve, whith a much smaller gradient. Therefore, the additional
-term succeeds in the initial goal, which was to distance from the checkpoint.
+\ref{sub:Hyperparameters}. Figure \ref{fig:Results_baseline} shows the result,
+if we add a checkpoint after 100 epochs of training. For the validation accuray,
+we can see that it stays similar to the accuracy without the distance function.
+If we plot the distance the network gets to the checkpoint however, we can see
+that the network trained with distance function clearly increases its distance
+more than the one trained without. Furthermore, the red plot follows the shape
+we would expect from the distance function. At the beginning, the distance
+increases relatively fast, as can be expected from the high gradient of the RBF
+Kernel. But as the distance increases, its gradient becomes smaller, similar to
+the gradient of the Kernel. The blue plot in contrast follows an almost linear
+curve, whith a much smaller gradient. Therefore, the additional term succeeds in
+the initial goal, which was to distance from the checkpoint. Note that despite
+the validation accuracy beeing in an area of convergence, SGD even without
+distance function keeps on walking and never truly stops at a point.
 
-\begin{figure}[h]\label{fig:MobileNetV2_baseline}
+\begin{figure}[h]\label{fig:Results_baseline}
     \begin{center}
         \begin{tikzpicture}
             \begin{groupplot}[
                 group style={
-                group size=2 by 1,
+                group size=2 by 2,
                 horizontal sep=10pt,
+                vertical sep=10pt,
                 group name=G},
                 width=8cm,
             ]
@@ -39,9 +41,11 @@ term succeeds in the initial goal, which was to distance from the checkpoint.
             \nextgroupplot[
             grid=major, 
             grid style={dashed,gray!30},
-            xlabel=Epoch, % Set the labels
+            % xlabel=Epoch,
             ylabel=Validation Accuracy,
-            ymin=0.8]
+            xticklabels={,,},
+            ymin=0.8,
+            xmin=-10]
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_validation_acuracy.csv};
             \addplot[mark=None, color=blue] 
@@ -50,44 +54,28 @@ term succeeds in the initial goal, which was to distance from the checkpoint.
             \nextgroupplot[
                 grid=major, 
                 grid style={dashed,gray!30},
-                xlabel=Epoch, % Set the labels
+                % xlabel=Epoch,
                 ylabel=Distance,
                 yticklabel pos=right,
+                xticklabels={,,},
                 ylabel near ticks]
                 \addplot[mark=None, color=red] 
                     table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_distance0.csv};
                 \addplot[mark=None, color=blue] 
                     table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_distance0.csv};
     
-            \end{groupplot}
-        \end{tikzpicture}
-        \caption{Validation accuray and Distance values for a network trained without distance function (red) and with distance function (blue).}
-    \end{center}
-\end{figure}
-
-
-scheduler
-\begin{figure}[h]\label{fig:MobileNetV2_baseline_scheduler}
-    \begin{center}
-        \begin{tikzpicture}
-            \begin{groupplot}[
-                group style={
-                group size=2 by 1,
-                horizontal sep=10pt,
-                group name=G},
-                width=8cm,
-            ]
 
             \nextgroupplot[
             grid=major, 
             grid style={dashed,gray!30},
             xlabel=Epoch, % Set the labels
             ylabel=Validation Accuracy,
-            ymin=0.8]
+            ymin=0.8,
+            xmin=-10]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_scheduler/MobileNetV2_baseline_scheduler_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/ResNet32_baseline_validation_acuracy.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_scheduler_distance/MobileNetV2_baseline_scheduler_distance_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
             
             \nextgroupplot[
                 grid=major, 
@@ -97,14 +85,13 @@ scheduler
                 yticklabel pos=right,
                 ylabel near ticks]
                 \addplot[mark=None, color=red] 
-                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_scheduler/MobileNetV2_baseline_scheduler_distance0.csv};
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/ResNet32_baseline_distance0.csv};
                 \addplot[mark=None, color=blue] 
-                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_scheduler_distance/MobileNetV2_baseline_scheduler_distance_distance0.csv};
-    
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_distance0.csv};
+
             \end{groupplot}
         \end{tikzpicture}
-        \caption{Validation accuray and Distance values for a network with a step scheduler and warm restarts. The learning rate is dropped after 50 epochs and restarted after 150.
-        The red curve shows a network trained without distance function and the blue curve with distance function.}
+        \caption{Validation accuray and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained without distance function (red) and with distance function (blue).}
     \end{center}
 \end{figure}
 
@@ -113,47 +100,223 @@ scheduler
 
 
 
+
 \section{Distance function Hyperparameters}\label{res:Hyperparameters}
-Recall the formulation of the distance function from equation
-\ref{eq:DistanceFinal}:
-\begin{align}
-    k(\theta_1, \theta_2)=exp(-\frac{d(\theta_1, \theta_2)}{2\sigma^2})
-\end{align}
-and the total combination with the ordinary loss function from equation
-\ref{eq:LossDistance}:
-\begin{align}
-    L=\sum_{c} \delta_{yc} log(f(x)_c) + w \cdot distance(\theta, \theta_c)
-\end{align}
-Here, we can see the two hyperparameters width $\sigma$ and weight $w$, whose
-influence will be investigated in this chapter.
-\subsection{weight}
+\subsection{strength}
+Recall section \ref{eq:LossDistance}, where we added strength as a
+hyperparameter, controlling the influence of the distance function. As the RBF
+Kernel is bound between 0 and 1, the strength hyperparameter will increase that
+bound between 0 and the strength value.
+
+For higher strength values, the validation accuracy receives an initial drop,
+which is larger the higher the strength parameter value. This may be due to the
+increased influence of the strength function. Each distance between the
+parameters and the checkpoint starts at 0, therefore the values of the
+exponential function starts at $strength \cdot 1$. A higher strength value will
+lead to a higher influence on the loss function, and consequently the gradient.
+The gradient of the cross-entropy loss will be insignificant, and the optimizer
+will update the weights without regards to the validation accuracy, hence the
+drop at the beginning. The distance plot reflects this behaviour, as we can see
+an larger increase in distance for larger strength values.
+
+After the initial step however, the distance quickly converges. This is due to
+the fact that after the initial increase, the value of the Kernel quickly
+reaches 0. [TODO: Sow plot of strength]. Therefore, the distance Kernel becomes
+insignificant again, and the Cross-Entropy loss is followed. The validation
+accuracy reflects this behaviour, as after the initial drop the accuracy
+recovers. Interestingly, the validation accuracy doesn't reach the level without
+distance function. An possible explanation would be, that the network has left
+the area of low loss, and is not able to recover again.[Mayvbe to
+undiffernetuial boundaries or beeing stuck in that cell.] The question that now
+arises is if there is no other area of high accuracy other than the inital
+convergence. If one exists, one of the runs should converge here. If none exist,
+the question is why SGD finds this area. [Mabe due to the weights having to be
+small???, low dependencies and high generalization??] 
+
+
+basic results:
+- if higher strength factor, distance rises more quickly
+- then stays in this area of distance
+- validation accuracy drops because first influenence of distance
+- however never recovers - areas of bad accuracy??
+
+
+
+
+\begin{figure}[h]\label{fig:Results_strength}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={
+                group size=2 by 2,
+                horizontal sep=10pt,
+                vertical sep=10pt,
+                group name=G},
+                width=8cm
+            ]
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            % xlabel=Epoch,
+            ylabel=Validation Accuracy,
+            xticklabels={,,},
+            ymin=0.6,
+            xmin=-10]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e1_validation_acuracy.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_validation_acuracy.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e2_validation_acuracy.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e3_validation_acuracy.csv};
+            
+            \nextgroupplot[
+                grid=major, 
+                grid style={dashed,gray!30},
+                % xlabel=Epoch,
+                ylabel=Distance,
+                yticklabel pos=right,
+                xticklabels={,,},
+                ylabel near ticks]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e1_distance0.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_distance0.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e2_distance0.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e3_distance0.csv};
+    
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch, % Set the labels
+            ylabel=Validation Accuracy,
+            ymin=0.6,
+            xmin=-10]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/ResNet32/ResNet32_strength_e1_validation_acuracy.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/ResNet32/ResNet32_strength_e2_validation_acuracy.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/ResNet32/ResNet32_strength_e3_validation_acuracy.csv};
+            
+            \nextgroupplot[
+                grid=major, 
+                grid style={dashed,gray!30},
+                xlabel=Epoch, % Set the labels
+                ylabel=Distance,
+                yticklabel pos=right,
+                ylabel near ticks]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/ResNet32/ResNet32_strength_e1_distance0.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_distance0.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/ResNet32/ResNet32_strength_e2_distance0.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/ResNet32/ResNet32_strength_e3_distance0.csv};
+
+            \end{groupplot}
+        \end{tikzpicture}
+        \caption{Validation accuray and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained without distance function (red) and with distance function (blue).}
+    \end{center}
+\end{figure}
 
 \subsection{width}
 We have seen in chapter \ref{distance_function}, how the width $\sigma$
 influences the distance function: The larger $\sigma$ gets, the wider it
 becomes. Therefore, a larger $\sigma$ should result in the network distancing
-more from it's checkpoint than for smaller values. 
+further from it's checkpoint than for smaller values. That's exactly what can be
+seen in figure \ref{}: For an $\sigma$ of 0.1, the distance follows the one of
+network trained without distance function, due to the RBF Kernel quickly
+becoming 0. The larger the width, the slower the values of the RBF Kernel
+decrease for further distance. Therefore, the gradient of the distance function
+will stay quite large, pushing the network further away. This can be seen for
+higher $\sigma$ values, where the distance increases further.
+
+
+Initially however, the distance plot doesn't reflect this behaviour. The curve
+for $\sigma = 0.01$ has a higher distance value than for $\sigma = 0.001$.
+That's because the gradient of the RBF Kernel is higher for small distances, the
+smaller $\sigma$. But for larger distances, this effect flips with the gradient
+of the larger width staying higher for more epochs. Therefore, the curves
+intersect after additional epochs. The smaller width converges, while the larger
+stays constant until eventually reaching it`s area of convergence. The
+intersection happens later the larger the width, for $\sigma = 0.0001$, only
+after 207 epochs.
+
+This behaviour however has no influence on the validation accuracy, which stays
+the same for every width, in contrast to the strength. This may be due to the
+fact, that a larger width does in fact decreases the size of the gradient. A
+smaller gradient over more epochs will be added to the gradient of the
+Cross-Entropy Loss. The optimizer therefore nearly keeps on following the normal
+gradient and descending the valley of low loss, with a small but steady push to
+increase the distance to the checkpoint. Therefore, even if the network is
+allowed to move quite freely on the loss surface, it finds areas of low loss and
+high accuracy in distant areas of the checkpiont, meaning there has to be good
+local minima everywhere on the landscape.
 
 
 
 
 
 
-\section{Kernel}\label{res:Kernel}
 
-\section{Regularization}
+
+
+results: - wider kernel leads to higher value of
+distance - maybe slower due to smaller gradient - no difference in validation
+accuracy - if so, should prove that in every area exists low loss regions -
+accuracy doesn't decrease -> there are valleys leading away from current point
+with high accuracy - 
+
+
+
+
+
+
 
 \section{Multiple Minimas}\label{res:Multiple}
+idea: distance from multiple rather than 1 place
 \subsection{multiple}
 \subsection{merge}
 
 \section{Training Hyperparameters}\label{res:Training}
-\subsection{lr}\label{res:Learning rate}
+\subsection{lr}\label{res:Learning rate}    
 wrong lr and how scheduler is used
+
+result idea:
+- difference with wrong lr
+- too high doenst lead to convergence, too low leads to slower one
+- if kernel is applied, starts distancing
+- 
+
+
+for scheduler:
+- maybe sgd walks in area of low accuracy, cannot recover (what is this area)
+- distance kernel helps escape from this area
+
+
 \subsection{epochs}\label{res:Epochs}
 epochs and epoch time
 
+maybe not use since or only for scheduler and multiple, since with one not helpful
+
 \section{ensemble methods}
+- idea: uncorellated networks
+- also make run without warm restart
+
+results:
+- first show higher accuracy than single network
+- than see, that distance has no better value than without
+- show that distancing doenst mean more diverse prediction
+- implication for loss landscape -> everywhere the network behaves the same??
 
 
 
@@ -197,3 +360,8 @@ example picture:
         \caption{Validation accuray (left) and Distance values (right) for a network trained without distance function (red) and with distance function (blue).}
     \end{center}
 \end{figure}
+
+
+
+
+have to do longer run of width and longer run of strength for highest factor at least, let distance kernel out again and look if comes back, add distance kernel for 0 epoch to show weight size

@@ -40,7 +40,7 @@ EXP_GROUPS = {
             "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
-            "max_epochs":200},
+            "max_epochs":400},
 
         "mobileNetV2_width_e2":{"dataset":"cifar10",
             "model":"mobileNetV2",
@@ -48,7 +48,7 @@ EXP_GROUPS = {
             "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
-            "max_epochs":200},
+            "max_epochs":400},
 
         "mobileNetV2_width_e4":{"dataset":"cifar10",
             "model":"mobileNetV2",
@@ -56,7 +56,7 @@ EXP_GROUPS = {
             "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
-            "max_epochs":200},
+            "max_epochs":400},
 
         "ResNet32_width_e1":{"dataset":"cifar10",
             "model":"resnet32",
@@ -64,7 +64,7 @@ EXP_GROUPS = {
             "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
-            "max_epochs":200},
+            "max_epochs":400},
 
         "ResNet32_width_e2":{"dataset":"cifar10",
             "model":"resnet32",
@@ -72,7 +72,7 @@ EXP_GROUPS = {
             "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
-            "max_epochs":200},
+            "max_epochs":400},
 
         "ResNet32_width_e4":{"dataset":"cifar10",
             "model":"resnet32",
@@ -80,7 +80,7 @@ EXP_GROUPS = {
             "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
-            "max_epochs":200},
+            "max_epochs":400},
 
     # -----------------------strength------------------------------------------
 
@@ -139,7 +139,7 @@ EXP_GROUPS = {
             "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 100, "multiple": False},
             "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-3, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
-            "batch_size":2056,
+            "batch_size":128,
             "max_epochs":200},
 
         "mobileNetV2_baseline_lr3":{"dataset":"cifar10",
@@ -155,7 +155,7 @@ EXP_GROUPS = {
             "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 100, "multiple": False},
             "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-1, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
-            "batch_size":2056,
+            "batch_size":128,
             "max_epochs":200},
 
         "mobileNetV2_baseline_lr1":{"dataset":"cifar10",
@@ -204,7 +204,7 @@ EXP_GROUPS = {
         "mobileNetV2_distance_as_cosine_f1":{"dataset":"cifar10",
             "model":"mobileNetV2",
             "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 150, "multiple": True},
-            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "step", "step": 50, "cycle":150},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
             "max_epochs":900},
@@ -212,7 +212,7 @@ EXP_GROUPS = {
         "mobileNetV2_distance_as_cosine_f10":{"dataset":"cifar10",
             "model":"mobileNetV2",
             "loss_func": {"name":"softmax_loss", "distance":True, "factor":10, "width":1e-3, "step": 150, "multiple": True},
-            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "step", "step": 50, "cycle":150},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
             "max_epochs":900},
@@ -220,11 +220,15 @@ EXP_GROUPS = {
         "mobileNetV2_distance_as_cosine_f100":{"dataset":"cifar10",
             "model":"mobileNetV2",
             "loss_func": {"name":"softmax_loss", "distance":True, "factor":100, "width":1e-3, "step": 150, "multiple": True},
-            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "step", "step": 50, "cycle":150},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
             "max_epochs":900}
 }
 
-# rename step to cycle in loss_func
+
+
+
+# TODO: Run baseline 400 epochs for width
+
 

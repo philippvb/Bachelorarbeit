@@ -1,1 +1,46 @@
 \chapter{Dicussion}
+
+structure:
+
+1. Sucessfullnes of results:
+- distancing successfull
+- have seen how we control distance with hyperparameters
+- but that doesn`t increase valdiation accuracy
+
+2 implications for loss landscape
+- everywhere are areas of low loss -> implications for initilizations??
+- that`s good, as we normally aren`t moving away from our cell
+- but even in our cell, we keep on moving
+
+
+3. ensemble methods:
+- have seen, that networks predict the same regardless of position on loss landscape
+- why is that? weight space symetry, dataset
+- 
+
+
+ideas what really happens:
+- first kernel just boosts gradient in tunnel of low loss
+- the direction should stay, doesn't change direction at wedge intersection, if kernel is wide enough
+- too strong kernel lets leave the wedge
+- lowering lr maybe opens the position to change at wedge intersection -> distance becomes smaller again
+- ensembles may stay same due to not changing wedge -> but should then work for high strength values
+
+
+
+
+summary: we have seen that although otimization seems nearly impossible at the
+beginning, it becomes quite trivial in the following. This may be due to the
+large number of local minimas, which can guarantee us a good accuracy in every
+are. Moving between this areas doesn't normally happen. The question if this may
+be even necessary arises for example from the comparison of the networks, which
+has shown that even networks different in the weight space predict quite similar
+to each other.
+
+Other inutitions of normal optimization also dont apply, for
+example finding local minimas doesn't seem to be necessary and sufficient, as
+SGD nerly never stops walking.
+
+
+other thoughts:
+- because distance increases constantly even for multiple, maybe we stay on wedge

@@ -133,7 +133,6 @@ dmypy.json
 /results
 /data
 *.sbatch
-
 *.pth
 
 

@@ -245,7 +245,14 @@ compare to distance function as warm restart (gradient boost at the beginning)
 7. ensemble methods
 show ensemble from cosine decay and trained with distance function, maybe also without lr scheduler
 
+Fragen für morgen:
+- curve smoothing?
+- intrpretation schon in results?
+- plot gradient size??
+- plot gradient direction in comparison to last one??
 
+
+z faktor ode pgf plot reihenfolge
 
 
 
