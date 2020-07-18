@@ -96,6 +96,14 @@ def computedistance(minimum, model):
     return distance
 
 
+def computegradientsize(model):
+    size=0
+    for param in model.parameters():
+        size += torch.sum(torch.exp(param.grad))
+    
+    return size
+
+
 def softmax_accuracy(model, images, labels):
     logits = model(images)
     pred_labels = logits.argmax(dim=1)

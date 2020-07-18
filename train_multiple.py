@@ -94,6 +94,8 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
     minimum_list = []
     first_minimum=True
 
+    minimum_0 = create_minimum(model)
+
 
 
     # create checkpoint
@@ -147,6 +149,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
         print("Current learn rate is %f" % get_lr(opt))
 
         start_time = time.time()
+        gradient_size=0
         for images,labels in train_loader:#tqdm.tqdm(train_loader):
             if gpu_exists:
                 images, labels = images.cuda(), labels.cuda()
@@ -154,6 +157,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
             opt.zero_grad()
             loss = loss_function(model, images, labels, minimum_list)
             loss.backward()
+            gradient_size+=metrics.computegradientsize(model)
             opt.step()
 
         end_time = time.time()
@@ -178,6 +182,9 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
         writer.add_scalar('Validation_accuracy', val_acc, epoch)
         writer.add_scalar('train_epoch_time', end_time - start_time, epoch)
         writer.add_scalar('lr', get_lr(opt), epoch)
+        writer.add_scalar('Gradient_size', gradient_size, epoch)
+        writer.add_scalar('Distance_to_0', metrics.computedistance(minimum_0, model).data, epoch)
+
         for distance, i in zip(distance_list, range(len(distance_list))):
             writer.add_scalar('distance' + str(i), distance, epoch)
             writer.add_scalar('similarity' + str(i), torch.exp(-1* experiment_dictionary["loss_func"].get("width") * distance), epoch)

@@ -199,6 +199,91 @@ EXP_GROUPS = {
             "max_epochs":200},
 
 
+# -----------------------multiple------------------------------------------
+
+        "mobileNetV2_multiple":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":100},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "mobileNetV2_multiple_f10":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":10, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "mobileNetV2_multiple_f100":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":100, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "mobileNetV2_multiple_merge":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 150, "multiple": True, "merge":True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+# ------------------------scheduler----------------------------------------
+
+
+        "mobileNetV2_scheduler_step":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":False, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "step", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "mobileNetV2_scheduler_cosine":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":False, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "cosine", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "mobileNetV2_scheduler_step_distance":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "step", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "mobileNetV2_scheduler_cosine_distance":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "cosine", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "mobileNetV2_scheduler_cosine_lr1":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":False, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-1, "regularization":0.001, "scheduler": "cosine", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "mobileNetV2_scheduler_cosine_distance_lr1":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-1, "regularization":0.001, "scheduler": "cosine", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+  
     # -----------------------new stuff-----------------------------------------
 
         "mobileNetV2_distance_as_cosine_f1":{"dataset":"cifar10",
@@ -223,12 +308,23 @@ EXP_GROUPS = {
             "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
+            "max_epochs":900},
+
+        "mytest":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":100, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-2, "regularization":0.001, "scheduler": "None", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
             "max_epochs":900}
+
+        
 }
 
 
 
 
-# TODO: Run baseline 400 epochs for width
+# TODO: Run baseline 400 epochs for width (or maybe even 600 with  multiple checkpoints after 150 but not distance)
+# multiple ultra long run to see if converge to each if distances converge to each other
 
 
