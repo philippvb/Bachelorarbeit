@@ -87,6 +87,8 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None)
     model_list = []
     model_list.append(model)
 
+    minimum_0 = create_minimum(model)
+
 
     # create checkpoint
     model_path = os.path.join(save_directory, 'model.pth')
@@ -136,6 +138,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None)
             opt.zero_grad()
             loss = loss_function(model, images, labels, minimum_list)
             loss.backward()
+            gradient_size+=metrics.computegradientsize(model)
             opt.step()
 
         end_time = time.time()
@@ -165,6 +168,8 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None)
         writer.add_scalar('Ensemble_accuracy', ensemble_acc, epoch)
         writer.add_scalar('train_epoch_time', end_time - start_time, epoch)
         writer.add_scalar('lr', get_lr(opt), epoch)
+        writer.add_scalar('Gradient_size', gradient_size, epoch)
+        writer.add_scalar('Distance_to_0', metrics.computedistance(minimum_0, model).data, epoch)
         for distance, i in zip(distance_list, range(len(distance_list))):
             writer.add_scalar('distance' + str(i), distance, epoch)
             writer.add_scalar('similarity' + str(i), torch.exp(-1* experiment_dictionary["loss_func"].get("width") * distance), epoch)

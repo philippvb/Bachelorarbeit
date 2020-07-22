@@ -96,14 +96,14 @@ distance function keeps on walking and never truly stops at a point.
 \end{figure}
 
 
-
+[TODO: add gradient size to show that circular path]
 
 
 
 
 \section{Distance function Hyperparameters}\label{res:Hyperparameters}
 \subsection{strength}
-Recall section \ref{eq:LossDistance}, where we added strength as a
+Recall section \ref{eq:Loss_strength}, where we added strength as a
 hyperparameter, controlling the influence of the distance function. As the RBF
 Kernel is bound between 0 and 1, the strength hyperparameter will increase that
 bound between 0 and the strength value.
@@ -163,6 +163,7 @@ basic results:
             grid=major, 
             grid style={dashed,gray!30},
             % xlabel=Epoch,
+            y label style={at={(axis description cs:0.1,0)},anchor=south},
             ylabel=Validation Accuracy,
             xticklabels={,,},
             ymin=0.6,
@@ -185,6 +186,7 @@ basic results:
                 grid=major, 
                 grid style={dashed,gray!30},
                 % xlabel=Epoch,
+                % y label style={at={(axis description cs:0.,0)},anchor=south},
                 ylabel=Distance,
                 yticklabel pos=right,
                 xticklabels={,,},
@@ -202,8 +204,9 @@ basic results:
             \nextgroupplot[
             grid=major, 
             grid style={dashed,gray!30},
+            % x label style={at={(axis description cs:1.5,0)},anchor=west},
             xlabel=Epoch, % Set the labels
-            ylabel=Validation Accuracy,
+            % ylabel=Validation Accuracy,
             ymin=0.6,
             xmin=-10]
             \addplot[mark=None, color=red] 
@@ -218,8 +221,8 @@ basic results:
             \nextgroupplot[
                 grid=major, 
                 grid style={dashed,gray!30},
-                xlabel=Epoch, % Set the labels
-                ylabel=Distance,
+                %xlabel=Epoch, % Set the labels
+                %ylabel=Distance,
                 yticklabel pos=right,
                 ylabel near ticks]
             \addplot[mark=None, color=red] 
@@ -383,10 +386,10 @@ with high accuracy -
 
 
 
-\section{Multiple Minimas}\label{res:Multiple}
+\section{Multiple Checkpoint}\label{res:Multiple}
 idea: distance from multiple rather than 1 place
 \subsection{multiple}
-For multiple minima, we can see the same pattern as in section
+For multiple checkpoints, we can see the same pattern as in section
 \ref{res:Hyperparameters}. For low strength, we experience no effect at all. If
 we increase the strength there is an initial drop in the accuracy, but with
 further epochs, this recovers to the baseline accuracy. Furthermore, it even
@@ -395,11 +398,68 @@ performed. The pattern is quite similar to warm restarts, where for every
 restart the reached accuracy increases. For a in depth comparison, see section
 \ref{res:Learning rate}.
 
+\begin{figure}[h]\label{fig:Results_multiple}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={
+                group size=2 by 1,
+                horizontal sep=10pt,
+                vertical sep=10pt,
+                group name=G},
+                width=8cm
+            ]
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch,
+            ylabel=Validation Accuracy,
+            ymin=0.6,
+            ymax=1,
+            legend pos = south east,
+            xmin=-10]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_validation_acuracy.csv};
+                \addlegendentry{$s=1$}
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f10_validation_acuracy.csv};
+                \addlegendentry{$s=10$}
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f100_validation_acuracy.csv};
+                \addlegendentry{$s=100$}
+            
+    
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch, % Set the labels
+            yticklabels={,,},
+            ymin=0.6,
+            ymax=1,
+            xmin=-10]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e1_validation_acuracy.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_validation_acuracy.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_validation_acuracy.csv};
+            % [TODO: add ResNet Multiple]
+
+            \end{groupplot}
+        \end{tikzpicture}
+        \caption{Validation accuray and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained with multiple checkpoints. [TODO: add for ResNet]}
+    \end{center}
+\end{figure}
+
 The influence on the distance to the checkpoints is more interesting however. In
 general, an additional checkpoint seems to decrease the distance to the others.
 This is quite counterintuitive at first glance. Suppose for one parameter, we
 have checkpoint value $a$ and create a new one at our current value $b<a$. To
-icrease the distance to both, we would just have to walk in direction $c<b$. As
+increase the distance to both, we would just have to walk in direction $c<b$. As
 we have seen in previous section, this would be sufficient as areas of low error
 exist everywhere. But why is the distance then decreased for our first
 checkpoint? The reason might be the $L_2$ regularization, as it restricts the
@@ -408,6 +468,76 @@ weights again for a smaller $L_2$, traded off against a bit smaller distance to
 other checkpoints. This restriction in weight space is probably why new terms
 lead to a decrease of the distance to existing checkpoints.
 [maybe long term convergence to each other]
+
+\begin{figure}[h]\label{fig:Results_multiple_distance}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={
+                group size=3 by 1,
+                horizontal sep=10pt,
+                vertical sep=10pt,
+                group name=G},
+                width=5cm
+            ]
+
+            \nextgroupplot[
+            title=checkpoint 1,
+            grid=major, 
+            grid style={dashed,gray!30},
+            %x label style={at={(axis description cs:1.5,0)},anchor=north},
+            % y label style={at={(axis description cs:-0.1,.5)},rotate=90,anchor=south},
+            %xlabel=Epoch,
+            ylabel=distance,
+            ylabel near ticks,
+            ymax=8000,
+            xmin=140]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_distance0.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f10_distance0.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f100_distance0.csv};
+
+            \nextgroupplot[
+            title=checkpoint 2,
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch,
+            yticklabels={,,}
+            ymax=8000,
+            xmin=290]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_distance1.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f10_distance1.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f100_distance1.csv};
+
+            \nextgroupplot[
+            title=checkpoint 3,
+            grid=major, 
+            grid style={dashed,gray!30},
+            %xlabel=Epoch,
+            yticklabels={,,},
+            ymax=8000,
+            legend pos = outer north east,
+            xmin=440]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_distance2.csv};
+                \addlegendentry{$s=1$}
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f10_distance2.csv};
+                \addlegendentry{$s=10$}
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f100_distance2.csv};
+                \addlegendentry{$s=100$}
+
+            \end{groupplot}
+        \end{tikzpicture}
+        \caption{Distance plots for MobileNetV2 (upper) and ResNet32 (lower) trained with multiple checkpoints and different strength values. [TODO: add for ResNet]}
+    \end{center}
+\end{figure}
 
 In short term however, new checkpoint produce quite different influence on the
 distance to existing ones. For a strength of $s=1$ we can see a slight decrease
@@ -426,7 +556,7 @@ away from the first and the second checkpoint, therefore leading to a hill.
 
 By this explanation, the pattern should repeat for the other cases however. It
 may be argued, that this pattern would still exist for other values of s.
-However, it is only existent in the case of large s.
+However, it is only recongnizable in the case of large s.
 
 
 
@@ -451,6 +581,17 @@ would be interesting (but too far for this work)
 
 - increase factor to show differences, also überleitung to warm restarts
 \subsection{merge}
+A slightly different approach is to merge the checkpoints, described in section
+\ref{sub:Multiple_checkpoints}.
+[TODO: add more networks for merge]
+
+
+
+
+
+
+
+
 
 \section{Training Hyperparameters}\label{res:Training}
 \subsection{lr}\label{res:Learning rate}
@@ -463,24 +604,122 @@ up to the inital and repeat this cycle several times.
 This procedure results in an increase of validation accuracy. We use a step
 decay scheduler with $\gamma = 0.1$ for every 50 epochs, and a warm restart
 after 150 epochs. Additionally, a cosine decay is used as in
-\cite{loshchilov2016sgdr}. Figure \ref{} shows the validation accuracy. We can
-see, that schedulers outperform a fixed learning rate. Furthermore, the maximum
-accuracy of every cycle slightly increases, until eventually coming to
-convergence. We can clearly see the warm restarts, as the accuracy drops due to
-the high learning rate.
+\cite{loshchilov2016sgdr}. Figure \ref{fig:Results_scheduler} shows the
+validation accuracy. We can see, that schedulers outperform a fixed learning
+rate. Furthermore, the maximum accuracy of every cycle slightly increases, until
+eventually coming to convergence. We can clearly see the warm restarts, as the
+accuracy drops due to the high learning rate.
+
+In section \ref{sub:cosine_decay}, the underlying idea leading to this
+improvement was discussed: High learning rates should lead to exploration and
+convergence to wider and more stable convergence.
+
+
+\begin{figure}[h]\label{fig:Results_scheduler}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={
+                group size=2 by 2,
+                horizontal sep=10pt,
+                vertical sep=10pt,
+                group name=G},
+                width=8cm
+            ]
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            % xlabel=Epoch,
+            ylabel=Validation Accuracy,
+            xticklabels={,,},
+            ymin=0.75,
+            legend pos = south east,
+            xmin=-10]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_validation_acuracy.csv};
+                \addlegendentry{fixed lr}
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/MobileNetV2_scheduler_step_validation_acuracy.csv};
+                \addlegendentry{step decay}
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/MobileNetV2_scheduler_cosine_validation_acuracy.csv};
+                \addlegendentry{cosine decay}
+            \nextgroupplot[
+                grid=major, 
+                grid style={dashed,gray!30},
+                % xlabel=Epoch,
+                ylabel=Distance,
+                yticklabel pos=right,
+                xticklabels={,,},
+                ylabel near ticks]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_distance0.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/MobileNetV2_scheduler_step_distance0.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/MobileNetV2_scheduler_cosine_distance0.csv};
+    
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch, % Set the labels
+            ylabel=Validation Accuracy,
+            ymin=0.7,
+            xmin=-10]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e1_validation_acuracy.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_validation_acuracy.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_validation_acuracy.csv};
+
+            
+            \nextgroupplot[
+                grid=major, 
+                grid style={dashed,gray!30},
+                xlabel=Epoch, % Set the labels
+                ylabel=Distance,
+                yticklabel pos=right,
+                ylabel near ticks]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e1_distance0.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_distance0.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_distance0.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_distance0.csv};
+
+            \end{groupplot}
+        \end{tikzpicture}
+        \caption{Validation accuray and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained with learning rate schedulers. [TODO: add for ResNet]}
+    \end{center}
+\end{figure}
+
 
 The distance plot now also looks a bit different compared to a fixed lr. We can
 see that after an initial increase in distance to the checkpoint, the distance
-actually decreases again until coming in an area of convergence. For step decay,
-we can see hard edges in contrast to smooth curves of cosine decay. The
-similarity to the alteration of the learning rate gives evidence that the
-decrease of distance is caused by the learning rate. There are two possible explanation: 
+reaches a local maximum and then actually decreases again until coming into an
+area of convergence. For each restart performed, the same pattern repeats again.
+For step decay, we can see hard edges in contrast to smooth curves of cosine
+decay. The similarity to the alteration of the learning rate gives evidence that
+the decrease of distance is caused by the learning rate. There are two possible
+explanation: 
 
 First of all, the decrease in learnig rate could lead to smaller increase in
-distance by the pure fact, that smaller learning rate leads to smaller uodates
+distance by the pure fact, that smaller learning rate leads to smaller updates
 of the weights and threfeore smaller increase in distance. However, this
 couldn`t explain why the distance itself actually keeps decreasing, not just
-smaller increasing.
+smaller increasing. Only could try to explain this with the $L_2$ Loss and a
+similar argument to section \ref{res:Multiple}. For high learning rate, a larger
+Momentum builds up. This leads to parameter values, which are very larger. After
+the momentum is slowed down, the $L_2$ regularization keeps decreasing the
+weights again until reaching an equilibrium. Larger convergences in the
+follwoing cycles make this explanation doubtful. 
 
 Another idea could relate to the wedges. If we enter a wedge, it might be
 possible that we end up on a circular path around the checkpoint. This might
@@ -488,7 +727,66 @@ lead to a valley which decreases the distance again. For large learning rate, we
 can just jump between those valley, but for small learnig rates, we just follow
 these valleys.
 
+Another idea could relate to the loss landscape. In phases of high learning
+rate, a momentum builds up and enforces larger weights. With smaller learning
+rate, possible to take the path of small valleys where for large lr, just
+follows overall  trend. Small valleys lead back to checkpoint.
 
+
+
+We have seen that whenever a warm restart is performed, the accuracy drops.
+However with decreasing learning rate, the network recovers and even tops the
+performance of the previous cycle. This pattern is quite similar to effect of
+multiple checkpoint of section \ref{res:Multiple}. Section
+\ref{sub:Effect_on_Gradient} further motivates a comparison: We suggested that a
+checkpoint would initially just increase the size of the gradient, rather than
+changing its orientation, given that the orientation is stable over some epochs.
+Therefore, the same effect on the parameter update, but rather from a larger
+gradient itself than a larger learning rate, should be achieved.
+
+Figure \ref{fig:Cosine_Multiple} shows a comparison. As mentioned, the pattern
+is quite similar, with a drop in validation accuracy after the warm restart or
+checkpoint. The top accuracy in each cycle also tops the last one for both
+cases. The effect is similar with around 1\% increase in maximum accuracy
+between the first and last cycle. However, the network with cosine decay gets a
+much better absolute accuracy. That's probably due to the small learning rate at
+the end of each cycle, where the network can exploit a small region to fine
+adjust the parameter values.
+
+\begin{figure}[h]\label{fig:Cosine_Multiple}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[
+                grid=major, 
+                grid style={dashed,gray!30},
+                xlabel=Epoch,
+                ylabel=Validation Accuracy,
+                ymin=0.75,
+                legend pos = outer north east,
+                xmin=-10,
+                width=10cm]
+                
+                \addplot[mark=None, color=red] 
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/MobileNetV2_scheduler_cosine_validation_acuracy.csv};
+                    \addlegendentry{cosine decay}
+                \addplot[mark=None, color=green] 
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f100_validation_acuracy.csv};
+                    \addlegendentry{multiple checkpoints}
+                \addplot[mark=None, color=blue] 
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_validation_acuracy.csv};
+                    \addlegendentry{baseline}
+                
+            \end{axis}            
+        \end{tikzpicture}
+        \caption{Validation accuray and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained with learning rate schedulers. [TODO: add for ResNet]}
+    \end{center}
+\end{figure}
+
+Would a combination of both techniques lead to an even better result?
+[TODO:add results and other factor] 
+
+
+\subsubsection{wrong lr}
 
 We might suspect that a learning rate decay should be more robust to a
 suboptimal inital learning rate. At first, this seems to be case. Where a
@@ -497,13 +795,106 @@ scheduler reaches a comparable accuracy to the best network. But if we perform a
 warm restart, the maximum accuracy drops for each cycle, so the network gets
 worse with increasing cycles. If we add the distance function however, we can
 see that it stabilizes the training so that the maximum accuracy stays the same
-for each cycle. However, we loose the effect from before, that each warm restart
-boosts the performance. Nevertheless, this is a significant improvement, which
-is stable across both ResNet32 and MobileNetV2.
+for each cycle. This leads to a performance difference of 8\% for MobileNetV2 in
+favour of the distance function after 600 epochs. The difference is also present
+from the beginning of each restart and remains stable. However, we loose the
+effect from above, that each warm restart boosts the performance. Nevertheless,
+this is a significant improvement, which is stable across both ResNet32 and
+MobileNetV2.
+
+\begin{figure}[h]\label{fig:Results_wrong_lr}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={
+                group size=2 by 2,
+                horizontal sep=10pt,
+                vertical sep=10pt,
+                group name=G},
+                width=8cm
+            ]
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            % xlabel=Epoch,
+            ylabel=Validation Accuracy,
+            xticklabels={,,},
+            ymin=0.3,
+            legend pos = south east,
+            xmin=-10]
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_distance_lr1_validation_acuracy.csv};
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_lr1_validation_acuracy.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/lr/MobileNetV2/run-mobileNetV2_baseline_distance_lr1_1-tag-Validation_accuracy.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/lr/MobileNetV2/run-mobileNetV2_baseline_lr1_1-tag-Validation_accuracy.csv};
+                % add for lr1 longer baseline
+                
+
+            \nextgroupplot[
+                grid=major, 
+                grid style={dashed,gray!30},
+                % xlabel=Epoch,
+                ylabel=Distance,
+                yticklabel pos=right,
+                xticklabels={,,},
+                ylabel near ticks]
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_distance_lr1_distance0.csv};
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_lr1_distance0.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/lr/MobileNetV2/run-mobileNetV2_baseline_distance_lr1_1-tag-distance0.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/lr/MobileNetV2/run-mobileNetV2_baseline_lr1_1-tag-distance0.csv};
+                % add for lr1 baseline
+    
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch, % Set the labels
+            ylabel=Validation Accuracy,
+            ymin=0.7,
+            xmin=-10]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e1_validation_acuracy.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_validation_acuracy.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_validation_acuracy.csv};
+
+            
+            \nextgroupplot[
+                grid=major, 
+                grid style={dashed,gray!30},
+                xlabel=Epoch, % Set the labels
+                ylabel=Distance,
+                yticklabel pos=right,
+                ylabel near ticks]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e1_distance0.csv};
+            \addplot[mark=None, color=orange] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_distance0.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_distance0.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_distance0.csv};
+
+            \end{groupplot}
+        \end{tikzpicture}
+        \caption{Validation accuray and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained with learning rate schedulers. [TODO: add for ResNet]}
+    \end{center}
+\end{figure}
 
 The effect can also be spotted if we compare without scheduler. Here, both
 networks decrease in accuracy over time, but the distance term seems to reduce
-that decrease. [Explanation??]
+that decrease. 
 
 
 
@@ -520,7 +911,6 @@ that decrease. [Explanation??]
     but has to carefully look how large gradient size difference is 
     
 
-\subsubsection{wrong lr}
 
 
 result idea:
@@ -538,6 +928,8 @@ for scheduler:
 epochs and epoch time
 
 maybe not use since or only for scheduler and multiple, since with one not helpful
+
+\section{Computational Cost}\label{Res:Computational_cost}
 
 \section{ensemble methods}
 - idea: uncorellated networks
