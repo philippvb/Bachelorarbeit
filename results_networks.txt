@@ -318,6 +318,22 @@
             "batch_size":128,
             "max_epochs":600},
 
+        "mobileNetV2_scheduler_cosine_lr0":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":False, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1, "regularization":0.001, "scheduler": "cosine", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "mobileNetV2_scheduler_cosine_distance_lr0":{"dataset":"cifar10",
+            "model":"mobileNetV2",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1, "regularization":0.001, "scheduler": "cosine", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
 
 
 
@@ -365,6 +381,22 @@
             "model":"resnet32",
             "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 150, "multiple": True},
             "optimizer":{"name":"sgd_momentum_wdecay", "lr":1e-1, "regularization":0.001, "scheduler": "cosine", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "ResNet32_scheduler_cosine_lr0":{"dataset":"cifar10",
+            "model":"resnet32",
+            "loss_func": {"name":"softmax_loss", "distance":False, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1, "regularization":0.001, "scheduler": "cosine", "step": 50, "cycle":150},
+            "acc_func":{"name":"softmax_accuracy"},
+            "batch_size":128,
+            "max_epochs":600},
+
+        "ResNet32_scheduler_cosine_lr0_distance":{"dataset":"cifar10",
+            "model":"resnet32",
+            "loss_func": {"name":"softmax_loss", "distance":True, "factor":1, "width":1e-3, "step": 150, "multiple": True},
+            "optimizer":{"name":"sgd_momentum_wdecay", "lr":1, "regularization":0.001, "scheduler": "cosine", "step": 50, "cycle":150},
             "acc_func":{"name":"softmax_accuracy"},
             "batch_size":128,
             "max_epochs":600},

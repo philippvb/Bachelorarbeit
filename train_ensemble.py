@@ -1,3 +1,4 @@
+
 import os
 import json
 import pickle
@@ -124,6 +125,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None)
     for epoch in range(next_epoch, experiment_dictionary['max_epochs'] + 1):
 
         print('\n\n Starting epoch %d' %epoch)
+        gradient_size=0
 
         # start training
         model.train()
@@ -208,7 +210,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None)
             minimum_list.append(new_minimum)
             
 
-        if experiment_dictionary['optimizer'].get("scheduler"):
+        if scheduler:
             scheduler.step()
         
         if experiment_dictionary["optimizer"].get("scheduler") is "step" and (epoch-next_epoch+1) % experiment_dictionary["optimizer"].get("cycle") == 0:

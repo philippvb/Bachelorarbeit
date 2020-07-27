@@ -1,6 +1,6 @@
 \chapter{Methods}
 \section{Distance Function}
-\subsection{Motivation}
+\subsection{Motivation}\label{sub:Motivation}
 In section \ref{loss_landscape}, we got a brief overview over the loss landscape
 of deep neural networks and the resulting challenges for optimization. Although
 there exists a large number of local minima, most of them have low cost.
@@ -156,7 +156,7 @@ motivations:
 - seen that cells exists, escape these cells
 - explore instead of exploit
 
-\subsection{Approach}
+\subsection{Approach}\label{sub:Approach}
 An easy approach to move away from an area would be to remember the point you
 want to distance from, and then move in whatever direction increases this
 distance. In a sense, this is what our algorithm does. First, we train the
@@ -375,7 +375,7 @@ of the normal loss function, the distance function therefore increases the
 gradient size rather than change the gradient orientation. Only when the
 direction for a parameter changes, the distance term will work against it.
 
-\subsubsection{Computational analysis}
+\subsubsection{Computational analysis}\label{sub:Computational_Analysis}
 Although the network performance is one of the most important aspects of a
 neural network, other factors like training time have to be taken into account.
 Here, we will analyze how the distance term affects training time. Algorithm

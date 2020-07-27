@@ -1,14 +1,21 @@
 \chapter{Introduction}
 \section{Optimization in Neural Networks}
+Optimization is a core part of the current deep neural networks, as it is the
+foundation of the learning process. However, optimization in the context of deep
+learning differs from traditional optimization in several ways. This section
+focuses on these differences and other current challenges of optimization in
+deep neural networks. Most of the sections are inspired by
+\cite{Goodfellow-et-al-2016}.
+
 \subsection{Difference to normal optimization}\label{sub:1}
-Optimization is a core part of the current deep neural networks, as it is used
-in the learning process of the neural network. However, optimization in the
-context of deep learning differs from  traditional optimization in several ways.
-In traditional optimization, we usually optimize on the data directly. However
-in deep learning, we don't have access to the test set. That's why we use the
-training set to optimize indirectly. Our hope is, that the distribution of the
-training set is close to the one of the later test set, so that reducing
-training error will result in reducing test error.
+In traditional optimization, we usually optimize on the data we want to perform
+later directly. However in deep learning, we usually don't have access to the
+test data. Consider autonomous driving. Here, the data the self-driving agent
+has to act on will be generated while driving, with no chance of getting it in
+advance. But we can capture data of other cars and optimize on them indirectly.
+The hope beeing, that the distribution of the training set is similar to the one
+of the later test set, so that reducing training error will result in reducing
+test error.
 
 Formally, we want to reduce the test error given by
 \begin{align}\label{eq:1}
@@ -16,8 +23,8 @@ Formally, we want to reduce the test error given by
 \end{align}
 where $L$ is the Loss-Function, $f(x;\theta)$ the output of the network with
 respect to the input $x$ and parameters $\theta$, and $y$ the labels for the
-input.This equation is known as \textbf{risk}. However, during the training
-process, we only have access to the training data which is distibuted according 
+input. This equation is known as \textbf{risk}. However, during the training
+process, we only have access to the training set which is distibuted according 
 to $\hat{p}_{data}$ rather than $p_{data}$. Therefore, we can only optimize
 \begin{align}
     J(\theta) = E_{(x,y)\sim \hat{p}_{data}} L(f(x;\theta), y)
@@ -28,8 +35,8 @@ To overcome this issue, we use a technique called empirical risk minimization.
 although we cannot reduce the generalization risk of equation \ref{eq:1}, as we
 only have the training data. To convert the problem back to a normal
 optimization problem, we use the expectation over the empirical distribution.
-This is known as empirical risk minimization. Here, we use the mean as an
-unbiased estimator for the true mean of $\hat{p}_{data}$.
+This is known as \textbf{empirical risk minimization}. The arimethic mean
+serves as an unbiased estimator for the true mean of $\hat{p}_{data}$.
 \begin{align}\label{eq:3}
     J(\theta) = E_{(x,y)\sim \hat{p}_{data}} L(f(x;\theta), y) = \frac{1}{m} \sum_{i=1}^m L(f(x^{(i)}; \theta), y^{(i)})
 \end{align}
@@ -38,6 +45,7 @@ quickly leads to overfitting, where the network memorizes the training set.
 Additional measurements like Regularization have to be taken to account for that
 problem.
 
+\begin{comment}
 Another part in which we often optimize indirectly is the loss function
 $L(f(x;\theta), y)$. Take a classification task for example. An intuitive loss
 function would be the accuracy, which is computed by:
@@ -47,6 +55,7 @@ function would be the accuracy, which is computed by:
 When using this loss function with gradient descent however, this would lead to
 no useful gradient as it is 0 everywhere[??]. That's why we use another loss
 function like Cross-Entropy to optimize for this function indirectly.
+\end{comment}
 
 \subsection{Minibatch Algorithms}\label{sub:Minibatch}
 We have seen in equation \ref{eq:3} that we use the mean over the whole training
@@ -91,21 +100,21 @@ prefered, as the term batch is also used in minibatch methods. The other extreme
 are \textbf{stochastic} or \textbf{online} methods, where only one training
 example is processed at a time. In between lie the methods, where more than one
 training example is used, but not all. These are called \textbf{minibatch}
-methods and are most commonly used in machine learning. An typical example for
-stochastic methods is stochastic gradient descent (SGD).
+methods and are most commonly used in machine learning. A typical example for
+stochastic methods is stochastic gradient descent (SGD), see section \ref{SGD}.
 
 
-Both methods have their advantages other from the computational perspective.
-While large batches offer a more accurate estimate of the gradient, small
-batches can add a regularization effect. They add some noise to the gradient,
-and therefore leads the optimization algorithm to areas, where a small
-inaccuracy in the gradient converge to the same point. As the point is a very
-stable or wide minimum, this results in a regularization effect which decreases
-the generalization error. This is also supported by the work of Keskar et al.
-(2017), who argued that larger batches converge to sharp minimas, whereas small
-converge to flat. As we will argue later flat minima are believed to be better
-in generalization. Therefore, a small batch which ends up in a flat minima
-results in better generalization capabilities.
+Both methods have their advantages beyond the computational perspective. While
+large batches offer a more accurate estimate of the gradient, small batches can
+add a regularization effect. They add some noise to the gradient, and therefore
+lead the optimization algorithm to areas, where a small inaccuracy in the
+gradient converges to the same point. As the point is a very stable or wide
+minimum, this results in a regularization effect which decreases the
+generalization error. This is also supported by the work of Keskar et al.
+\cite{keskar2016large}, who argued that larger batches converge to sharp
+minimas, whereas small converge to flat. As we will argue in flat minima are
+believed to be better in generalization. Therefore, a small batch which ends up
+in a flat minima results in better generalization capabilities.
 
 
 The effect of batch size is also sensitive to the choice of the optimization
@@ -136,15 +145,13 @@ emphasized further by other factors, in particular the non-convex loss
 landscape. This part will summarize some of these problems and their
 implications for deep learning.
 
-\subsubsection{Ill-Conditioning}???
-
 
 \subsubsection{Local Minima}
 In convex optimization problems, every local minima is guaranteed to be the
-global minima. Therefore finding a minimum is a sufficient enough condition to stop. In
-neural networks however, the loss landscape is highly non-convex. This results
-in a local minima possibly having higher cost value than the global minima.
-Proofs that these local minima exist can be constructed quite easily.
+global minima. Therefore finding a minimum is a sufficient enough condition to
+stop. In neural networks however, the loss landscape is highly non-convex. This
+results in a local minima possibly having higher cost value than the global
+minima. Proofs that these local minima exist can be constructed quite easily.
 
 One example is the weight space symetrie. Suppose you swap out nodes i and j by
 swapping their incoming and outgoing weights. Then the activation in the next
@@ -152,17 +159,18 @@ and all subsequent layers of the networks will stay the same, but the networks
 are located at different places in the loss landscape, therefore creating two
 local minimas. Although a large number of these local minima exist, they form no
 problem for optimization. As mentioned, the swap will lead to the same
-activation, therefore the networks will performe the on the data and the value
-of these local minimas will be equal.
+activation, therefore the networks will performe the same on the data and the
+value of these local minimas will be equal.
 
 However, there can also exist local minima with high cost compare to the global
 minimum. In theorie this was believed to be an issue, but in practice it seemed
 to cause no problem. Recently, some theoretical work support these findings.
-Chromanska et al. \cite{choromanska2015loss} applied spin glass theory from physics to neural
-networks. This allowed them to verify, that indeed nearly all local minima are
-of roughly the same cost and lead to the same test error. Furthermore, the
-propability of a local minima with high cost quickly diminishes as the network
-grows in size. One reason is that most local extrema are in fact saddle points.
+Chromanska et al. \cite{choromanska2015loss} applied spin glass theory from
+physics to neural networks. This allowed them to verify, that indeed nearly all
+local minima are of roughly the same cost and lead to the same test error.
+Furthermore, the propability of a local minima with high cost quickly diminishes
+as the network grows in size. One reason is that most local extrema are in fact
+saddle points.
 
 \subsubsection{Saddle Points}\label{prob:3}
 Saddle points are another type of local extrema where the gradient is 0. In
@@ -176,15 +184,16 @@ of the Hessian is generated by flipping a coin. In a low-dimensional space, it
 quite likely that all of these flips will be positive or negative, resulting in
 minima or maxima. The higher the dimension gets however, the more likely the
 Hessian is to have both positive and negative eigenvalues. Therefore, there
-exist more saddle points. Chromanska et al. \cite{choromanska2015loss} also showed that these saddle points
-are more likely to occur in areas of higher loss.
+exist more saddle points. Chromanska et al. \cite{choromanska2015loss} also
+showed that these saddle points are more likely to occur in areas of higher
+loss.
 
 What problems arise from saddle points depends in the choice of the optimization
 algorithm. For first-order algorithms, the situation is unclear. Although the
 gradient might get small in regions close to saddle points and as a result could
 slow down training, in pratice it seems like it isn't a problem for gradient
 descent. Especially when adding Momentum to the algorithm, it is very unlikely
-that that the gradient reaches 0, because there is no gradient in opposing
+that that the gradient becomes 0, because there is no gradient in opposing
 direction which would decrease the momentum.
 
 For second-order algorithms, saddle points are clearly a problem. Newton's
@@ -193,17 +202,17 @@ therefore attracted to saddle points or even other extrema like maxima. This is
 partly resolved by the introduction of saddle-free Newton. 
 
 
-\subsubsection{Vanishing gradients}\label{sub:Vanishing_gradient}
-Today's neural network become very deep. But with increasing depth, there arises
-a problem called vanishing and exploding gradient. It refers to the fact that
-when back-propagating the gradient, it either vanishes or explodes. More
-formally, consider a matrix $W$ which is multiplied by repeatedly on a
-computation path. If a eigendecomposition $Vdiag(\lambda )V^{-1}$ exists, this
-results in $(Vdiag(\lambda )V^{-1})^t=Vdiag(\lambda )^tV^{-1}$. Therefore, all
-values are scaled according to the eigenvalues of $W$. If these eigenvalues are
-smaller than 1, the gradient will vanish. If they are larger then 1, it will
-explode. This occurs as the network becomes increasingly deep, as the power of
-these eigenvalues is taken. One solution for this problem is the ResNet
+\subsubsection{Vanishing gradients}\label{sub:Vanishing_gradient} Today's neural
+network become very deep. But with increasing depth, there arises a problem
+called vanishing and exploding gradient. It refers to the fact that when
+back-propagating the gradient, it either vanishes or explodes. More formally,
+consider a matrix $W$ which is multiplied by repeatedly on a computation path.
+If a eigendecomposition $Vdiag(\lambda )V^{-1}$ exists, this results in
+$(Vdiag(\lambda )V^{-1})^t=Vdiag(\lambda )^tV^{-1}$. Therefore, all values are
+scaled according to the eigenvalues of $W$. If these eigenvalues are between 0
+and 1, the gradient will vanish. If they are larger then 1, it will explode.
+This especially occurs when the network becomes increasingly deep, as the power
+of these eigenvalues is taken. One solution for this problem is the ResNet
 architecture, which will be described in detail in section \ref{sub:ResNet}
 
 \subsubsection{Poor correspondence betwenn local and global
@@ -213,9 +222,30 @@ The previous sections have focused on which problems we are facing when
 computing a gradient or updating locally. However, the local structure can often
 be misleading, as it doesn't reflect the global one. Even if we are able to
 perform the best move locally and end up in a local minima, we are not
-guaranteed to be in the globally best area. [Figure 8.4] This can have various
-reasons like a bad starting point, where the initial gradient push us away into
-an area we cannot recover from.
+guaranteed to be in the globally best area. Figure \ref{fig:Poor_correspondence}
+shows an example of suboptimal initialization. As the local structure for $x<0$
+doesn't reflect the global, these initializations will not lead to the global
+minimum.
+
+\begin{figure}[h]\label{fig:Poor_correspondence}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=$x$, % Set the labels
+            ylabel=$f(x)$,
+            xmin=-3,
+            xmax=3]
+            \addplot[mark=none,color=blue, line width=1.5pt, samples=100] {exp(-(x-0.1)^2)-0.5/(1+exp(-x))};%{exp(-x^2)-0.5*exp(-(x-2)^2)+1};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Example of poor correspondence between local and global
+        structure. If $x<0$ is initialized, gradient descent will lead us in
+        negative direction. However, this leads away from the global optimum
+        on the right.}
+    \end{center}
+\end{figure}
 
 Another issue may be that there even is no global minimum. This happens for
 example with the usage of the softmax, where the weights are increased without
@@ -228,11 +258,66 @@ classification is replaced by $1-\frac{1}{k}$. The network is now able to
 resemble the labels without extreme output values.
 
 Solutions for this problem primarly focus on choosing the right inital values at
-the moment. [Maybe add solutions] 
-The global structure will be discussed in detail in section \ref{loss_landscape}.
+the moment.
 
-\subsubsection{Initilization strategies}
+\subsubsection{Initialization strategies}\label{sub:Initialization_strategies}
+In the last section, the poor correspondence between local and global structure
+was shown. Initializations at the wrong place on the loss landscape lead to a
+gradeint descent in a direction away from the global optimum. But as we don't
+know the shape of the loss landscape in advance, no initialization can guarantee
+a good solution or even convergence at all. Hwowever, some strategies have
+become widely used.
 
+The first and only known property of initialization is that is has to be
+asymetric. This means that two units that share the same input must have
+different weights attached to these inputs. If this is not the case, a
+deterministic optimization algorithm, will update both these parameters in the
+same way. To break this symetry, the weights are initialized randomly. If a
+gaussian or uniform distribution is used doesn't really seem to matter.
+
+However, the range of these functions seems to matter. Wide distributions have a
+stronger symetry breaking effect, but come with the risk of exploding gradients
+as discussed in section \ref{sub:Vanishing_gradient}. The problem of vanishing
+gradients arise if the distribution is too small. The statictical viewpoint
+suggests a initialization to small weights nevertheless. Here, large weight
+initialization is seen as a large gaussain prior, which and how the units
+interact. As we have no reason to encourage one interactionover another, the
+weights should be as small as possible. 
+
+Some heuristics try to balance these different motivations. One of the most
+famous one is the normalized initialization from Glorot
+\cite{glorot2010understanding}. For a fully connected layer of $m$ inputs and
+$n$ outputs, the weights should be initilaized according to a uniform
+distribution:
+
+\begin{align}
+    W \sim U(-\sqrt{\frac{6}{m+n}}, \sqrt{\frac{6}{m+n}})
+\end{align}
+
+The biases are normally initialized to a constant. A value of 0 seems to behave
+well for most applications.
+
+
+
+
+\subsubsection{Stopping criteria}
+In traditional optimization, simple heuristics are used to determine the point
+of stopping, like a gradient of 0. However many local minima exits on the loss
+landscape. In addition, usually we are notable to find these local extrema, as
+minibatch algoprithms only give an approximation of the real gradient and the
+learning rate may lead to large step sizes which overshoot the minimum.
+
+What we normally see in terms of performance is an initial decrease in training
+loss paired with an increase in validation accuracy. But after some epochs, we
+enter the overfitting region, where training loss keeps decreasing but
+validation accuracy also decreases again. In early stopping, this is used the
+determine the stopping point. After each epochs we store a copy of the parameter
+values. Then we train the network for a fixed number of epochs. At the point when
+the validation error starts to rise again, we can return to the parameters
+before. As no additional computation time is required, this is a very efficient
+method from a computational perspective, but may require some extra storage.
+This apporach is very different to traditional optimization,as gradients may
+still be very large.
 
 
 
@@ -243,16 +328,35 @@ deep learning. It is also one of the most basic ones, as it only takes the
 gradient at the current position into account. In contrast to normal gradient
 descent, SGD computes the gradient on minibatches, not on the whole dataset.
 Nevertheless, as long as the training data is only used once, SGD gives an
-unbiases estimate of the true gradient (see Section \ref{sub:Minibatch}). Algorithm x
-shows a pseudo-code of SGD.
-[TODO: Add pseudo code]
+unbiases estimate of the true gradient (see Section \ref{sub:Minibatch}). 
+
+\begin{algorithm}\label{alg:SGD}
+    \begin{algorithmic}[1]
+        \caption{Stochastic gradient descent from \cite{Goodfellow-et-al-2016}}
+        \REQUIRE learning rate $\epsilon$
+        \ENSURE a trained neural network
+        \STATE initialize the network, dataset and training parameters
+        \WHILE{stopping criteria is not met}
+            \STATE sample minibatch of $m$ examples ${x^{(1)}, ... ,x^{(n)}}$
+            \STATE compute gradient estimate $\hat{g}=\frac{1}{m} \nabla_\theta \sum_i L(f(x^{(i);\theta}),y^{(i)})$
+            \STATE apply parameter update $\theta=\theta-\epsilon\cdot\hat{g}$
+        \ENDWHILE
+        \STATE \textbf{return: the trained network}
+    \end{algorithmic}
+\end{algorithm}
+
+First, the network is initialized. Then, the training loop repeats, until the
+stopping criteria is met. At the beginning, a minibatch is sampled. Then, the
+gradients are calculated, multiplied by the learning rate $\epsilon$ and finally
+applied to update the parameter values.
+
 
 \subsubsection{Learning rate decay}\label{sub:Learing_rate_decay}
 One of the most important hyperparameters of SGD is the learning rate. While the
 optimal learning rate differs for every problem, it is important to decay the
 learning rate with the number of epochs. Initilally, it is good to choose a
 large learning rate. This leads to fast learning at the beginning, and avoids
-the algorithm getting stuck in high loss areas. As the number of epochs
+the algorithm getting stuck areas of high loss. As the number of epochs
 increases, it is important to shrink the learning rate. SGD only is a stochastic
 algorithm, therefore its gradient is inaccurate. Even when we find a local
 minima with a gradient of 0 on the minibatch, the true gradient will not be 0. A
@@ -270,9 +374,11 @@ continously.
 \begin{align}\label{eq:cosine_decay}
     \epsilon_t = \epsilon_{min} + \frac{1}{2} (\epsilon_{max} - \epsilon_{min})(1+cos(\frac{T_{cur}}{T_0}\pi))
 \end{align}
-Here $\epsilon_{min}$ and $\epsilon_{max}$ define the range of the lr, $T_cur$ is
-the current and $T_0$ is the maximum number of epochs.
-[Maximus paper]
+Here $\epsilon_{min}$ and $\epsilon_{max}$ define the range of the lr, $T_cur$
+is the current and $T_0$ is the maximum number of epochs. The advantage of
+cosine decay is that the learning rate is decayed down to 0 in the defined
+interval, independent of the initial learning rate. In contrast, the smallest
+learning rate of step decay is dependent of the initial  one.
 
 \subsubsection{Momentum}\label{sub:Momentum}
 Momentum is a popular variation of SGD. It is used to speed up the training of
@@ -307,7 +413,27 @@ training. If $\epsilon$ is kept constant, the larger $\alpha$, the faster
 training will become. An value of $0.9$ for example would lead to a speed up
 factor of $10$, while $0.8$ would lead to a speed up of $5$.
 
-Algorithm [TODO add algorithm] shows the implementation of momentum in SGD.
+\begin{algorithm}
+    \begin{algorithmic}[1]
+        \caption{Stochastic gradient descent with Momentum from \cite{Goodfellow-et-al-2016}}
+        \REQUIRE learning rate $\epsilon$
+        \REQUIRE momentum parameter $\alpha$
+        \ENSURE a trained neural network
+        \STATE initialize the network, dataset and training parameters
+        \WHILE{stopping criteria is not met}
+            \STATE sample minibatch of $m$ examples ${x^{(1)}, ... ,x^{(n)}}$
+            \STATE compute gradient estimate $\hat{g}=\frac{1}{m} \nabla_\theta \sum_i L(f(x^{(i);\theta}),y^{(i)})$
+            \STATE compute velocity update $v=\alpha v - \epsilon \hat{g}$
+            \STATE apply parameter update $\theta=\theta-v$
+        \ENDWHILE
+        \STATE \textbf{return: the trained network}
+    \end{algorithmic}
+\end{algorithm}
+
+In pseudo code, SGD with Momentum looks similar to normal SGD \ref{alg:SGD}. The
+only difference is line 5 and 6, where the velocity is updated and then used to
+update the parameters rather than the gradient itself.
+
 
 Momentum also adds an regularization effect, because it is attracted to stable
 or flat minima. If the minima is too small, it won't be able to stop the
@@ -316,7 +442,7 @@ won't stay in a small hole but keep on going, if it's speed is larger enough.
 
 
 
-\subsubsection{Nesterov??}
+
 
 
 \section{Related work}
@@ -349,20 +475,21 @@ The paramter $\lambda$ controls the strength of the $L_2$ and has to be adjusted
 for each problem.
 
 Other work has gone into understanding the connection to the loss surface.
-Hochreiter \& Schmidhuber \cite{hochreiter1997flat} argued that flat minimas have better
-generalization capabilities. A flat minima is a region where the loss stays
-constant in conrtrast to sharp one, where small steps can increase the loss
-significantly. Therefore, flat minimas will perform constantly even for small
-changes in the input, whereas sharp minimas will lead to an increase in
+Hochreiter \& Schmidhuber \cite{hochreiter1997flat} argued that flat minimas
+have better generalization capabilities. A flat minima is a region where the
+loss stays constant in conrtrast to sharp one, where small steps can increase
+the loss significantly. Therefore, flat minimas will perform constantly even for
+small changes in the input, whereas sharp minimas will lead to an increase in
 generalization error. Support also comes from the minimum description length
 theory, which states that fewer bits are needed to describe a flat minimum than
 a sharp. Lower complexity leads to a better generalization error. The idea is,
 that in the network we try to compress the data. The more we compress the data
 while also beeing able to resemble it, the more of the structure of the data we
 uncover. Therefore, a model with lower complexity can fit the underlying data
-better and achieve a better generalization error. Keskar et al. (2017) draw the
-same conclusion. They also provide a solution for finding flat minimas in using
-small batch sizes, see chapter \ref{sub:Minibatch}.
+better and achieve a better generalization error. Keskar et al.
+\cite{keskar2016large} draw the same conclusion. They also provide a solution
+for finding flat minimas in using small batch sizes, see chapter
+\ref{sub:Minibatch}.
 
 Work from Dinh et al. \cite{dinh2017sharp} however contradicts this view. They
 argue that the notion of flat is problematic in the context of deep learning, as
@@ -421,12 +548,12 @@ repeated for several times. The idea is, that in phases of high learning rate,
 the network explores the loss surface due to large steps. In epochs of low
 learning rate, the network exploits a small area to find the best parameter
 values. This may also add an regularization effect by letting the optimizer
-escape from unstable minima during high learning rate.
+escape from unstable minima during high learning rate. [doubtful???]
 
 The authors report an new state of the art result at 3.14\% test error for
 Wide-Residual-Net 28-20. Their method also perfoms better when compared to step
 decay.
-\subsection{Ensemble methods}
+\subsection{Ensemble methods}\label{sub:Ensemble_Methods}
 The general idea of ensemble methods is to combine the predictions of multiple
 networks to get a more accurate prediction. The fact that this leads to an
 improvement can be seen in a simple regression problem. Suppose there exist k
@@ -492,6 +619,12 @@ Further aspects that could be included:
 - classififcation in general
 - cross entropy loss and loss functions
 - gradient descent
+
+
+openquestions:
+where generalization gap
+areas ofsame loss better
+expand sgd warm restart
 
 
 \end{comment}

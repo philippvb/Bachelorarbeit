@@ -96,12 +96,24 @@ def computedistance(minimum, model):
     return distance
 
 
+@torch.no_grad()
 def computegradientsize(model):
     size=0
     for param in model.parameters():
-        size += torch.sum(torch.exp(param.grad))
+        size += torch.sum(torch.mul(param.grad, param.grad))
     
     return size
+
+
+@torch.no_grad()
+def compute_cosine_similarity(model, tensor):
+    similarity=0
+    cos=torch.nn.CosineSimilarity()
+    for model_parameters, tensor_values in zip(model.parameters(), tensor):
+        similarity+= cos(model_parameters, tensor_values)
+
+    similarity=similarity/len(tensor)
+    return similarity
 
 
 def softmax_accuracy(model, images, labels):

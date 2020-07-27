@@ -95,6 +95,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
     first_minimum=True
 
     minimum_0 = create_minimum(model)
+    #last_gradient=create_checkpoint_gradient(model, True)
 
 
 
@@ -149,7 +150,11 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
         print("Current learn rate is %f" % get_lr(opt))
 
         start_time = time.time()
+
         gradient_size=0
+        # gradient_similarity=0
+        iterations=len(train_loader)
+
         for images,labels in train_loader:#tqdm.tqdm(train_loader):
             if gpu_exists:
                 images, labels = images.cuda(), labels.cuda()
@@ -158,9 +163,15 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
             loss = loss_function(model, images, labels, minimum_list)
             loss.backward()
             gradient_size+=metrics.computegradientsize(model)
+            #gradient_similarity+=metrics.compute_cosine_similarity(model,last_gradient)
+            #last_gradient=create_checkpoint_gradient(model)
             opt.step()
 
         end_time = time.time()
+
+        gradient_size=gradient_size/iterations
+        #gradient_similarity=gradient_similarity/iterations
+
 
 
         # evaluate model
@@ -183,6 +194,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
         writer.add_scalar('train_epoch_time', end_time - start_time, epoch)
         writer.add_scalar('lr', get_lr(opt), epoch)
         writer.add_scalar('Gradient_size', gradient_size, epoch)
+        #writer.add_scalar('Gradient_cosine_similarity', gradient_similarity, epoch)
         writer.add_scalar('Distance_to_0', metrics.computedistance(minimum_0, model).data, epoch)
 
         for distance, i in zip(distance_list, range(len(distance_list))):
@@ -249,6 +261,16 @@ def create_minimum(model):
 
     return minimum
 
+def create_checkpoint_gradient(model, inital=False):
+    checkpoint=[]
+    for param in model.parameters():
+        if inital:
+            gradient = torch.zeros_like(param)
+        else:
+            gradient = param.grad.clone().detach().to(device='cuda')
+        checkpoint.append(gradient)
+
+    return checkpoint
 
 def set_lr(optimizer, lr):
     for param_group in optimizer.param_groups:

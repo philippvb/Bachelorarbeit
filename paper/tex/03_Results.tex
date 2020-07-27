@@ -9,7 +9,7 @@ The interaction of training hyperparameters like learning rate and epochs will
 be discussed in section \ref{res:Training}. Finally, the usage for ensemble
 methods will be tested.
 
-\section{Baseline}
+\section{Baseline}\label{res:Baseline}
 For the baseline, we use the hyperparameters as defined in section
 \ref{sub:Hyperparameters}. Figure \ref{fig:Results_baseline} shows the result,
 if we add a checkpoint after 100 epochs of training. For the validation accuray,
@@ -47,9 +47,9 @@ distance function keeps on walking and never truly stops at a point.
             ymin=0.8,
             xmin=-10]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_validation_acuracy.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_distance_validation_acuracy.csv};
             
             \nextgroupplot[
                 grid=major, 
@@ -60,9 +60,9 @@ distance function keeps on walking and never truly stops at a point.
                 xticklabels={,,},
                 ylabel near ticks]
                 \addplot[mark=None, color=red] 
-                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_distance0.csv};
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_distance0.csv};
                 \addplot[mark=None, color=blue] 
-                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_distance0.csv};
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_distance_distance0.csv};
     
 
             \nextgroupplot[
@@ -73,9 +73,9 @@ distance function keeps on walking and never truly stops at a point.
             ymin=0.8,
             xmin=-10]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/ResNet32_baseline_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_validation_acuracy.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_distance_validation_acuracy.csv};
             
             \nextgroupplot[
                 grid=major, 
@@ -85,9 +85,9 @@ distance function keeps on walking and never truly stops at a point.
                 yticklabel pos=right,
                 ylabel near ticks]
                 \addplot[mark=None, color=red] 
-                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/ResNet32_baseline_distance0.csv};
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_distance0.csv};
                 \addplot[mark=None, color=blue] 
-                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_distance0.csv};
+                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_distance_distance0.csv};
 
             \end{groupplot}
         \end{tikzpicture}
@@ -285,7 +285,8 @@ local minima everywhere on the landscape.
                 horizontal sep=10pt,
                 vertical sep=10pt,
                 group name=G},
-                width=8cm
+                width=8cm,
+                restrict x to domain=0:400
             ]
 
             \nextgroupplot[
@@ -303,8 +304,8 @@ local minima everywhere on the landscape.
             \addplot[mark=None, color=orange] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/width/MobileNetV2/MobileNetV2_width_e2_validation_acuracy.csv};
             \addlegendentry{$\sigma^2=10$}
-            \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_validation_acuracy.csv};
+            \addplot[mark=None, color=blue]
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_distance_validation_acuracy.csv};
             \addlegendentry{$\sigma^2=100$}
             \addplot[mark=None, color=green] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/width/MobileNetV2/MobileNetV2_width_e4_validation_acuracy.csv};
@@ -323,7 +324,7 @@ local minima everywhere on the landscape.
             \addplot[mark=None, color=orange] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/width/MobileNetV2/MobileNetV2_width_e2_distance0.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_distance0.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_distance_distance0.csv};
             \addplot[mark=None, color=green] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/width/MobileNetV2/MobileNetV2_width_e4_distance0.csv};
     
@@ -340,7 +341,7 @@ local minima everywhere on the landscape.
             \addplot[mark=None, color=orange] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_validation_acuracy.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_distance_validation_acuracy.csv};
             \addplot[mark=None, color=green] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_validation_acuracy.csv};
 
@@ -357,7 +358,7 @@ local minima everywhere on the landscape.
             \addplot[mark=None, color=orange] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_distance0.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_distance0.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_distance_distance0.csv};
             \addplot[mark=None, color=green] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_distance0.csv};
 
@@ -422,10 +423,10 @@ restart the reached accuracy increases. For a in depth comparison, see section
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_validation_acuracy.csv};
                 \addlegendentry{$s=1$}
-            \addplot[mark=None, color=blue] 
+            \addplot[mark=None, color=green] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f10_validation_acuracy.csv};
                 \addlegendentry{$s=10$}
-            \addplot[mark=None, color=green] 
+            \addplot[mark=None, color=blue] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f100_validation_acuracy.csv};
                 \addlegendentry{$s=100$}
             
@@ -435,18 +436,16 @@ restart the reached accuracy increases. For a in depth comparison, see section
             grid=major, 
             grid style={dashed,gray!30},
             xlabel=Epoch, % Set the labels
-            yticklabels={,,},
+            ytick pos=right,
             ymin=0.6,
             ymax=1,
             xmin=-10]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e1_validation_acuracy.csv};
-            \addplot[mark=None, color=orange] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_validation_acuracy.csv};
-            \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_validation_acuracy.csv};
             \addplot[mark=None, color=green] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_f10_validation_acuracy.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_f100_validation_acuracy.csv};
             % [TODO: add ResNet Multiple]
 
             \end{groupplot}
@@ -474,7 +473,7 @@ lead to a decrease of the distance to existing checkpoints.
         \begin{tikzpicture}
             \begin{groupplot}[
                 group style={
-                group size=3 by 1,
+                group size=3 by 2,
                 horizontal sep=10pt,
                 vertical sep=10pt,
                 group name=G},
@@ -491,7 +490,8 @@ lead to a decrease of the distance to existing checkpoints.
             ylabel=distance,
             ylabel near ticks,
             ymax=8000,
-            xmin=140]
+            xmin=140,
+            xticklabels={,,}]
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_distance0.csv};
             \addplot[mark=None, color=green] 
@@ -503,10 +503,10 @@ lead to a decrease of the distance to existing checkpoints.
             title=checkpoint 2,
             grid=major, 
             grid style={dashed,gray!30},
-            xlabel=Epoch,
             yticklabels={,,}
             ymax=8000,
-            xmin=290]
+            xmin=290,
+            xticklabels={,,}]
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_distance1.csv};
             \addplot[mark=None, color=green] 
@@ -518,11 +518,11 @@ lead to a decrease of the distance to existing checkpoints.
             title=checkpoint 3,
             grid=major, 
             grid style={dashed,gray!30},
-            %xlabel=Epoch,
             yticklabels={,,},
             ymax=8000,
             legend pos = outer north east,
-            xmin=440]
+            xmin=440,
+            xticklabels={,,}]
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_distance2.csv};
                 \addlegendentry{$s=1$}
@@ -532,6 +532,49 @@ lead to a decrease of the distance to existing checkpoints.
             \addplot[mark=None, color=blue] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f100_distance2.csv};
                 \addlegendentry{$s=100$}
+
+%--------------------ResNet----------------------------------------------------
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            ylabel=distance,
+            ylabel near ticks,
+            ymax=8000,
+            xmin=140]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_distance0.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_f10_distance0.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_f100_distance0.csv};
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch,
+            yticklabels={,,}
+            ymax=8000,
+            xmin=290]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_distance1.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_f10_distance1.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_f100_distance1.csv};
+
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            yticklabels={,,},
+            ymax=8000,
+            xmin=440]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_distance2.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_f10_distance2.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_f100_distance2.csv};
 
             \end{groupplot}
         \end{tikzpicture}
@@ -637,7 +680,7 @@ convergence to wider and more stable convergence.
             legend pos = south east,
             xmin=-10]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_validation_acuracy.csv};
                 \addlegendentry{fixed lr}
             \addplot[mark=None, color=green] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/MobileNetV2_scheduler_step_validation_acuracy.csv};
@@ -654,7 +697,7 @@ convergence to wider and more stable convergence.
                 xticklabels={,,},
                 ylabel near ticks]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_distance0.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_distance0.csv};
             \addplot[mark=None, color=green] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/MobileNetV2_scheduler_step_distance0.csv};
             \addplot[mark=None, color=blue] 
@@ -669,13 +712,12 @@ convergence to wider and more stable convergence.
             ymin=0.7,
             xmin=-10]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e1_validation_acuracy.csv};
-            \addplot[mark=None, color=orange] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_validation_acuracy.csv};
+            %\addplot[mark=None, color=green] 
+             %   table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/ResNet32/ResNet32_scheduler_step_validation_acuracy.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
-            \addplot[mark=None, color=green] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/ResNet32/ResNet32_scheduler_cosine_validation_acuracy.csv};
+
 
             
             \nextgroupplot[
@@ -686,13 +728,11 @@ convergence to wider and more stable convergence.
                 yticklabel pos=right,
                 ylabel near ticks]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e1_distance0.csv};
-            \addplot[mark=None, color=orange] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_distance0.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_distance0.csv};
+%           \addplot[mark=None, color=green] 
+%                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/ResNet32/ResNet32_scheduler_step_distance0.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_distance0.csv};
-            \addplot[mark=None, color=green] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_distance0.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/ResNet32/ResNet32_scheduler_cosine_distance0.csv};
 
             \end{groupplot}
         \end{tikzpicture}
@@ -823,11 +863,11 @@ MobileNetV2.
             ymin=0.3,
             legend pos = south east,
             xmin=-10]
-            \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_distance_lr1_validation_acuracy.csv};
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_lr1_validation_acuracy.csv};
             \addplot[mark=None, color=green] 
+               table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_distance_lr1_validation_acuracy.csv};
+            \addplot[mark=None, color=blue] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/lr/MobileNetV2/run-mobileNetV2_baseline_distance_lr1_1-tag-Validation_accuracy.csv};
             \addplot[mark=None, color=orange] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/lr/MobileNetV2/run-mobileNetV2_baseline_lr1_1-tag-Validation_accuracy.csv};
@@ -842,32 +882,30 @@ MobileNetV2.
                 yticklabel pos=right,
                 xticklabels={,,},
                 ylabel near ticks]
-            \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_distance_lr1_distance0.csv};
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_lr1_distance0.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_distance_lr1_distance0.csv};
             \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/MobileNetV2/lr1/MobileNetV2_scheduler_cosine_lr1_distance0.csv};
+            \addplot[mark=None, color=blue] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/lr/MobileNetV2/run-mobileNetV2_baseline_distance_lr1_1-tag-distance0.csv};
             \addplot[mark=None, color=orange] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/lr/MobileNetV2/run-mobileNetV2_baseline_lr1_1-tag-distance0.csv};
                 % add for lr1 baseline
-    
+
+        
 
             \nextgroupplot[
             grid=major, 
             grid style={dashed,gray!30},
             xlabel=Epoch, % Set the labels
             ylabel=Validation Accuracy,
-            ymin=0.7,
+            ymin=0.5,
             xmin=-10]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e1_validation_acuracy.csv};
-            \addplot[mark=None, color=orange] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_validation_acuracy.csv};
-            \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/ResNet32/lr1/ResNet32_scheduler_cosine_lr1_validation_acuracy.csv};
             \addplot[mark=None, color=green] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/ResNet32/lr1/ResNet32_scheduler_cosine_lr1_distance_validation_acuracy.csv};
+        
 
             
             \nextgroupplot[
@@ -878,13 +916,9 @@ MobileNetV2.
                 yticklabel pos=right,
                 ylabel near ticks]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e1_distance0.csv};
-            \addplot[mark=None, color=orange] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e2_distance0.csv};
-            \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_distance0.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/ResNet32/lr1/ResNet32_scheduler_cosine_lr1_distance0.csv};
             \addplot[mark=None, color=green] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/width/ResNet32/ResNet32_width_e4_distance0.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/ResNet32/lr1/ResNet32_scheduler_cosine_lr1_distance_distance0.csv};
 
             \end{groupplot}
         \end{tikzpicture}
@@ -931,7 +965,100 @@ maybe not use since or only for scheduler and multiple, since with one not helpf
 
 \section{Computational Cost}\label{Res:Computational_cost}
 
+Improvement in performance often arises with an increase in computational cost.
+In Section \ref{sub:Computational_Analysis} this was discussed in a theoretical
+setting, suggesting that the additional cost would scale linear with each
+checkpoint. If we analyze the baseline network without distance from section
+\ref{res:Baseline}, we reach a per epoch training time of 68s, trained on the
+TCML Cluster [Add reference]. For the network trained with distance function, we
+start with the same epoch time, as the analysis expected. That`s due to the
+fact, that we also start training without the distance function. But once we add
+a checkpoint, the epoch time rises by 21s to a total of 89s, see figure
+\ref{fig:Epoch_time}. If we add multiple checkpoints, the increase for each
+stays constant at around 21ms. Therefore the cost indeed scales linear to the
+number of checkpoints.
+
+\begin{figure}[h]\label{fig:Epoch_time}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={
+                group size=2 by 1,
+                horizontal sep=10pt,
+                group name=G},
+                width=8cm,
+            ]
+                
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch, % Set the labels
+            ylabel=Epoch time,
+            ylabel near ticks,
+            legend pos=north west,
+            legend style={nodes={scale=0.7, transform shape}}
+            ]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_epoch_time.csv};
+                \addlegendentry{baseline}
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_distance_epoch_time.csv};
+                \addlegendentry{one checkpoint}
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_epoch_time.csv};
+                \addlegendentry{multiple checkpoints}
+            
+            \nextgroupplot[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=Epoch, % Set the labels
+            ytick pos=right
+            ]
+            \addplot[mark=None, color=red] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_epoch_time.csv};
+            \addplot[mark=None, color=green] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_distance_epoch_time.csv};
+            \addplot[mark=None, color=blue] 
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/ResNet32/ResNet32_multiple_epoch_time.csv};
+            
+
+            \end{groupplot}
+            
+        \end{tikzpicture}
+        \caption{Epoch time in seconds for different configurations of MobileNetV2.}
+    \end{center}
+\end{figure}
+
 \section{ensemble methods}
+Ensemble methods were introduced in section \ref{sub:Ensemble_Methods}, the idea
+beeing that the combined prediction of multiple networks would result in better
+performance. However, the networks need uncorellated errors for that
+increasement.
+
+In the approach from \cite{loshchilov2016sgdr}, they took a snapshot of the
+network at the end of each cycle. This procedure results in a performance boost
+of around 1\% against a standard consine decay from section \ref{res:Learning rate},
+without any additional training cost. The high learning rate after the warm
+restart ensures that the each new snapshot distances itself in the parameter
+space from the old. The hope is, that this distance results in uncorellated
+errors.
+
+As motivated in section \ref{sub:Approach}, we try to increase that distance
+more explicitly with our distance function. We use the same network as in
+section \ref{res:Multiple} and take new snapshots before adding a new
+checkpoint. This leads to a ensemble accuracy of 94\%, which is 4\% better than
+the validation accuracy of the single network. Figure [add figure] shows a
+stepwise increase in ensemble accuracy after 150, 300, 450 and 600 epochs, when
+a snapshot is added to the ensemble. This shows that each new network adds
+performance to the ensemble. However, the network doesn´t reach the performance
+of cosine decay with warm restart and is even similar to a standard network
+without any decay or distance function.
+
+Therefore, we increase the strength of the distance function to get more diverse
+snapshots. For $s=10$, there still is no difference. 
+
+
+
 - idea: uncorellated networks
 - also make run without warm restart
 
@@ -942,7 +1069,7 @@ results:
 - implication for loss landscape -> everywhere the network behaves the same??
 
 
-
+\begin{comment}
 example picture:
 \begin{figure}[h]\label{fig:MobileNetV2_baseline}
     \begin{center}
@@ -962,7 +1089,7 @@ example picture:
             ylabel=Validation Accuracy,
             ymin=0.8]
             \addplot[mark=None, color=red] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_validation_acuracy.csv};
             \addplot[mark=None, color=blue] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_validation_acuracy.csv};
             
@@ -984,7 +1111,29 @@ example picture:
     \end{center}
 \end{figure}
 
+\end{comment}
 
 
 
-have to do longer run of width and longer run of strength for highest factor at least, let distance kernel out again and look if comes back, add distance kernel for 0 epoch to show weight size
+have to do longer run of width and longer run of strength for highest factor at
+least, let distance kernel out again and look if comes back, add distance kernel
+for 0 epoch to show weight size
+
+
+
+
+
+road for next week:
+
+
+
+mo  go over introduction
+tu  and methods
+we  Finish results
+th  go over results
+fr  go over discussion and finish discussion
+sa  
+
+
+look at l2 without und lr0
+l2 result seems to confirm view also shows how l2 is important
