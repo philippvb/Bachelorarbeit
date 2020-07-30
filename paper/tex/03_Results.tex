@@ -1,19 +1,28 @@
 \chapter{Results}
-Even with such a simple formulation, there are many different variations that
-can be tested. First is the influence of the strength and width parameter of the
-distance function, which will be tested in section \ref{res:Hyperparameters}. We
-will also briefly test different kernels besides the RBF Kernel from equation
-\ref{eq:RBF} in section \ref{res:Kernel}. In section \ref{res:Multiple}, we will
-use more than one checkpoint and will also try to combine these to a global one.
-The interaction of training hyperparameters like learning rate and epochs will
-be discussed in section \ref{res:Training}. Finally, the usage for ensemble
-methods will be tested.
+After the theoretical introduction in chapter \ref{cha:Methods}, this chapter
+provides some empirical results. In section \ref{res:baseline}, a baseline for
+further comparisons will be created. Section \ref{res:Hyperparameters} will
+focus on the effects of the hyperparameters of the distance function. How
+multiple checkpoints can be used will section \ref{res:Multiple}show, followed
+by the combination with learning rate schedulers \ref{res:Learning_rate}. We
+will investigate the effects on ensemble methods in section \ref{res:Ensemble}
+and finally study the computational cost in \ref{Res:Computational_cost}.
 
-\section{Baseline}\label{res:Baseline}
-For the baseline, we use the hyperparameters as defined in section
-\ref{sub:Hyperparameters}. Figure \ref{fig:Results_baseline} shows the result,
-if we add a checkpoint after 100 epochs of training. For the validation accuray,
-we can see that it stays similar to the accuracy without the distance function.
+
+
+\section{Baseline}\label{res:Baseline} For the baseline, we use the
+hyperparameters as defined in section \ref{sub:Hyperparameters}. First we train
+both networks without distance function. After 100 epochs, we add a checkpoint
+in the case of the network with distance function.
+
+For the validation accuray, we can see no impact of the distance function.Both
+networks show a standard learning curve, with a initial strong increase in
+validation accuracy until coming into convergence in later epochs. This results
+in a validation accuracy of arounf 90\% for MobileNetV2 and 89\% for ResNet32
+after 600 epochs.
+
+
+
 If we plot the distance the network gets to the checkpoint however, we can see
 that the network trained with distance function clearly increases its distance
 more than the one trained without. Furthermore, the red plot follows the shape
@@ -91,7 +100,7 @@ distance function keeps on walking and never truly stops at a point.
 
             \end{groupplot}
         \end{tikzpicture}
-        \caption{Validation accuray and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained without distance function (red) and with distance function (blue).}
+        \caption{Validation accuray and distance to the checkpoint for MobileNetV2 (upper) and ResNet32 (lower) trained without distance function (red) and with distance function (blue).}
     \end{center}
 \end{figure}
 
@@ -108,27 +117,29 @@ hyperparameter, controlling the influence of the distance function. As the RBF
 Kernel is bound between 0 and 1, the strength hyperparameter will increase that
 bound between 0 and the strength value.
 
-For higher strength values, the validation accuracy receives an initial drop,
-which is larger the higher the strength parameter value. This may be due to the
-increased influence of the strength function. Each distance between the
-parameters and the checkpoint starts at 0, therefore the values of the
-exponential function starts at $strength \cdot 1$. A higher strength value will
-lead to a higher influence on the loss function, and consequently the gradient.
-The gradient of the cross-entropy loss will be insignificant, and the optimizer
-will update the weights without regards to the validation accuracy, hence the
-drop at the beginning. The distance plot reflects this behaviour, as we can see
-an larger increase in distance for larger strength values. [add from wedge paper]
+For higher strength values, the validation accuracy receives an initial drop
+after a checkpiont is added, which is larger the higher the strength parameter
+value, see figure \ref{fig:Results_strength}. This may be due to the increased
+influence of the strength function. Each distance between the parameters and the
+checkpoint starts at 0, therefore the values of the exponential function starts
+at $strength \cdot 1$. A higher strength value will lead to a higher influence
+on the loss function, and consequently on the gradient. The gradient of the
+cross-entropy loss will become insignificant, and the optimizer will update the
+weights without regards to the validation accuracy, hence the drop at the
+beginning. 
 
-After the initial step however, the distance quickly converges. This is due to
-the fact that after the initial increase, the value of the Kernel quickly
-reaches 0. [TODO: Sow plot of strength]. Therefore, the distance Kernel becomes
-insignificant again, and the Cross-Entropy loss is followed. The validation
-accuracy reflects this behaviour, as after the initial drop the accuracy
-recovers to the level of before. This provides additional insight in the loss
-landscape. As the network distances from it`s current position on the loss
-landscpae, but is still able to reach high accuracy, there have to be areas of
-high accuracy everywhere on the landscape. This is in consonance to other
-research in this field, as discussed in section \ref{loss_landscape}.
+The distance plot reflects this behaviour, as we can see an larger increase in
+distance for larger strength values. After the initial step however, the
+distance quickly converges. This is due to the fact that after the initial
+strong decrease, the value of the distance function quickly comes close to 0.
+Therefore, the distance Kernel becomes insignificant again, and the
+Cross-Entropy loss is followed. The validation accuracy reflects this behaviour,
+as after the initial drop the accuracy recovers to the level of before. This
+provides additional insight in the loss landscape. As the network distances from
+it`s current position on the loss landscpae, but is still able to reach high
+accuracy, there have to be areas of high accuracy everywhere on the landscape.
+This is in consonance to other research in this field, as discussed in section
+\ref{loss_landscape}.
 
 As a result, the value of the strength doesn't matter in long term at least. It
 merely increases the distance to the checkpoint by defining how long the
@@ -137,13 +148,8 @@ is followed again. As the last section and literature suggests, area of low loss
 and high accuray can be found everywhere. Therefore, the same accuracy as before
 can be reached, no matter the value of the strength. On the other hand, it is
 also unlikely that it will outperform the last best value, as new areas are not
-generally better than other.
-
-basic results:
-- if higher strength factor, distance rises more quickly
-- then stays in this area of distance
-- validation accuracy drops because first influenence of distance
-
+generally better than other. That's why the effect of the distance doesn't
+transfer to the validation accuracy.
 
 
 
@@ -156,7 +162,8 @@ basic results:
                 horizontal sep=10pt,
                 vertical sep=10pt,
                 group name=G},
-                width=8cm
+                width=8cm,
+                restrict x to domain=0:200
             ]
 
             \nextgroupplot[
@@ -173,7 +180,7 @@ basic results:
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e1_validation_acuracy.csv};
             \addlegendentry{$s=0.1$}
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_distance_validation_acuracy.csv};
             \addlegendentry{$s=1$}
             \addplot[mark=None, color=orange] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e2_validation_acuracy.csv};
@@ -186,15 +193,16 @@ basic results:
                 grid=major, 
                 grid style={dashed,gray!30},
                 % xlabel=Epoch,
-                % y label style={at={(axis description cs:0.,0)},anchor=south},
+                y label style={at={(-0.1,0.5)},anchor=south},
                 ylabel=Distance,
                 yticklabel pos=right,
+%                y label style={at={(axis description cs:0,0)},anchor=south},
                 xticklabels={,,},
                 ylabel near ticks]
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e1_distance0.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/MobileNetV2_baseline_distance_distance0.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_distance_distance0.csv};
             \addplot[mark=None, color=orange] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e2_distance0.csv};
             \addplot[mark=None, color=green] 
@@ -212,7 +220,7 @@ basic results:
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/ResNet32/ResNet32_strength_e1_validation_acuracy.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_validation_acuracy.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_distance_validation_acuracy.csv};
             \addplot[mark=None, color=orange] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/ResNet32/ResNet32_strength_e2_validation_acuracy.csv};
             \addplot[mark=None, color=green] 
@@ -228,7 +236,7 @@ basic results:
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/ResNet32/ResNet32_strength_e1_distance0.csv};
             \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline_distance/ResNet32_baseline_distance_distance0.csv};
+                table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/ResNet32/ResNet32_baseline_distance_distance0.csv};
             \addplot[mark=None, color=orange] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/strength/ResNet32/ResNet32_strength_e2_distance0.csv};
             \addplot[mark=None, color=green] 
@@ -236,7 +244,7 @@ basic results:
 
             \end{groupplot}
         \end{tikzpicture}
-        \caption{Validation accuray and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained without distance function (red) and with distance function (blue).}
+        \caption{Validation accuracy and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained without distance function and different strength values.}
     \end{center}
 \end{figure}
 
@@ -245,17 +253,18 @@ We have seen in chapter \ref{distance_function}, how the width $\sigma$
 influences the distance function: The larger $\sigma$ gets, the wider it
 becomes. Therefore, a larger $\sigma$ should result in the network distancing
 further from it's checkpoint than for smaller values. That's exactly what can be
-seen in figure \ref{}: For an $\sigma$ of 0.1, the distance follows the one of
-network trained without distance function, due to the RBF Kernel quickly
-becoming 0. The larger the width, the slower the values of the RBF Kernel
-decrease for further distance. Therefore, the gradient of the distance function
-will stay quite large, pushing the network further away. This can be seen for
-higher $\sigma$ values, where the distance increases further.
+seen in figure \ref{fig:Results_width}: For an $\sigma^2$ of 0.1, the distance
+follows the one of network trained without distance function, due to the
+distance function quickly becoming 0 and therefore having no influence. The
+larger the width, the slower the values of the distance function decrease for further
+distance. Therefore, the gradient of the distance function will stay quite
+large, pushing the network further away. This can be seen for higher $\sigma$
+values, where the distance increases further.
 
 
 Initially however, the distance plot doesn't reflect this behaviour. The curve
 for $\sigma = 0.01$ has a higher distance value than for $\sigma = 0.001$.
-That's because the gradient of the RBF Kernel is higher for small distances, the
+That's because the gradient of the distance function is higher for small distances, the
 smaller $\sigma$. But for larger distances, this effect flips with the gradient
 of the larger width staying higher for more epochs. Therefore, the curves
 intersect after additional epochs. The smaller width converges, while the larger
@@ -274,9 +283,11 @@ allowed to move quite freely on the loss surface, it finds areas of low loss and
 high accuracy in distant areas of the checkpiont, meaning there has to be good
 local minima everywhere on the landscape.
 
-[mention witdh e-3 good behaviour in terms of tradeoff]
+In particular, $\sigma^2 = 100$ seems to increase the distance far enough in a
+small number of epochs. That's why this configuration is used as standard in the
+following work.
 
-\begin{figure}[h]\label{fig:Results_strength}
+\begin{figure}[h]\label{fig:Results_width}
     \begin{center}
         \begin{tikzpicture}
             \begin{groupplot}[
@@ -370,32 +381,26 @@ local minima everywhere on the landscape.
 
 
 
+\section{Multiple Checkpoint}\label{res:Multiple} In chapter \ref{cha:Methods},
+we have seen that we can not only incorporate one but also multiple checkpoints
+in the loss function, on which this section will focus. We also try to not only
+add these checkpoints as seperate terms, but rather incorporate them in one
+larger checkpoint. 
 
-
-
-
-
-results: - wider kernel leads to higher value of
-distance - maybe slower due to smaller gradient - no difference in validation
-accuracy - if so, should prove that in every area exists low loss regions -
-accuracy doesn't decrease -> there are valleys leading away from current point
-with high accuracy - 
-
-
-
-
-
-
-
-\section{Multiple Checkpoint}\label{res:Multiple}
-idea: distance from multiple rather than 1 place
 \subsection{multiple}
-For multiple checkpoints, we can see the same pattern as in section
+We add a checkpoint after every 150 epochs that are performed, resulting in a
+total of 3 checkpoints after 600 epochs.
+
+For the validation accuracy, we can see the same pattern as in section
 \ref{res:Hyperparameters}. For low strength, we experience no effect at all. If
-we increase the strength there is an initial drop in the accuracy, but with
-further epochs, this recovers to the baseline accuracy. Furthermore, it even
-tops the baseline, with a small but increasing margin for every restart that is
-performed. The pattern is quite similar to warm restarts, where for every
+we increase the strength there is an initial drop in the accuracy. For
+MobileNetV2, the accuracy recovers and even tops the baseline, with a small but
+increasing margin for every new checkpoints that is added, coming to an
+improvement of 0.8\% over the baseline after 600 epochs. In contrast, ResNet32
+doesn't seem to benefit from multiple checkpoints, the accuracy even decreases
+for larger strength values.
+
+The pattern of MobileNetV2 is quite similar to warm restarts, where for every
 restart the reached accuracy increases. For a in depth comparison, see section
 \ref{res:Learning rate}.
 
@@ -465,8 +470,9 @@ checkpoint? The reason might be the $L_2$ regularization, as it restricts the
 weights to small sizes. At some point, it might be less costly to decrease the
 weights again for a smaller $L_2$, traded off against a bit smaller distance to
 other checkpoints. This restriction in weight space is probably why new terms
-lead to a decrease of the distance to existing checkpoints.
-[maybe long term convergence to each other]
+lead to a decrease of the distance to existing checkpoints. A network trained
+without $L_2$ regularization futher supports this explanation. Here, the
+distance increases further for each new checkpoint that is added. [add figure??]
 
 \begin{figure}[h]\label{fig:Results_multiple_distance}
     \begin{center}
@@ -584,45 +590,29 @@ lead to a decrease of the distance to existing checkpoints.
 
 In short term however, new checkpoint produce quite different influence on the
 distance to existing ones. For a strength of $s=1$ we can see a slight decrease
-which turns into a longer increase until the next checkpoint. For $s=10$, we an
-aprupt decrease with an small peak after. For $s=100$, there only is a peak at
-the beginning which quickly diminishes. Noticeable, this pattern repeats for the
-other checkpoints and therefore seems unlikely to be a coincidence. The size of
-these hills can be tracked to the size of the strength. Larger strength
+which turns into a longer increase until the next checkpoint. For $s=10$, we see
+an aprupt decrease with an small peak after. For $s=100$, there only is a peak
+at the beginning which quickly diminishes. Noticeable, this pattern repeats for
+the other checkpoints and therefore seems unlikely to be a coincidence. The size
+of these hills can be tracked to the size of the strength. Larger strength
 introduces a larger gradient and therefore step size at the beginning, making
 the hills larger. This doesn't explain the different orientation of these hills.
 For the case of $s=100$, the initial increase of distance seems reasonable. As
-the value of the distance function is not 0, the gradient should face in
-direction away from the last checkpoint. A new checkpoint introduces a gradient
-boost. As momentum preserves the old gradient, it will acclerate in direction
-away from the first and the second checkpoint, therefore leading to a hill.
+the value of the old distance function is not 0 when a new checkpoints is
+created, the current gradient should face in direction away from the last
+checkpoint. A new checkpoint term in the loss function introduces a gradient
+boost, as section \ref{sub:Effect_on_Gradient} discussed. Because momentum
+preserves the old gradient, it will acclerate in direction away from the first
+and the second checkpoint, therefore leading to a hill. However by this
+explanation, the pattern should repeat for the other strength values, which is
+not the case. Therefore, the true cause of the short term effects remains
+unclear.
 
-By this explanation, the pattern should repeat for the other cases however. It
-may be argued, that this pattern would still exist for other values of s.
-However, it is only recongnizable in the case of large s.
-
-
-
-
-- only effect for larger strength
-- initial decrease, similar to starts
-- reaches slightly lower train loss, but not better validation accuracy
-- have to take longer baseline run to see if it comes over baseline accuracy
-
-- for new checkpoints effect on distance of current, at the moment not consistent -> has to check for average
-- in general, seems like a slight decrease but same pattern again for single checkpoint, but others show same general pattern
-- explanation idea: new kernel pushes gradient size -> increase or decrease (should be an icrease because momentum???)
 
 - gradient size becomes smaller for distance term -> maybe hint that SGD wants
 to stay in that area and distance term tries to push out -> gradient direction
 would be interesting (but too far for this work)
 
-
-
-- show that multiple minima all increase distance
-- show how it can be merged to a large one
-
-- increase factor to show differences, also überleitung to warm restarts
 \subsection{merge}
 A slightly different approach is to merge the checkpoints, described in section
 \ref{sub:Multiple_checkpoints}.
@@ -636,26 +626,24 @@ A slightly different approach is to merge the checkpoints, described in section
 
 
 
-\section{Training Hyperparameters}\label{res:Training}
-\subsection{lr}\label{res:Learning rate}
-\subsubsection{Scheduler}
+
+\section{lr}\label{res:Learning_rate}
+\subsection{Scheduler}
 Learning rate Scheduler were introduced in section \ref{sub:Learing_rate_decay},
-where the learning rate was not held constant, but decayed over time. One futher
-addition were warm restarts, where after the decay we set the learning rate back
-up to the inital and repeat this cycle several times.
-
-This procedure results in an increase of validation accuracy. We use a step
+where the learning rate was not held constant, but decayed over time. One
+further addition were warm restarts, where after the decay we set the learning
+rate back up to the inital and repeat this cycle several times. We use a step
 decay scheduler with $\gamma = 0.1$ for every 50 epochs, and a warm restart
-after 150 epochs. Additionally, a cosine decay is used as in
-\cite{loshchilov2016sgdr}. Figure \ref{fig:Results_scheduler} shows the
-validation accuracy. We can see, that schedulers outperform a fixed learning
-rate. Furthermore, the maximum accuracy of every cycle slightly increases, until
-eventually coming to convergence. We can clearly see the warm restarts, as the
-accuracy drops due to the high learning rate.
+after 150 epochs. For cosine decay with warm restart, we set $\epsilon_{min}=0$,
+$\epsilon_{max}=0.001$ and $T_0=150$.
 
-In section \ref{sub:cosine_decay}, the underlying idea leading to this
-improvement was discussed: High learning rates should lead to exploration and
-convergence to wider and more stable convergence.
+
+For the validation accuracy, we can see that schedulers outperform a fixed
+learning rate. At the beginning of every cycle, the performance drops due to
+high learning rate. But when the learning rate decays again, the accuracy
+recovers. Furthermore, the maximum accuracy of every cycle slightly increases,
+until eventually coming to convergence. This leads to a maximum accuracy of
+around 95\% for both ResNet32 and MobileNetV2.
 
 
 \begin{figure}[h]\label{fig:Results_scheduler}
@@ -733,10 +721,9 @@ convergence to wider and more stable convergence.
 %                table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/ResNet32/ResNet32_scheduler_step_distance0.csv};
             \addplot[mark=None, color=blue] 
                 table[x=Step, y=Value, col sep=comma]{images/network_csv/scheduler/ResNet32/ResNet32_scheduler_cosine_distance0.csv};
-
             \end{groupplot}
         \end{tikzpicture}
-        \caption{Validation accuray and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained with learning rate schedulers. [TODO: add for ResNet]}
+        \caption{Validation accuray and Distance for MobileNetV2 (upper) and ResNet32 (lower) trained with learning rate schedulers.}
     \end{center}
 \end{figure}
 
@@ -747,32 +734,26 @@ reaches a local maximum and then actually decreases again until coming into an
 area of convergence. For each restart performed, the same pattern repeats again.
 For step decay, we can see hard edges in contrast to smooth curves of cosine
 decay. The similarity to the alteration of the learning rate gives evidence that
-the decrease of distance is caused by the learning rate. There are two possible
-explanation: 
+the decrease of distance is caused by the learning rate. 
 
-First of all, the decrease in learnig rate could lead to smaller increase in
-distance by the pure fact, that smaller learning rate leads to smaller updates
-of the weights and threfeore smaller increase in distance. However, this
-couldn`t explain why the distance itself actually keeps decreasing, not just
-smaller increasing. Only could try to explain this with the $L_2$ Loss and a
-similar argument to section \ref{res:Multiple}. For high learning rate, a larger
-Momentum builds up. This leads to parameter values, which are very larger. After
-the momentum is slowed down, the $L_2$ regularization keeps decreasing the
-weights again until reaching an equilibrium. Larger convergences in the
-follwoing cycles make this explanation doubtful. 
+One possible explanation is that the decrease in learnig rate could lead to
+smaller increase in distance by the pure fact, that smaller learning rate leads
+to smaller updates of the weights and threfeore smaller increase in distance.
+However, this couldn`t explain why the distance itself actually keeps
+decreasing, not just smaller increasing. Only could try to explain this with the
+$L_2$ Loss and a similar argument to section \ref{res:Multiple}. For high
+learning rate, a larger Momentum builds up. This leads to parameter values,
+which are very larger. After the momentum is slowed down, the $L_2$
+regularization keeps decreasing the weights again until reaching an equilibrium.
+But larger convergences in the following cycles make this explanation doubtful. 
 
+\begin{comment}
 Another idea could relate to the wedges. If we enter a wedge, it might be
 possible that we end up on a circular path around the checkpoint. This might
 lead to a valley which decreases the distance again. For large learning rate, we
 can just jump between those valley, but for small learnig rates, we just follow
 these valleys.
-
-Another idea could relate to the loss landscape. In phases of high learning
-rate, a momentum builds up and enforces larger weights. With smaller learning
-rate, possible to take the path of small valleys where for large lr, just
-follows overall  trend. Small valleys lead back to checkpoint.
-
-
+\end{comment}
 
 We have seen that whenever a warm restart is performed, the accuracy drops.
 However with decreasing learning rate, the network recovers and even tops the
@@ -787,11 +768,12 @@ gradient itself than a larger learning rate, should be achieved.
 Figure \ref{fig:Cosine_Multiple} shows a comparison. As mentioned, the pattern
 is quite similar, with a drop in validation accuracy after the warm restart or
 checkpoint. The top accuracy in each cycle also tops the last one for both
-cases. The effect is similar with around 1\% increase in maximum accuracy
-between the first and last cycle. However, the network with cosine decay gets a
-much better absolute accuracy. That's probably due to the small learning rate at
-the end of each cycle, where the network can exploit a small region to fine
-adjust the parameter values.
+cases. The effect is similar with around 1\% against 0.8\% increase in maximum accuracy
+between the first and last cycle for cosine decay stronger than for multiple
+checkpoints. Additionallly, the network with cosine decay gets a much better absolute
+accuracy. That's probably due to the small learning rate at the end of each
+cycle, where the network can exploit a small region to fine adjust the parameter
+values.
 
 \begin{figure}[h]\label{fig:Cosine_Multiple}
     \begin{center}
@@ -812,9 +794,6 @@ adjust the parameter values.
                 \addplot[mark=None, color=green] 
                     table[x=Step, y=Value, col sep=comma]{images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f100_validation_acuracy.csv};
                     \addlegendentry{multiple checkpoints}
-                \addplot[mark=None, color=blue] 
-                    table[x=Step, y=Value, col sep=comma]{images/network_csv/baseline/baseline/MobileNetV2_baseline_validation_acuracy.csv};
-                    \addlegendentry{baseline}
                 
             \end{axis}            
         \end{tikzpicture}
@@ -826,7 +805,12 @@ Would a combination of both techniques lead to an even better result?
 [TODO:add results and other factor] 
 
 
-\subsubsection{wrong lr}
+
+
+
+
+
+\subsection{wrong lr}
 
 We might suspect that a learning rate decay should be more robust to a
 suboptimal inital learning rate. At first, this seems to be case. Where a
@@ -958,10 +942,6 @@ for scheduler:
 - distance kernel helps escape from this area
 
 
-\subsection{epochs}\label{res:Epochs}
-epochs and epoch time
-
-maybe not use since or only for scheduler and multiple, since with one not helpful
 
 \section{Computational Cost}\label{Res:Computational_cost}
 
@@ -1029,7 +1009,7 @@ number of checkpoints.
     \end{center}
 \end{figure}
 
-\section{ensemble methods}
+\section{ensemble methods}\label{res:Ensemble}
 Ensemble methods were introduced in section \ref{sub:Ensemble_Methods}, the idea
 beeing that the combined prediction of multiple networks would result in better
 performance. However, the networks need uncorellated errors for that
@@ -1046,7 +1026,13 @@ errors.
 As motivated in section \ref{sub:Approach}, we try to increase that distance
 more explicitly with our distance function. We use the same network as in
 section \ref{res:Multiple} and take new snapshots before adding a new
-checkpoint. This leads to a ensemble accuracy of 94\%, which is 4\% better than
+checkpoint. After taking the snapshot, we add it to the ensemble, which consists
+of all previous snaphsots and the model that is currently trained on. For the
+ensemble prediction, we use the model averaging technique from
+\ref{sub:Ensemble_methods}.
+
+
+This leads to a ensemble accuracy of 94\%, which is 4\% better than
 the validation accuracy of the single network. Figure [add figure] shows a
 stepwise increase in ensemble accuracy after 150, 300, 450 and 600 epochs, when
 a snapshot is added to the ensemble. This shows that each new network adds
@@ -1054,19 +1040,42 @@ performance to the ensemble. However, the network doesn´t reach the performance
 of cosine decay with warm restart and is even similar to a standard network
 without any decay or distance function.
 
-Therefore, we increase the strength of the distance function to get more diverse
-snapshots. For $s=10$, there still is no difference. 
+The difference is probably due to the fact, that cosine decay reaches a better
+performance for each snapshots of the ensemble. The predictions may therefore be
+better in overall, even if they are not more versatile.
+
+To see if a ensemble would benefit from snapshots that have a further distance
+between each other and therefore have a lower corellation, we increase
+thestrength parameter. However, the ensemble accuracy doesn't benefit from this.
+Instead, the accuracy gets even worse for $s=10$ and $s=100$. 
+
+In order to check if further distance truly means more different predictions, we
+compare the individual predictions of the networks. Table [add reference] shows
+the results. If we compare the different strength values of the distance
+function, we can see that the number of examples for which the predictions of
+the networks is the same has no difference between the strength values. This
+suggests that although the snapshots of the ensembles differ in distance to each
+other, this doens't result in different predictions. Even compared to the
+baseline, the coherence seems similar. Another possible explanation could be the
+chracteristics of the training set, which may contain some easy and some
+difficult examples. As a fixed learning rate doesn't exploit the landscape
+enough, all networks may get the same easy examples right, regardless of their
+position on the loss landscape. But for hard training examples, all these
+networks fail.
 
 
 
-- idea: uncorellated networks
-- also make run without warm restart
+For cosine decay, the coherence is even higher. This seems reasonable, as
+snaphsots which perform better necessarly need to have more similar predictions,
+as there are less options where they are wrong and can therefore disagree.
+Nevertheless it is remarkable that although the distance between the networks
+for cosine decay and a fixed learning rate is quite similar, the prediction
+coherence differs strongly. This further suggests that a distance in parameter
+space doens't result in different behaviour. Cosine decay probably exploits the
+local landscape better due to a low learning rate and therefore arrives at more
+similar snapshots.
 
-results:
-- first show higher accuracy than single network
-- than see, that distance has no better value than without
-- show that distancing doenst mean more diverse prediction
-- implication for loss landscape -> everywhere the network behaves the same??
+
 
 
 \begin{comment}

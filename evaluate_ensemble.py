@@ -13,13 +13,13 @@ def evaluate_ensemble(model_path, dataset, ensemble):
     model_list = []
 
     if ensemble:
-        for name_extension in range(150, 901, 150):
+        for name_extension in range(150, 751, 150):
             model_name = os.path.join(model_path[0], 'model' + str(name_extension) + '.pth')
             model =  nn.DataParallel(models.get_Model('mobileNetV2', 'CIFAR-10'))
             model.load_state_dict(torch.load(model_name))
             model.eval()
             model_list.append(model)
-        print('Loaded %d ensemble models from ' + model_path[0] % str(len(model_list))) 
+        print(('Loaded {} ensemble models from ' + model_path[0]).format(len(model_list)))
 
     else:
         model1_name = os.path.join(model_path[0], 'model.pth')

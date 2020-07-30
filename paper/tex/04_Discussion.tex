@@ -142,7 +142,105 @@ that both networks would walk into an area of high loss by chance.
 - reason: errors stay corellated
 - other places in loss landscape not other predictions? states question why move landscape
 - explanation 1: weight space symetry
-- explanation 2: trivial and notrivial examples in CIFAR-10
+
+implications for loss landscape: seems to have networks everywhere, which have
+same predictions (implication of similar performance if good, else would be also
+high for bad networks)
+
+In section \ref{res:Ensemble}, we saw how the performance could be improved by
+network ensembling. As section \ref{sub:Ensemble_Methods} discussed, there are
+two major factors which influence the performance of the ensemble. The
+individual performance of the network and the corellation between the network
+predictions.
+
+The results showed that although the corellation is an important factor, a low
+corellation can not recover if the network performs worse. It seems like a low
+corellation leads to much larger benefits of the ensemble in comparison to the
+single network. Cosine decay had a much larger corellation and this resulted
+only in a small increase of [add percent], where for our distance function, the
+ensemble gained over 4\% in accuracy against the single network. However, cosine
+decay still performs much better when compared to our network due to the better
+single network performance. One further aspect to keep in mind is that a better
+network performance automatically means higher corellation. Consider a network
+which performs at 100\% accuracy. Then all its snapshots have a corellation of
+1, since all of them predict all exampels right. If networks have high but not
+perfect accuracy, there still has to be a high corellation, since there are not
+mayn examples where the snapshots predict wrong and can disagree. Therefore, a
+higher corellation often automatically arises and may rather predict the
+relative gain to a single network than the absolute performance.
+
+For networks with lower accuracy, we tried to reduce the corellation by using
+our distance function. Theoretically, the ensemble should then perform better,
+since we have seen in the other results that a larger distance doesn't harm the
+accuracy, at least in long term. However, the results showed that even for
+larger distances, the corellation between the snapshots stayed the same. The
+implications for the loss landscape remain unclear.
+
+At first, the results seem to suggest that networks with same accuracy predict
+the same regardless their position on the loss landscape. One explanation for
+this could be the weight space symetry, as discussed in section
+\ref{sub:Local_minima}. Here, networks perform the same due to the symetry in
+weight space, which arises from swapping two units. If the snapshots are taken
+at these points, they perform the same even if their difference is large.
+However, it seems unlikely that the network converges exactly to this points
+after distancing from their last snapshot. If this is the case, the question
+arises if there may only be one truly optimal configuration for network, which
+can be found at different locations in weight space.
+
+However, the robust corellation could also be explained by the dataset. Maybe
+there are examples, which are very hard. Therefore, the network has to exploit
+the loss landscape very good in order to get correct predictions. As a fixed
+learning rate fails to do so, these examples remain wrong regardless of the
+networks position in weight space. As a result, the corellations stays high due
+to the samne wrong predictions of every snapshot.
+
+No matter the explanation, the results question the usefullness of snapshot
+ensemble. If the underlying idea is, that a high learning rate increases the
+distance, then this procedure nevertheless fails in producing lower
+corellation, as we have seen that further distance doesn't mean lower corellation. 
+
+
+No matter the explanation, the results question the underlying idea of snapshot
+ensembles. A high learning rate increases the distance, but doesn't result in a
+lower corellation. Therefore, the benefits may be doubtful from a theoretical
+viewpoint. Nevertheless, in practice our network with suboptimal accuracy
+achieved a much higher accuracy as ensemble. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% add to discussion for no kernel again
 
 
 

@@ -108,9 +108,9 @@ def computegradientsize(model):
 @torch.no_grad()
 def compute_cosine_similarity(model, tensor):
     similarity=0
-    cos=torch.nn.CosineSimilarity()
+    cos=torch.nn.CosineSimilarity(dim=-1, eps=1e-6)
     for model_parameters, tensor_values in zip(model.parameters(), tensor):
-        similarity+= cos(model_parameters, tensor_values)
+        similarity+= cos(model_parameters.grad, tensor_values)
 
     similarity=similarity/len(tensor)
     return similarity

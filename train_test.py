@@ -95,7 +95,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
     first_minimum=True
 
     minimum_0 = create_minimum(model)
-    #last_gradient=create_checkpoint_gradient(model, True)
+    last_gradient=create_checkpoint_gradient(model, True)
 
 
 
@@ -152,7 +152,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
         start_time = time.time()
 
         gradient_size=0
-        # gradient_similarity=0
+        gradient_similarity=0
         iterations=len(train_loader)
 
         for images,labels in train_loader:#tqdm.tqdm(train_loader):
@@ -163,14 +163,15 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
             loss = loss_function(model, images, labels, minimum_list)
             loss.backward()
             gradient_size+=metrics.computegradientsize(model)
-            #gradient_similarity+=metrics.compute_cosine_similarity(model,last_gradient)
-            #last_gradient=create_checkpoint_gradient(model)
+            gradient_similarity+=metrics.compute_cosine_similarity(model,last_gradient)
+            last_gradient=create_checkpoint_gradient(model)
             opt.step()
 
         end_time = time.time()
 
         gradient_size=gradient_size/iterations
-        #gradient_similarity=gradient_similarity/iterations
+        gradient_similarity=gradient_similarity/iterations
+        print("Gradient similarity " + str(gradient_similarity))
 
 
 
@@ -194,7 +195,7 @@ def train(experiment_dictionary, save_directory_base, data_directory, name=None,
         writer.add_scalar('train_epoch_time', end_time - start_time, epoch)
         writer.add_scalar('lr', get_lr(opt), epoch)
         writer.add_scalar('Gradient_size', gradient_size, epoch)
-        #writer.add_scalar('Gradient_cosine_similarity', gradient_similarity, epoch)
+        writer.add_scalar('Gradient_cosine_similarity', gradient_similarity, epoch)
         writer.add_scalar('Distance_to_0', metrics.computedistance(minimum_0, model).data, epoch)
 
         for distance, i in zip(distance_list, range(len(distance_list))):

@@ -1,4 +1,4 @@
-\chapter{Methods}
+\chapter{Methods}\label{cha:Methods}
 \section{Distance Function}
 \subsection{Motivation}\label{sub:Motivation}
 In section \ref{loss_landscape}, we got a brief overview over the loss landscape
@@ -385,23 +385,24 @@ add the checkpoint however, the distance function is added to the loss. In
 section \ref{sub:Effect_on_Gradient} we have seen that there is no interaction
 between the graidient of the cross-entropy-loss and the distance function. The
 same is true for the foward pass. Therefore, the only added computation time
-raises fromn the distance term.
+raises from the distance term itself.
 
 The number of parameters of the network stays constant over the epochs.
 Therefore, the number of mathematical operations in the foward and backward pass
 of the distance term stays constant. Lets assume the comparison time for two
 numbers is also constant regardless of their size. Then it follows, that the
-distance function creates a constant additional amount of time, denotet by $d$.
-As we have to do this operation every $n$ times we compute our loss, we add
-$O(n\cdot d)$ to our cost $O(n\cdot l + n \cdot d)$. As $O(n\cdot l + n \cdot
-d)=O(n\cdot (l + d))=O(n)$, the complexity of the algorithm stays the same.
-However, we have a constant for the checkpoint. If we add more checkpoints,
-there are again no interactions. Therefore, every new checkpoint should add the
-same additional cost. The actual value of the additional cost will be discussed
-in the results, section \ref{Res:Computational_cost}.
+distance function creates a constant additional amount of time, denotet by $d$. 
 
-
-
+Let $l$ denote the constant cost of one pass trough the regular training loop.
+If we pass this loop $n$ times, our inital cost is $O(l\cdot n)=O(n)$ If we add
+our distance function, we have to add $O(n\cdot d)$ to our cost $O(n\cdot l + n
+\cdot d)$. As $O(n\cdot l + n \cdot d)=O(n\cdot (l + d))=O(n)$, the complexity
+of the algorithm stays the same. However, the distance function will still raise
+the per epoch cost, although by a constant. If we add more checkpoints, there
+are again no interactions with other checkpoints or the regular training loop.
+Therefore, every new checkpoint should add the same additional cost, while
+keeping the complexity class the same. The actual value of the additional cost
+will be discussed in the results, section \ref{Res:Computational_cost}.
 
 
 \subsubsection{Multiple Checkpoints}\label{sub:Multiple_checkpoints}
@@ -439,24 +440,21 @@ then square and add the values to our distance.
 \section{Configuration}
 
 \subsection{Library and Training}
-The code for the network was written in Python [Version], with the use of
+The code for the network was written in Python 3.7.4 , with the use of
 Pytorch \cite{NEURIPS2019_9015} as the machine learning library. Data that occured during training was
 logged and plotted with Tensorboard. For a detailed overview of the code, see
 Appendix [add]. Training was done on the TCML Cluster of the university of Tübingen.
 
 \subsection{Datasets}
-Two common datasets were used.
-\begin{itemize}
-    \item MNIST \\
-    MNIST is a classical example of hand-written digits from 0 to 9 that have to
-    be classified accordingly. It contains a train set of 60000 and a test set
-    of 10000 examples.
-    \item CIFAR-10
-    This dataset consists of 60000 32x32 colour images with 10 different
-    classes. The dataset is seperated into 50000 train and 10000 test images.
-    The state of the art accuracy is 97.3\%, reported from Kolesnikov et al.
-    (2019). The dataset can be accessed via https://www.cs.toronto.edu/~kriz/cifar.html.
-\end{itemize}
+CIFAR-10 \cite{CIFAR-10} is a popular dataset for image classification. It
+consists of 60000 32x32 colour images with 10 different classes. The dataset is
+seperated into 50000 train and 10000 test images. The state of the art accuracy
+is 97.3\%, reported from Kolesnikov et al. \cite{kolesnikov2019big}.
+
+The data is tranformed by using a random crop, random horizontal flip and a
+normalization.
+
+
 \subsection{Networks}
 \subsubsection{ResNet}
 The Residual Network (ResNet) architecture was first proposed by He et al.
@@ -492,8 +490,8 @@ increase the number of channels. Alternatively, the new channels are padded with
 
 \subsubsection{MobileNetV2}
 MobileNet was first introduced by Howard et. al \cite{howard2017mobilenets} as a
-lightweight neural network for the use on mobile devices. The reduce the
-computation effort of the network, the made use of the depth-wise seperable
+lightweight neural network for the use on mobile devices. To reduce the
+computation effort of the network, they made use of the depth-wise seperable
 convolution. Consider a 32x32x3 image of the CIFAR-10 dataset. A traditional 3x3
 convolution with a stride and padding of 1 would produce an output of
 $\frac{32+2-3}{1}+1$ the shape 32x32x1. To get more channels, we would need more
@@ -579,7 +577,7 @@ the effects:
     \item Loss Function \\Cross-Entropy Loss
     \item Number of epochs \\The number of epochs varies. As this is an
     explorative analysis, the training is often run for a large number of
-    epochs, to investigate long term changes. Usually an epoch number of 900 is
+    epochs, to investigate long term changes. Usually an epoch number of 600 is
     used.
 \end{itemize}
 
