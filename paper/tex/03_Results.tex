@@ -18,8 +18,9 @@ in the case of the network with distance function.
 For the validation accuray, we can see no impact of the distance function.Both
 networks show a standard learning curve, with a initial strong increase in
 validation accuracy until coming into convergence in later epochs. This results
-in a validation accuracy of arounf 90\% for MobileNetV2 and 89\% for ResNet32
+in a validation accuracy of around 90\% for MobileNetV2 and 89\% for ResNet32
 after 600 epochs.
+
 
 
 
@@ -628,7 +629,7 @@ A slightly different approach is to merge the checkpoints, described in section
 
 
 \section{lr}\label{res:Learning_rate}
-\subsection{Scheduler}
+\subsection{Scheduler}\label{res:Scheduler}
 Learning rate Scheduler were introduced in section \ref{sub:Learing_rate_decay},
 where the learning rate was not held constant, but decayed over time. One
 further addition were warm restarts, where after the decay we set the learning
