@@ -85,7 +85,7 @@ nearby, the values may switch to these dueto high learning rate. Therefore,
 parameters which have reached good minima will stay in their position, while
 unstable minima may be left. Here also lies a key difference to the distance
 function. As the distance term acts the same on all parameters, the distance
-will be increased for both good and bad minima. This could provide an
+will be increased to both good and bad parameter values. This could provide an
 explanation for a smaller boost in accuracy of 0.8\% compared to 1\% for cosine
 decay.
 \newline
@@ -93,7 +93,7 @@ decay.
 One major improvement of the distance function was for a wrong initial learning
 rate. At first, it seems that a cosine decay should let the network be more
 robust to a wrong learning rate because it is decayed until 0, irrelevant of the
-inital learning rate. In section \ref{res:Learning rate}, this was the case
+inital learning rate. In section \ref{res:Learning_rate}, this was the case
 until the first warm restart. But after it was performed, both ResNet32 and
 MobileNetV2 started diverging for a initial learning rate of 0.01 in a way that
 the maximum learning rate of each new cycle decreased compared to the previous
@@ -103,14 +103,16 @@ constant for MobileNetV2, and decreases significantly less for ResNet32.
 A simple explanation would be, that cosine decay with warm restart walks into an
 area of high loss, and is not able to recover. The distance function then helps
 to distance from this point and return to areas of lower loss, leading to a
-stable performance. However, this would contradict other results from both other
-results and most papers. As the distance function had no impact on the
-valdiation accuracy in section \ref{res:Baseline}, we suggested that this
-happens due to the fact, that areas of low loss exist everywhere, which would
-contradict this explanation. Furthermore, it is unlikely that both networks
-would walk into an area of high loss by chance. Because the effect also only
-happens for this particular learning rate, the truecuase of the difference
-remains unclear.
+stable performance. The distance plot of figure \ref{fig:Results_wrong_lr}
+conformed to this idea, as normal cosine decay was not able to distance from the
+checkpoint, in contrast to configurations with the optimal learning rate.
+However, this would contradict both our results and most papers. As the distance
+function had no impact on the valdiation accuracy in section \ref{res:Baseline},
+we suggested that this happens due to the fact, that areas of low loss exist
+everywhere, which would contradict this explanation. Furthermore, it is unlikely
+that both networks would walk into an area of high loss by chance. Because the
+effect also only happens for this particular learning rate, the truecuase of the
+difference remains unclear.
 \newline
 
 In section \ref{res:Ensemble}, we saw how the performance could be improved by
@@ -123,7 +125,7 @@ The results showed that although the corellation is an important factor, a low
 corellation can not recover if the network performs worse. It seems like a low
 corellation leads to much larger benefits of the ensemble in comparison to the
 single network. Cosine decay had a much larger corellation and this resulted
-only in a small increase of [add percent], where for our distance function, the
+only in a small increase of 1\%, where for our distance function, the
 ensemble gained over 4\% in accuracy against the single network. However, cosine
 decay still performs much better when compared to our network due to the better
 single network performance. One further aspect to keep in mind is that a better
@@ -153,23 +155,29 @@ after distancing from their last snapshot. If this is the case, the question
 arises if there may only be one truly optimal configuration for network, which
 can be found at different locations in weight space.
 
-However, the robust corellation could also be explained by the dataset. Maybe
+Alternatively, the robust corellation could also be explained by the dataset. Maybe
 there are examples, which are very hard. Therefore, the network has to exploit
 the loss landscape very good in order to get correct predictions. As a fixed
 learning rate fails to do so, these examples remain wrong regardless of the
 networks position in weight space. As a result, the corellations stays high due
 to the samne wrong predictions of every snapshot.
 
-No matter the explanation, the results question the usefullness of snapshot
-ensemble. If the underlying idea is, that a high learning rate increases the
-distance, then this procedure nevertheless fails in producing lower
-corellation, as we have seen that further distance doesn't mean lower corellation. 
-
-
 No matter the explanation, the results question the underlying idea of snapshot
 ensembles. A high learning rate increases the distance, but doesn't result in a
 lower corellation. Therefore, the benefits may be doubtful from a theoretical
 viewpoint. Nevertheless, in practice our network with suboptimal accuracy
 achieved a much higher accuracy as ensemble. 
+\newline
+
+One aspect to keep in mind is the additional training cost. Section
+\ref{Res:Computational_cost} showed that the distance function adds a
+significant amount to the epoch time. Even though this scales linear with every
+new checkpoint the cost is very large, especially considering small amount of
+improvement for most cases. Consequently if training performance is of
+importance, it seems that other methods like a cosine decay reach better
+improvement with no additional training cost. Nevertheless, the distance
+function stabilized the choice of the learning rate for cosine decay. If
+training time is not important, the distance may be worth to try out, especially
+because it adds no cost at test time.
 
 

@@ -9,6 +9,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 % Dokumentenklasse ist aus dem KOMA-Script-Paket die SCRReprt-Klasse.
 
 \usepackage{wsi-ra}
+\raggedbottom
 % \usepackage{svg}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -17,14 +18,14 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 
 \titlehead{\vspace{.5cm}\centering
 \textbf{\textsc{Eberhard-Karls-Universität Tübingen}}\\
-Wilhelm-Schickard-Institut für Informatik\\Lehrstuhl Rechnerarchitektur}
+Wilhelm-Schickard-Institut für Informatik\\Lehrstuhl für Kognitive Systeme}
 
 \subject{\large Bachelor thesis}
 % Studien-, Bachelor-, Diplom- oder Masterarbeit
 
 % Der Titel
 \title{\begin{tabular}{p{11cm}}\centering\Large
-myttile
+Escaping local minima in DNNs by rewarding different parameter values
 \end{tabular}}
 
 
@@ -34,13 +35,13 @@ myttile
 
 % Die Betreuer sowie das Abgabedatum etc.
 \publishers{\normalsize\centering\begin{tabular}{p{3cm}p{8cm}}
-\textbf{Betreuer:} 	& Prof.\,Dr.\,rer.\,nat.~Andreas Zell\\
+\textbf{Betreuer:} 	& Prof.\,Dr.~Andreas Zell\\
 			& Wilhelm-Schickard-Institut für Informatik\\
       & \\
 			& Maximus Mutschler\\
 			& Wilhelm-Schickard-Institut für Informatik\\
       & \\
-\textbf{Begonnen am:}	& \\
+\textbf{Begonnen am:}	& May 5, 2020\\ 
  			& \\
 \textbf{Beendet am:}	& \today
 \end{tabular}}
@@ -106,13 +107,13 @@ Max Mustermann
 % Der Anhang                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\appendix
-\input{tex/0A_Abkuerzungsverzeichnis}
+%\appendix
+%\input{tex/0A_Abkuerzungsverzeichnis}
 
 % Erzeuge Glossar und Index.
-\input{tex/0B_Glossar}
+%\input{tex/0B_Glossar}
 % Aufruf: makeindex -t Vorlage.glg -o Vorlage.gls -s Vorlage.ist Vorlage.glo
-\printglossary
+%\printglossary
 % \printindex
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

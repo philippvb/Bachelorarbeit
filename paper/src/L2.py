@@ -5,4 +5,5 @@ def computedistance(checkpoint, model):
     for checkpoint_param, param in zip(checkpoint, model.parameters()):
         difference = torch.add(-param, checkpoint_param)
         distance += torch.sum(torch.mul(difference, difference))
+        
     return distance

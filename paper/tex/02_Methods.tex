@@ -3,20 +3,19 @@
 \subsection{Motivation}\label{sub:Motivation}
 In section \ref{loss_landscape}, we got a brief overview over the loss landscape
 of deep neural networks and the resulting challenges for optimization. Although
-there exists a large number of local minima, most of them have low cost.
+there exist a large number of local minima, most of them have low cost.
 Furthermore, they are arranged in cells, where each minima has low cost and is
 connected to the others via valleys of low loss.
 
 These cells create a challenge for optimization. Suppose the learning gets into
 the area of one of these cells. As mentioned in chapter \ref{loss_landscape} the
 cells are surrounded by nondifferential boundaries and areas of higher loss.
-[TODO: where is this stated?] This will likely cause the algorithm to get stuck
-into this cell. As all of the connected minimas in this cell are of approximatly
-same loss, there will be a boundary until the algorithm can improve, which may
-be higher than the global optimum. This imposes the question, if continuing to
-train is useful, as after one of the minima of the cell is found, the nearby
-minima it can reach will offer no significant improvement and other cells are
-out of reach.
+This will likely cause the algorithm to get stuck into this cell. As all of the
+connected minimas in this cell are of approximatly same loss, there will be a
+boundary until the algorithm can improve, which may be higher than the global
+optimum. This imposes the question, if continuing to train is useful, as after
+one of the minima of the cell is found, the nearby minima it can reach will
+offer no significant improvement and other cells are out of reach.
 
 If we reuse the ball analogy from section \ref{sub:Momentum}, the beginning of
 the training process would probably place the ball at the top of a mountain
@@ -33,17 +32,16 @@ step, the ball is in an area of higher altitude, which will let him roll down to
 the same valley again in the next step.
 
 In contrast, we try a different approach. Rather than letting the ball make one
-large steps and then allwoing him to move on freely, we want to constantly push
+large steps and then allowing him to move on freely, we want to constantly push
 the ball away from it's current position. The idea beeing if the ball is only
 surrounded by hills, we have to push it up one of these until it reaches the top
 and can then roll down into another valley, therefore escaping the cell.
-
 Transferred back to a real network, this translates to repeatedly updating the
 parameter values in a way, that the new values will increase their distance to
 the values we want to get away from.
 
-In Pseudo-Code, this looks the following:
-\begin{algorithm}
+
+\begin{algorithm}\label{alg:Distance_Motivation}
     \begin{algorithmic}[1]
         \caption{Network training with distancing}
         \REQUIRE a neural network architecture and a dataset
@@ -62,22 +60,26 @@ In Pseudo-Code, this looks the following:
     \end{algorithmic}
 \end{algorithm}
 
-First, we train the network the traiditional way - we compute the foward and
-backward pass of the training data with the resulting gradient, and then update
-the parameter values with an optimizer. After we have reached a sufficiently low
-error, we create the point we want to push away from, which we call
-\textbf{checkpoint}. The difference in the next training loop in contrast to the
-standard one at the beginning is how the parameter values are computed. Here,
-our goal is to distance from the checkpoint. This will also result in a
+Algorithm \ref{alg:Distance_Motivation} shows the formalization of the idea into
+pseudo-code. First, we train the network the traiditional way - we compute the
+foward and backward pass of the training data with the resulting gradient, and
+then update the parameter values with an optimizer. After we have reached a
+sufficiently low error, we create the point we want to push away from, which we
+call \textbf{checkpoint}. The difference in the next training loop in contrast
+to the standard one at the beginning is how the parameter values are computed.
+Here, our goal is to distance from the checkpoint. This will also result in a
 gradient, which will be applied the same way as above.
 
 How can we encourage a network to distance from a checkpoint, while at the same
-time not sacrificing the networks performance. Back in the ball analogy, instead
+time not sacrificing the networks performance? Back to the ball analogy, instead
 of pushing the ball up a hill, we could place a hill at the current position,
 and let the ball roll down. Figure \ref{fig:Distance2D} shows a graphical
-illustration for the 2D case. An advantage of this technique is that the hill
-will only change the loss landscape locally. So when we have distanced from the
-hill, we follow the normal loss landscape again.
+illustration for the 2D case. The function $f(x)$ has a local minimum, where an
+algorithm might get stuck. If we add a gaussian curve $g(x)$ with the maximum
+aligned to the minimum of $f(x)$, we can see that the minimum disappears. An
+advantage of this technique is that the hill will only change the loss landscape
+locally. So when we have distanced from the hill, we follow the normal loss
+landscape again.
 
 \begin{figure}[h!]\label{fig:Distance2D}
     \begin{center}
@@ -133,54 +135,6 @@ more uncorellated errors.
 
 
 
-
-\begin{comment}
-
-How to overcome this issue? One solution would be to escape these cells and move
-to the next one, hopefully with lower cost. This can be achieved with the use of
-warm restarts, as mentioned in chapter \ref{cosine_decay}. In phases of low
-learning rate, the algorithm exploits the area of a cell. When the learning rate
-is set back up to the inital learning rate, the update steps of the parameters
-get much larger. If the update steps are large enough, this may lead to an
-escape of the cell. However there is no guarantee, because this method relies on
-the gradient beeing large enough.
-
-From a naive point of view, it would be easiest to remember to place of the
-cells, and just move away from it. In a simplified version, thats what our
-algorithm does. It remembers the point which it wants to distance from, and then
-rewards doing so. [describe better]
- 
-
-motivations:
-- different values for ensemble method
-- seen that cells exists, escape these cells
-- explore instead of exploit
-
-\subsection{Approach}\label{sub:Approach}
-An easy approach to move away from an area would be to remember the point you
-want to distance from, and then move in whatever direction increases this
-distance. In a sense, this is what our algorithm does. First, we train the
-network until there is no improvement anymore. Then, we remember the current
-parameter values as a checkpoint. The network will now be encouraged to distance
-from this checkpoint, and we keep on training. We can also repeat this procedure
-several times.
-
-The ball analogy from section \ref{sub:Momentum} can also be applied to
-visualize the idea. Consider a ball in a mountain landscape. If we start at a
-random location, the ball will roll down until it reaches the bottom of a
-valley. What the distance function now does, is place a hill at the position
-where the ball has stopped. Thereby, the ball will start to move away from the
-current position again.
-
-Note also, that we still use the normal loss function from the beginning in
-combination. If we would only use the distance function, the network would
-succeed in distancing from the checkpoint but fail to maintain the a good
-performance. That's why we have to combine both terms to account for both
-distancing and performance.
-\end{comment}
-
-
-
 \subsection{Mathematical approach}\label{sub:Mathematical_approach}
 \subsubsection{Distance function}\label{distance_function}
 As we want to measure the distance between two points, we need to define a
@@ -194,43 +148,55 @@ the direction of the gradient, and is therefore possible. To measure the
 distance between two parameter states $\theta_1$ and $\theta_2$ of the networks,
 this results in:
 \begin{align}\label{eq:distance}
-    d(\theta_1, \theta_2)= \sum_i (\theta_{1_i}-\theta_{2_i})^2
+    L_2 (\theta_1, \theta_2)= \sum_i (\theta_{1_i}-\theta_{2_i})^2
 \end{align}
 The size and shape of the paramters $\theta$ is not important, as each paramter
 is only compared to another state of itself, and is combined via a sum.
 
-Another property is that the values the distance function can take is partly
-dependend on size. Consider two networks $\theta_1$, $\theta_2$ with the same
-classification task, but the size of $\theta_1$ is larger than $\theta_2$.[may
-be confusing with before] If we assume all of the parameters are distributed the
-same way, then $\theta_1$ would output a larger distance than $\theta_2$.
-However it would be desirable for the functions to be in the same bound, as it
-would make the transfer of hyperparameters for example possible. That's why we
-use a function to control for the output to be in a certain bound.
+An undesireable property of the current formulation is that the values the
+distance function can take is partly dependend on the size of the network.
+Consider two networks $\theta_1$, $\theta_2$ with the same classification task,
+but the number of parameters of $\theta_1$ is larger than $\theta_2$ If we
+assume all of the parameters are distributed the same way, then $\theta_1$ would
+output a larger distance than $\theta_2$. However it would be desirable for the
+functions to be in the same bound, as it would make the transfer of
+hyperparameters for example possible. That's why we need a function to let the
+output stay in a certan bound.
 
 If we take a look at support vector machines, they use kernels to compute the
 similarity between two samples. One popular choice is the radial basis function
 kernel, defined as:
 \begin{align}\label{eq:RBF}
-    k(\theta_1, \theta_2)=exp(-\frac{\rVert \theta_1 - \theta_2 \lVert^2}{2\sigma^2})
+    k(\theta_1, \theta_2)=exp(-\frac{\rVert \theta_1 - \theta_2 \lVert^2}{\sigma^2})
 \end{align}
 where $exp$ is the exponential function. With the use of \ref{eq:distance}, we
 can convert this to:
 \begin{align}\label{eq:DistanceFinal}
-    k(\theta_1, \theta_2)=exp(-\frac{d(\theta_1, \theta_2)}{2\sigma^2})
+    distance(\theta_1, \theta_2)=exp(-\frac{L_2 (\theta_1, \theta_2)}{\sigma^2})
 \end{align}
-If we plot this function in the two dimensional case (see Figure
-\ref{fig:Gaussian}), we can see some nice properties.
+
+If we plot this function in the two dimensional case in figure
+\ref{fig:Gaussian}, we can see some nice properties. First of all, the values
+are now bound between 0 an 1, regardless of the size of $\theta$. Second, we can
+see as the values of the distance get larger, the function approaches 0
+asymtotically. This leads to a really small gradient for extreme distances.
+Consequently, the Kernel will initially push the parameters away from the
+checkpoint, but when this is achieved, will have little influence on the loss
+function. How far the function encourages to distance from the checkpoint can be
+controlled by the parameter $\sigma$, which defines the width of the function
+and can be tuned as a hyperparamter. As $\sigma$ gets larger, the function
+becomes wider. Therefore, the influence of the distance function will reach
+further the larger $\sigma$ is.
+
 \begin{figure}[h]\label{fig:Gaussian}
     \centering
-    \textbf{Gaussian curve}\par\medskip
     \begin{center}
         \begin{tikzpicture}
             \begin{axis}[
             grid=major, 
             grid style={dashed,gray!30},
-            xlabel=x, % Set the labels
-            ylabel=y,
+            xlabel=$x$, % Set the labels
+            ylabel=$f(x)$,
             xmin=-20,
             xmax=20,
             xtick={-20,-15,-10,-5,0,5,10,15,20},
@@ -243,33 +209,25 @@ If we plot this function in the two dimensional case (see Figure
             legend style={nodes={scale=1, transform shape}},
             domain=-20:20]
             \addplot[color=red]{exp(-x^2)};
-            \addlegendentry{$\sigma=1$}
+            \addlegendentry{$\sigma^2=1$}
             \addplot[color=blue]{exp(-x^2/5^2)};
-            \addlegendentry{$\sigma=5$}
+            \addlegendentry{$\sigma^2=5$}
             \addplot[color=green]{exp(-x^2/10^2)};
-            \addlegendentry{$\sigma=10$}
+            \addlegendentry{$\sigma^2=10$}
             \addplot[color=black]{0};
             \end{axis}
          \end{tikzpicture}
-         \caption{Plot of the function $f(x)=exp(-\frac{x^2}{\sigma^2})$ for different values of $\sigma$.}
+         \caption{Plot of the function $f(x)=exp(-\frac{x^2}{\sigma^2})$ for different values of $\sigma^2$.}
     \end{center}
 \end{figure}
-First of all, the values are now bound between 0 an 1, regardless of the size of
-$\theta$. Second, we can see as the values of the distance get larger, the
-function approaches 0 asymtotically. This leads to a really small gradient for
-extreme distances. Consequently, the Kernel will initially push the parameters
-away from the checkpoint, but when this is achieved, will have little influence
-on the loss function. How far the function encourages to distance from the
-checkpoint can be controlled by the parameter $\sigma$, which defines the width
-of the function and can be tuned as a hyperparamter. As $\sigma$ gets larger,
-the function becomes wider. Therefore, the influence of the distance function
-will reach further the larger $\sigma$ is.
 
 
 \subsubsection{Loss function}\label{sub:Loss_function}
-This section will show how the distance function from \ref{distance_function} is
-combined with the normal loss function. The state of the art loss function for
-image classification, which will be used for testing is the cross-entropy-loss
+The last section has focused on how to implement a loss function which achieves
+distancing from parameter values. However, only using this loss function would
+sacrafice network performance. Therefore, we combine it with the standard loss
+function of the task. The state of the art loss function for image
+classification, which will be used for testing later, is the cross-entropy-loss
 defined as:
 \begin{align}
     -\sum_{i} \delta_{yc} log(f(x)_i)
@@ -287,11 +245,12 @@ To account for the distance term, we just sum it with the cross-entropy-loss:
 \begin{align}\label{eq:Loss_distance}
     L=\sum_{i} \delta_{yi} log(f(x)_i) + distance(\theta, \theta_c)
 \end{align}
-Where $\theta_c$ is the checkpoint.
-Note that we can do this multiple times, so we can incooperate multiple
-checkpoints:
+Where $\theta_c$ is the checkpoint. Note that we can do this multiple times, so
+we can incooperate multiple checkpoints. Here, we divide by the number of
+checkpoints to keep the influence of the distance function on the loss function
+irrelevant of the number of checkpoints.
 \begin{align}
-    L=\sum_{i} \delta_{yi} log(f(x)_i) + \sum_c distance(\theta, \theta_c)
+    L=\sum_{i} \delta_{yi} log(f(x)_i) + \frac{1}{c} \sum_c distance(\theta, \theta_c)
 \end{align}
 When computing the derivative for the backpropagation, the sum
 decomposes into two terms, so the cross-entropy-loss will be computed the same
@@ -306,11 +265,49 @@ we introduce a hyperparameters $s$ called strength to control this:
 \begin{align}\label{eq:Loss_strength}
     L=\sum_{c} \delta_{yc} log(f(x)_c) + s \cdot distance(\theta, \theta_c)
 \end{align}
+Figure \ref{fig:Gaussian_strength} shows the infuence of $s$ on the distance
+function. The values are now bound between 0 and $s$. Increasing the strength
+also has the same effect of the function getting wider as in figure
+\ref{fig:Gaussian}, but at a much smaller scale. 
 
-\subsubsection{Effect on Gradient}\label{sub:Effect_on_Gradient} In section
-\ref{sub:Loss_function}, we showed how the new loss function is composed. The
-normal cross-entropy-loss and the distance function are added together.
-Therefore, taking the derivative of equation \ref{eq:Loss_distance} results in 
+\begin{figure}[h]\label{fig:Gaussian_strength}
+    \centering
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[
+            grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=$x$,
+            ylabel=$f(x)$,
+            xmin=-3,
+            xmax=3,
+            %xtick={-5,-1,0,1,5},
+            %ytick={0,1,5,10},
+            %ymin=-1,
+            %ymax=11,
+            samples=400,
+            legend pos = north west,
+            width=0.7\textwidth,
+            legend style={nodes={scale=1, transform shape}},
+            domain=-20:20]
+            \addplot[color=red]{exp(-x^2)};
+            \addlegendentry{$s=1$}
+            \addplot[color=blue]{5*exp(-x^2)};
+            \addlegendentry{$s=5$}
+            \addplot[color=green]{10*exp(-x^2)};
+            \addlegendentry{$s=10$}
+            \addplot[color=black]{0};
+            \end{axis}
+         \end{tikzpicture}
+         \caption{Plot of the function $f(x)=s\cdot exp(-\frac{x^2}{\sigma^2})$ for different values of $s$.}
+    \end{center}
+\end{figure}
+
+\subsubsection{Effect on Gradient}\label{sub:Effect_on_Gradient} 
+In section \ref{sub:Loss_function}, we showed how the new loss function is
+composed. The normal cross-entropy-loss and the distance function are added
+together. Therefore, taking the derivative of equation \ref{eq:Loss_distance}
+results in 
 \begin{align}
     \nabla_\theta L 
     &= \nabla_\theta (\sum_{i} \delta_{yi} log(f(x)_i) + distance(\theta, \theta_c))\\
@@ -322,17 +319,16 @@ term is the distance function on the right.
 
 First of all, it influences the direction of the gradient, so that the network
 parameters distance from their checkpoint values. If we take one parameter
-$\theta_i$ and compute the derivative of the distance function with respect to the
-checkpoint $\theta_{c_i}$, we end up with:
+$\theta_i$ and compute the derivative of the distance function with respect to
+the checkpoint $\theta_c$, we end up with:
 \begin{align}
-    \nabla_{\theta_i} distance(\theta_{c_i}, \theta_i)
-    &= \nabla_{\theta_i} exp(-\frac{\rVert \theta_{c_i} - \theta_i \lVert^2}{2\sigma^2}) \\
-    &= \nabla_{\theta_i} exp(-\frac{(\theta_{c_i} - \theta_i)^2}{2\sigma^2}) \\
-    &= \nabla_{\theta_i} (-\frac{(\theta_{c_i} - \theta_i)^2}{2\sigma^2}) \cdot exp(-\frac{(\theta_{c_i} - \theta_i)^2}{2\sigma^2}) \\
-    &= -\frac{1}{2\sigma^2} \cdot \nabla_{\theta_i} (\theta_{c_i} - \theta_i)^2 \cdot exp(-\frac{(\theta_{c_i} - \theta_i)^2}{2\sigma^2}) \\
-    &= -\frac{1}{2\sigma^2} \cdot 2 (\theta_{c_i} - \theta_i) \cdot \nabla_{\theta_i}(\theta_{c_i} - \theta_i) \cdot exp(-\frac{(\theta_{c_i} - \theta_i)^2}{2\sigma^2}) \\
-    &= -\frac{1}{2\sigma^2} \cdot 2 (\theta_{c_i} - \theta_i) \cdot (-1) \cdot exp(-\frac{(\theta_{c_i} - \theta_i)^2}{2\sigma^2}) \\
-    &= \frac{1}{\sigma^2} \cdot (\theta_{c_i} - \theta_i) \cdot exp(-\frac{(\theta_{c_i} - \theta_i)^2}{2\sigma^2}) \\
+    \nabla_{\theta_i} distance(\theta_c, \theta_i)
+    &= \nabla_{\theta_i} exp(-\frac{\sum_j (\theta_{c_j}-\theta_{j})^2}{\sigma^2}) \\
+    &= \nabla_{\theta_i} (-\frac{\sum_j (\theta_{c_j}-\theta_{j})^2}{\sigma^2}) \cdot exp(-\frac{\sum_j (\theta_{c_j}-\theta_{j})^2}{\sigma^2}) \\
+    &= -\frac{1}{\sigma^2} \cdot \nabla_{\theta_i} \sum_j (\theta_{c_j}-\theta_{j})^2 \cdot exp(-\frac{\sum_j (\theta_{c_j}-\theta_{j})^2}{\sigma^2}) \\
+    &= -\frac{1}{\sigma^2} \cdot 2 (\theta_{c_i} - \theta_i) \cdot \nabla_{\theta_i}(\theta_{c_i} - \theta_i) \cdot exp(-\frac{\sum_j (\theta_{c_j}-\theta_{j})^2}{\sigma^2}) \\
+    &= -\frac{1}{\sigma^2} \cdot 2 (\theta_{c_i} - \theta_i) \cdot (-1) \cdot exp(-\frac{\sum_j (\theta_{c_j}-\theta_{j})^2}{\sigma^2}) \\
+    &= \frac{2}{\sigma^2} \cdot (\theta_{c_i} - \theta_i) \cdot exp(-\frac{\sum_j (\theta_{c_j}-\theta_{j})^2}{\sigma^2}) 
 \end{align}
 
 Only the factor $(\theta_{c_i} - \theta_i)$ will affect the direction of the
@@ -383,7 +379,7 @@ Here, we will analyze how the distance term affects training time. Algorithm
 usual. Therefore, there is no additional training time in this stage. After we
 add the checkpoint however, the distance function is added to the loss. In
 section \ref{sub:Effect_on_Gradient} we have seen that there is no interaction
-between the graidient of the cross-entropy-loss and the distance function. The
+between the gradient of the cross-entropy-loss and the distance function. The
 same is true for the foward pass. Therefore, the only added computation time
 raises from the distance term itself.
 
@@ -391,21 +387,19 @@ The number of parameters of the network stays constant over the epochs.
 Therefore, the number of mathematical operations in the foward and backward pass
 of the distance term stays constant. Lets assume the comparison time for two
 numbers is also constant regardless of their size. Then it follows, that the
-distance function creates a constant additional amount of time, denotet by $d$. 
+distance function creates a constant additional amount of time, denotet by $d$.
+In addition, let $l$ denote the constant cost of one pass trough the regular
+training loop. If we pass this loop $n$ times, our inital cost is $O(l\cdot
+n)=O(n)$. If we add our distance function, we have to add $O(n\cdot d)$ to our
+cost $O(n\cdot l + n \cdot d)$. As $O(n\cdot l + n \cdot d)=O(n\cdot (l +
+d))=O(n)$, the complexity of the algorithm stays the same. However, the distance
+function will still raise the per epoch cost, although by a constant. If we add
+more checkpoints, there are again no interactions with other checkpoints or the
+regular training loop. Therefore, every new checkpoint should add the same
+additional cost, while keeping the complexity class the same. The actual value
+of the additional cost will be discussed in the results, section
+\ref{Res:Computational_cost}.
 
-Let $l$ denote the constant cost of one pass trough the regular training loop.
-If we pass this loop $n$ times, our inital cost is $O(l\cdot n)=O(n)$ If we add
-our distance function, we have to add $O(n\cdot d)$ to our cost $O(n\cdot l + n
-\cdot d)$. As $O(n\cdot l + n \cdot d)=O(n\cdot (l + d))=O(n)$, the complexity
-of the algorithm stays the same. However, the distance function will still raise
-the per epoch cost, although by a constant. If we add more checkpoints, there
-are again no interactions with other checkpoints or the regular training loop.
-Therefore, every new checkpoint should add the same additional cost, while
-keeping the complexity class the same. The actual value of the additional cost
-will be discussed in the results, section \ref{Res:Computational_cost}.
-
-
-\subsubsection{Multiple Checkpoints}\label{sub:Multiple_checkpoints}
 
 \subsection{Pytorch implementation}
 
@@ -435,28 +429,38 @@ then square and add the values to our distance.
     \lstinputlisting{src/L2.py}
 \end{algorithm}
 
+\subsubsection{Loss function}
+Finally, we add our distance term and the regular loss function together. First,
+the standard loss is computed. Then, we iterate over all checkpoints and add
+their resulting distance values to the loss.
+\begin{algorithm}[h!]
+    \caption{Loss function}
+    \lstset{language=Python}
+    \lstinputlisting{src/loss_distance.py}
+\end{algorithm}
+
 
 
 \section{Configuration}
 
 \subsection{Library and Training}
-The code for the network was written in Python 3.7.4 , with the use of
-Pytorch \cite{NEURIPS2019_9015} as the machine learning library. Data that occured during training was
-logged and plotted with Tensorboard. For a detailed overview of the code, see
-Appendix [add]. Training was done on the TCML Cluster of the university of Tübingen.
+The code for the network was written in Python 3.7.4 , with the use of Pytorch
+\cite{NEURIPS2019_9015} as the machine learning library. Data that occured
+during training was logged and plotted with Tensorboard. Training was done on
+the TCML Cluster of the University of Tübingen \cite{TCML}.
 
-\subsection{Datasets}
+\subsection{Dataset}
 CIFAR-10 \cite{CIFAR-10} is a popular dataset for image classification. It
 consists of 60000 32x32 colour images with 10 different classes. The dataset is
 seperated into 50000 train and 10000 test images. The state of the art accuracy
 is 97.3\%, reported from Kolesnikov et al. \cite{kolesnikov2019big}.
 
-The data is tranformed by using a random crop, random horizontal flip and a
+The data is tranformed by using a random crop, random horizontal flip and
 normalization.
 
 
 \subsection{Networks}
-\subsubsection{ResNet}
+\subsubsection{ResNet}\label{sub:ResNet}
 The Residual Network (ResNet) architecture was first proposed by He et al.
 \cite{he2016deep}. The idea of the ResNet was, that it is more easy for a
 network to learn the residuals rather than the full transformation of an input.
@@ -473,8 +477,7 @@ earlier layers of the network. This allows for deeper networks.
 \begin{figure}[h]\label{fig:Residual_Block}
     \centering
     \includegraphics[width=0.6\textwidth]{images/Residual_Block.png}
-    \caption{Residual Block from \cite[Page 2]{he2016deep}\newline 
-   }
+    \caption{Residual Block from \cite[Page 2]{he2016deep}}
 \end{figure}
 
 ResNet creates basic building blocks by applying a convolution, a Relu and
@@ -493,20 +496,27 @@ MobileNet was first introduced by Howard et. al \cite{howard2017mobilenets} as a
 lightweight neural network for the use on mobile devices. To reduce the
 computation effort of the network, they made use of the depth-wise seperable
 convolution. Consider a 32x32x3 image of the CIFAR-10 dataset. A traditional 3x3
-convolution with a stride and padding of 1 would produce an output of
-$\frac{32+2-3}{1}+1$ the shape 32x32x1. To get more channels, we would need more
-kernels. For a total of k output channels, we would need to do 3x3x3 x32x32 xk
-multiplications. Instead of doing the computation in one kernel, depth-wise
-seperable convolution divides it into two kernels. First they perform a
-depthwise convolution, where a kernel of 3x3x1 is applied to every channel of
-the input, so in this case we end up same size of 32x32x3. To get to k channels,
-they use a pointwise convolution across the channels. This is a 1x1x3
-convolution, which upscales the image to more channels. So if we want k output
-channels, we need k 1x1x3 kernels. The benefit of this technique is that, while
-getting the same output size, we only need 32x32 3x3x3 multiplications in the
-first step, and 32x32 1x1x3 xk in the second step. This is way less than the
-from the beginning. Figure \ref{fig:DSConv} shows a graphical illustration of
-this idea.
+convolution with a stride and padding of 1 would produce an output of the shape
+32x32x1. To get more channels, we would need more kernels. For a total of $k$
+output channels, we would need to perform $32\cdot 32 \cdot k=1024\cdot k$
+convolutions, where each convolution with the Kernel has $3\cdot 3 \cdot 3=27$
+multiplications, resulting in a total of $27648\cdot k$ multiplications.
+Instead of doing the computation in one kernel, depth-wise seperable convolution
+divides it into two kernels. First they perform a depthwise convolution, where a
+kernel of 3x3x1 is applied to every channel of the input, so in this case we end
+up same size of 32x32x3. To get to k channels, they use a pointwise convolution
+across the channels. This is a 1x1x3 convolution, which upscales the image to
+more channels. So if we want k output channels, we need k 1x1x3 kernels. The
+benefit of this technique is that, while getting the same output size, we only
+need $32\cdot 32 \cdot 3=3072$ convolutions of a $3\cdot 3=9$ Kernel, resulting
+in 27648 multiplications. In the second step, we need $32\cdot 32\cdot
+k=1024\cdot k$ convolutions of a Kernel with $1\cdot 1\cdot 3=3$ multiplications
+resulting in $3027\cdot k$ convolutions. This results in a total of $27648 +
+3027\cdot k$ convolutions. Although this might be more for $k=1$, it scales up
+way smaller for larger $k$, because of the number of channels only be dependend
+on the lightweight pointwise convolution. For example for $k=10$, depthwise
+seperable only needs 57918 multiplications while a traditional convolution needs
+276480. Figure \ref{fig:DSConv} shows a graphical illustration of this idea.
 \begin{figure}[h!]\label{fig:DSConv}
     \centering
     \includegraphics[width=0.6\textwidth]{images/Depthwise_Separable_Convolution.png}
@@ -533,22 +543,9 @@ back to a low dimensional space, a nonlinearity would only lead to a loss of
 information. Finally, a skip connection from the input to the output is applied
 to get a residual mapping from input to output.
 
-% Figure x describes the network in detail.
-
-
 For ImageNet, MobileNetV2 reaches an top-1 accuracy of 72\%, which outperforms
 the competitors like MobileNetV1 or ShuffleNet 1.5 while having a similar number
 of parameters.
-
-
-
-\begin{comment}
-    Further aspects:
-    - MobileNet and ResNet add detailed structure
-    - More about Kernel
-    - How distance function will affect gradient more formally
-\end{comment}
-
 
 
 \begin{figure}[h]\label{fig:InvRes}
@@ -580,22 +577,4 @@ the effects:
     epochs, to investigate long term changes. Usually an epoch number of 600 is
     used.
 \end{itemize}
-
-\begin{comment}
-\subsection{Hardware}
-\begin{figure}[h]
-    \centering
-    \includegraphics{images/test.pdf}
-    \caption{Feature Selection Based on Mutual Information}
-    \label{fig:fs_mi}
-\end{figure}
-
-
-\begin{figure}[h]
-    \centering
-    \includesvg{images/nn.svg}
-    \label{fig:fs_mi}
-\end{figure}
-
-\end{comment}
 
