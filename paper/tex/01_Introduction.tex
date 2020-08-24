@@ -1,4 +1,56 @@
 \chapter{Introduction}
+In recent years, neural networks have created huge success in a variety of tasks
+ranging from image classification to video gaming. With the help of new deep
+learning libraries, everyone is able to replicate similar results with little
+background knowledge.
+
+However when viewed from a mathematical standpoint, this success is quite
+surprising. In contrast to traditional optimization, the loss landscape of deep
+neural networks imposes challenging problems. 
+
+One major problem is the presence of multiple local minima instead of solely one
+global one. Therefore, optimization algorithms are only able to achieve these
+local minimas and one cannever be  sure to arrive at the global one. In
+addition, the local structure is often misleading and leads away from the global
+maximum.
+
+Despite these challenges, recent literature suggests that most local minima are
+of good performance. Searching for the global one might also lead to
+overfitting, where the trainig data is resembled too close. 
+
+
+Recent work sgd warm restart, where the learning rate is set back up, leads to
+an improvement. Also explores the loss landscape further. 
+
+
+In the same direction this work tries to explore the loss landscape further,
+looking if there exist areas of better or worse performance. This will not only
+create insights in the loss landscape in general, but also in initilization
+strategies for example.
+
+
+
+
+
+
+
+
+- currently high  success in practical applications
+- however from mathematical viewpoint, seems surprisings as loss landscape is hard
+- nevertheless easy  algorithm like sgd can solve
+- no control over exploration of loss landscape
+- recent literature suggests all good minima quite same performance
+
+
+
+
+
+
+
+
+
+
+
 \section{Optimization in Neural Networks}
 Optimization is a core part of the current deep neural networks, as it is the
 foundation of the learning process. However, optimization in the context of deep
