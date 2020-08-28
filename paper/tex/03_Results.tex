@@ -105,8 +105,8 @@ without distance function keeps on walking and never truly stops at a point.
 
 
 
-\section{Distance function Hyperparameters}\label{res:Hyperparameters}
-\subsection{strength}\label{res:Strength}
+\section{Distance function hyperparameters}\label{res:Hyperparameters}
+\subsection{Influence of strength hyperparameter}\label{res:Strength}
 Recall section \ref{eq:Loss_strength}, where we added strength as a
 hyperparameter, controlling the influence of the distance function. As the RBF
 Kernel is bound between 0 and 1, the strength hyperparameter will increase that
@@ -245,7 +245,7 @@ accuracy.
     \end{center}
 \end{figure}
 
-\subsection{width}
+\subsection{Influence of width hyperparameter}
 We have seen in chapter \ref{distance_function}, how the width $\sigma$
 influences the distance function: The larger $\sigma$ gets, the wider it
 becomes. Therefore, a larger $\sigma$ should result in the network distancing
@@ -486,7 +486,7 @@ distance increases further for each new checkpoint that is added.
 
             \end{groupplot}
         \end{tikzpicture}
-        \caption{Validation accuray and Distance for MobileNetV2 (left) and ResNet32 (right) trained with multiple checkpoints.}
+        \caption{Validation accuray for MobileNetV2 (left) and ResNet32 (right) trained with multiple checkpoints.}
     \end{center}
 \end{figure}
 
@@ -627,7 +627,7 @@ remains unclear.
 
 
 \section{Learning rate}\label{res:Learning_rate}
-\subsection{scheduler}\label{res:Scheduler}
+\subsection{Learning rate schedulers}\label{res:Scheduler}
 Learning rate Scheduler were introduced in section \ref{sub:Learing_rate_decay},
 where the learning rate was not held constant, but decayed over time. One
 further addition were warm restarts, where after the decay we set the learning
@@ -939,21 +939,21 @@ distance function itself.
 
 
 
-\subsection{wrong lr}
+\subsection{Suboptimal initial learning rate}
 
 We might suspect that a learning rate decay should be more robust to a
 suboptimal inital learning rate. At first, this seems to be case. Where
-MobileNetV2 without decay only reaches a accuracy of 60\% and then decreases, a
-scheduler reaches a comparable accuracy to the best network. But if we perform a
-warm restart, the maximum accuracy drops for each cycle, so the network gets
-worse with increasing cycles. If we add the distance function however, we can
-see that it stabilizes the training so that the maximum accuracy stays the same
-for each cycle. This leads to a performance difference of 8\% for MobileNetV2 in
-favour of the distance function after 600 epochs. The difference is also present
-from the beginning of each restart and remains stable. However, we loose the
-effect from above, that each warm restart boosts the performance. Nevertheless,
-this is a significant improvement, which is stable across both ResNet32 and
-MobileNetV2.
+MobileNetV2 without decay only reaches a accuracy of 60\% for an initial
+learning rate of 0.1 and then decreases, a scheduler reaches a comparable
+accuracy to the best network. But if we perform a warm restart, the maximum
+accuracy drops for each cycle, so the network gets worse with increasing cycles.
+If we add the distance function however, we can see that it stabilizes the
+training so that the maximum accuracy stays the same for each cycle. This leads
+to a performance difference of 8\% for MobileNetV2 in favour of the distance
+function after 600 epochs. The difference is also present from the beginning of
+each restart and remains stable. However, we loose the effect from above, that
+each warm restart boosts the performance. Nevertheless, this is a significant
+improvement, which is stable across both ResNet32 and MobileNetV2.
 
 If we compare the distance to the network with optimal learning rate in figure
 \ref{fig:Cosine_distance}, there also are some differences. Here, especially
@@ -1050,7 +1050,7 @@ doesn't learn at all. Instead, the validation accuracy stays constant at around
 
 
 
-\section{ensemble methods}\label{res:Ensemble}
+\section{Ensemble methods}\label{res:Ensemble}
 Ensemble methods were introduced in section \ref{sub:Ensemble_Methods}, the idea
 beeing that the combined prediction of multiple networks would result in better
 performance. However, the networks need uncorellated errors for that

@@ -43,20 +43,22 @@ the values we want to get away from.
 
 \begin{algorithm}\label{alg:Distance_Motivation}
     \begin{algorithmic}[1]
-        \caption{Network training with distancing}
-        \REQUIRE a neural network architecture and a dataset
-        \ENSURE a trained neural network
+        \caption{Machine Learning with distancing}
+        \REQUIRE a set of parameters $\theta$ and a dataset
+        \ENSURE a assignment of $\theta$ which maximizes performance
         \STATE initialize the network, dataset and training parameters
         \FOR{$i \leftarrow 1$ \textbf{to} desired number of epochs}
             \STATE compute foward and backward pass of training data
             \STATE update parameter values with optimizer
         \ENDFOR
         \STATE create checkpoint we want to distance from
-        \FOR{$i \leftarrow$ next epoch \textbf{to} end}
-            \STATE compute new parameter values different to checkpoint
-            \STATE update parameter values with optimizer
+		\FOR{$i \leftarrow$ next epoch \textbf{to} end}
+			\FOR{checkpoint \textbf{in} list of checkpoints}
+			\STATE compute parameter update which increases the distance to checkpoint
+			\ENDFOR
+		\STATE update parameter values with optimizer
         \ENDFOR
-        \STATE \textbf{return: the trained network}
+        \STATE \textbf{return: the final assignment of $\theta$}
     \end{algorithmic}
 \end{algorithm}
 
@@ -302,6 +304,25 @@ also has the same effect of the function getting wider as in figure
          \caption{Plot of the function $f(x)=s\cdot exp(-\frac{x^2}{\sigma^2})$ for different values of $s$.}
     \end{center}
 \end{figure}
+
+Algorithm \ref{alg:Distance_update} shows the full update step. The algorithm is
+similar to SGD from \ref{alg:SGD}, only the distance function is added to
+compute the gradients.
+
+\begin{algorithm}\label{alg:Distance_update}
+    \begin{algorithmic}[1]
+        \caption{Update step with distancing}
+        \REQUIRE learning rate $\alpha$, distance hyperparameters $s$ and $\sigma$
+        \ENSURE a trained neural network
+        \STATE initialize the network, dataset and training parameters
+        \WHILE{stopping criteria is not met}
+            \STATE sample minibatch of $m$ examples ${x^{(1)}, ... ,x^{(n)}}$
+            \STATE compute gradient estimate $\hat{g}=\nabla_\theta \frac{1}{m} \sum_i L(f(x^{(i)};\theta),y^{(i)})+s\cdot distance(\theta , \theta_c)$
+            \STATE apply parameter update $\theta=\theta-\alpha\cdot\hat{g}$
+        \ENDWHILE
+        \STATE \textbf{return: the trained network}
+    \end{algorithmic}
+\end{algorithm}
 
 \subsubsection{Effect on Gradient}\label{sub:Effect_on_Gradient} 
 In section \ref{sub:Loss_function}, we showed how the new loss function is

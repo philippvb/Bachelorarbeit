@@ -169,7 +169,7 @@ def distance_wrapper(loss_function, distance_factor, distance_width, kernel_func
         classify_loss = loss_function(model, images, labels)
         loss += classify_loss
         for minimum in minimum_list:
-            loss += distance_factor/len(minimum_list) * kernel_function(computedistance(minimum, model), distance_width)  # divided by length to be the same as before
+            loss += kernel_function(computedistance(minimum, model), distance_width)  # divided by length to be the same as before distance_factor/len(minimum_list) * 
 
         return loss
 
