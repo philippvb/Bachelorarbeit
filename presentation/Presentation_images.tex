@@ -16,7 +16,66 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\section{Basics}
+
+
+
+\begin{figure}[H]\label{fig:idea}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={
+                group size=2 by 2,
+                horizontal sep=40pt,
+                vertical sep=40pt,
+                group name=G}
+            ]
+            \nextgroupplot[xlabel=$x$, ylabel=$y$,
+            zlabel=$z$,
+            xticklabels={,,},
+            yticklabels={,,},
+            zticklabels={,,},]
+            \addplot3[
+        surf,
+        domain=-4:4,
+        domain y=-4:4
+        ] 
+        {-1.5*exp(-((x-2)^2+(y-2)^2)/2)-2*exp(-((x+2)^2+(y+2)^2)/2)};
+
+        \nextgroupplot[xlabel=$x$, ylabel=$y$,
+            zlabel=$z$,
+            xticklabels={,,},
+            yticklabels={,,},
+            zticklabels={,,},]
+            \addplot3[
+        surf,
+        domain=-4:4,
+        domain y=-4:4,
+    ] 
+        {+1.8*exp(-((x-2)^2+(y-2)^2)/2)};
+
+
+        \nextgroupplot[xlabel=$x$, ylabel=$y$,
+            zlabel=$z$,
+            xticklabels={,,},
+            yticklabels={,,},
+            zticklabels={,,},]
+            \addplot3[
+        surf,
+        domain=-4:4,
+        domain y=-4:4,
+    ] 
+        {-exp(-((x-2)^2+(y-2)^2)/2)-2*exp(-((x+2)^2+(y+2)^2)/2)+1.8*exp(-((x-2)^2+(y-2)^2)/2)};
+    
+            \end{groupplot}
+        \end{tikzpicture}
+        \caption{Example of a loss surface with two minima. If we place a hill at the position of the local minimum, it disappears and optimization will not get stuck.}
+    \end{center}
+\end{figure}
+
+            
+
+
+\chapter{Basics}
 \begin{algorithm}\label{alg:SGD}
     \begin{algorithmic}[1]
         \caption{Stochastic gradient descent}
@@ -24,7 +83,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
         \ENSURE a trained neural network
         \STATE initialize the network, dataset and training parameters
         \WHILE{stopping criteria is not met}
-            \STATE sample minibatch of $m$ examples ${x^{(1)}, ... ,x^{(n)}}$
+            \STATE sample minibatch of $m$ examples ${x^{(1)}, ... ,x^{(m)}}$
             \STATE compute gradient estimate $\hat{g}=\frac{1}{m} \nabla_\theta \sum_i L(f(x^{(i)};\theta),y^{(i)})$
             \STATE apply parameter update $\theta=\theta-\lambda\cdot\hat{g}$
         \ENDWHILE
@@ -35,14 +94,14 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 \begin{algorithm}
     \begin{algorithmic}[1]
         \caption{Stochastic gradient descent with Momentum}
-        \REQUIRE learning rate $\alpha$
+        \REQUIRE learning rate $\lambda$
         \REQUIRE momentum parameter $m$
         \ENSURE a trained neural network
         \STATE initialize the network, dataset and training parameters
         \WHILE{stopping criteria is not met}
-            \STATE sample minibatch of $m$ examples ${x^{(1)}, ... ,x^{(n)}}$
+            \STATE sample minibatch of $m$ examples ${x^{(1)}, ... ,x^{(m)}}$
             \STATE compute gradient estimate $\hat{g}=\frac{1}{m} \nabla_\theta \sum_i L(f(x^{(i);\theta}),y^{(i)})$
-            \STATE compute velocity update $v=m \cdot v - \alpha \hat{g}$
+            \STATE compute velocity update $v=m \cdot v - \lambda \hat{g}$
             \STATE apply parameter update $\theta=\theta-v$
         \ENDWHILE
         \STATE \textbf{return: the trained network}
@@ -52,7 +111,17 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 \begin{figure}[h]\label{fig:Results_scheduler}
     \begin{center}
         \begin{tikzpicture}
-            \begin{axis}[
+            \begin{groupplot}[
+                group style={
+                group size=2 by 1,
+                horizontal sep=60pt,
+                vertical sep=40pt,
+                group name=G},
+                width=0.5\textwidth,
+            ]
+                
+            
+            \nextgroupplot[
             grid=major, 
             grid style={dashed,gray!30},
             xlabel=Epoch,
@@ -61,41 +130,36 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
             ymin=0.80,
 			xmin=-10,
 			legend pos=south east,
-            width=10cm,
+            %width=10cm,
             restrict x to domain=0:450]
             \addplot[mark=None, color=blue] 
 				table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_validation_acuracy.csv};
 				\addlegendentry{baseline}
             \addplot[mark=None, color=red] 
 				table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/scheduler/MobileNetV2/MobileNetV2_scheduler_cosine_validation_acuracy.csv};
-				\addlegendentry{SGD with Warm Restart}
-			\end{axis}
+                \addlegendentry{SGD with Warm Restart}
+                
+            \nextgroupplot[
+                    grid=major, 
+                    grid style={dashed,gray!30},
+                    xlabel=Epoch,
+                    ylabel=Learning rate,
+                    %xticklabels={,,},
+                    xmin=-10,
+                    %width=10cm,
+                    restrict x to domain=0:450,
+                    ylabel near ticks
+                    ]
+                    \addplot[mark=None, color=blue] 
+                        table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/lr/MobileNetV2/run-mobileNetV2_scheduler_cosine_1-tag-lr.csv};
+            \end{groupplot}
         \end{tikzpicture}
-    \end{center}
-\end{figure}
-
-\begin{figure}[h]\label{fig:Scheduler_lr}
-    \begin{center}
-        \begin{tikzpicture}
-            \begin{axis}[
-            grid=major, 
-            grid style={dashed,gray!30},
-            xlabel=Epoch,
-            ylabel=Learning rate,
-            %xticklabels={,,},
-			xmin=-10,
-            width=10cm,
-            restrict x to domain=0:450
-            ]
-            \addplot[mark=None, color=blue] 
-				table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/lr/MobileNetV2/run-mobileNetV2_scheduler_cosine_1-tag-lr.csv};
-			\end{axis}
-        \end{tikzpicture}
+        \caption{Cosine Decay with Warm Restart outperforms a fixed learning rate and increases the maximum accuracy for each restart (left). The right side shows how the learning rate is decayed.}
     \end{center}
 \end{figure}
 
 
-\section{Methods}
+\chapter{Methods}
 \begin{algorithm}\label{alg:Distance_Motivation}
     \begin{algorithmic}[1]
         \caption{Machine Learning with distancing}
@@ -109,7 +173,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
         \STATE create checkpoint we want to distance from
 		\FOR{$i \leftarrow$ next epoch \textbf{to} end}
 			\FOR{checkpoint \textbf{in} list of checkpoints}
-			\STATE compute parameter update which increases the distance to checkpoint
+			\STATE compute parameter update which maintains performance but also increases distance to the checkpoint
 			\ENDFOR
 		\STATE update parameter values with optimizer
         \ENDFOR
@@ -120,8 +184,15 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 \begin{figure}[h!]\label{fig:Distance2D}
     \begin{center}
         \begin{tikzpicture}
-            \begin{axis}[
-            grid=major, 
+            \begin{groupplot}[
+                group style={
+                group size=2 by 1,
+                horizontal sep=60pt,
+                vertical sep=40pt,
+                group name=G},
+                width=0.5\textwidth,
+            ]
+            \nextgroupplot[grid=major, 
             grid style={dashed,gray!30},
             xlabel=x, % Set the labels
             ylabel=y,
@@ -132,7 +203,26 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
             ymax=3,
             samples=100,
             legend pos = north west,
-            width=0.7\textwidth,
+            %width=0.7\textwidth,
+            legend style={nodes={scale=0.8, transform shape}}]
+            \draw[dashed] ({axis cs:0.66666,0}|-{rel axis cs:0,0}) -- ({axis cs:0.66666,0}|-{rel axis cs:0,1});
+            \node[align=left] at (axis cs: 1.5,-0.5) {local \\ minimum};
+            \addplot[color=red]{x^3-x^2};
+
+
+            \nextgroupplot[grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=x, % Set the labels
+            ylabel=y,
+            ylabel near ticks,
+            xmin=-2,
+            xmax=3,
+            xtick={-2,-1,0,1,2, 3},
+            ymin=-2,
+            ymax=3,
+            samples=100,
+            legend pos = north west,
+            %width=0.7\textwidth,
             legend style={nodes={scale=0.8, transform shape}}]
             \draw[dashed] ({axis cs:0.66666,0}|-{rel axis cs:0,0}) -- ({axis cs:0.66666,0}|-{rel axis cs:0,1});
             \addplot[color=red]{x^3-x^2};
@@ -141,27 +231,30 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
             \addlegendentry{$g(x)=exp(-(x-\frac{2}{3})^2)$}
             \addplot[color=black]{x^3-x^2+exp(-(x-2/3)^2)};
             \addlegendentry{$h(x)=f(x)+g(x)$}
-            \end{axis}
+                
+            \end{groupplot}
+            
          \end{tikzpicture}
+         \caption{The red function has a local minimum at $x=\frac{2}{3}$. If we place a hill (blue) at this position and add the functions together the local minimum disappears (black).}
     \end{center}
 \end{figure}
 
 \begin{algorithm}\label{alg:Distance_update}
     \begin{algorithmic}[1]
         \caption{Update step with distancing}
-        \REQUIRE learning rate $\alpha$, distance hyperparameters $s$ and $\sigma$
+        \REQUIRE learning rate $\lambda$, distance hyperparameters $s$ and $\sigma$
         \ENSURE a trained neural network
         \STATE initialize the network, dataset and training parameters
         \WHILE{stopping criteria is not met}
-            \STATE sample minibatch of $m$ examples ${x^{(1)}, ... ,x^{(n)}}$
-            \STATE compute gradient estimate $\hat{g}=\nabla_\theta \frac{1}{m} \sum_i L(f(x^{(i)};\theta),y^{(i)})+ \frac{1}{c} \sum_c s_c\cdot distance(\theta , \theta_c)$
-            \STATE apply parameter update $\theta=\theta-\alpha\cdot\hat{g}$
+            \STATE sample minibatch of $m$ examples ${x^{(1)}, ... ,x^{(m)}}$
+            \STATE compute gradient estimate $\hat{g}=\nabla_\theta \frac{1}{m} \sum_i L(f(x^{(i)};\theta),y^{(i)})+ s \cdot \frac{1}{c}\sum_c distance(\theta , \theta_c)$
+            \STATE apply parameter update $\theta=\theta-\lambda\cdot\hat{g}$
         \ENDWHILE
         \STATE \textbf{return: the trained network}
     \end{algorithmic}
 \end{algorithm}
 
-\section{results}
+\chapter{results}
 
 \begin{figure}[H]\label{fig:Results_baseline}
     \begin{center}
@@ -184,6 +277,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 			ymin=0.80,
 			xlabel near ticks,
             xmin=-10]
+            \draw[dashed] ({axis cs:100,0}|-{rel axis cs:0,0}) -- ({axis cs:100,0}|-{rel axis cs:0,1});
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_validation_acuracy.csv};
             \addplot[mark=None, color=blue] 
@@ -207,6 +301,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 					\addlegendentry{distance}
             \end{groupplot}
         \end{tikzpicture}
+        \caption{Baseline results for MobileNetV2. Upper plot shows validation accuracy, dotted line denotes addition of checkpoint. Lower plot shows $L_2$ Distance to checkpoint.}
     \end{center}
 \end{figure}
 
@@ -268,6 +363,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
                 table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/strength/MobileNetV2/MobileNetV2_strength_e3_distance0.csv};           
             \end{groupplot}
         \end{tikzpicture}
+        \caption{Influence of the strength hyperparameters $s$ on the validation accuracy and distance.}
         
     \end{center}
 \end{figure}
@@ -328,6 +424,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
     
             \end{groupplot}
         \end{tikzpicture}
+        \caption{Influence of the width hyperparameters $\sigma^2$ on the validation accuracy and distance.}
     \end{center}
 \end{figure}
 
@@ -391,6 +488,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 
             \end{groupplot}
         \end{tikzpicture}
+        \caption{Influence of multiple checkpoints on the validation accuracy of MobileNetV2 and ResNet}
 	\end{center}
 \end{figure}
 
@@ -491,26 +589,10 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 
             \end{groupplot}
         \end{tikzpicture}
+        \caption{The upper plot shows the influence of new checkpoints on the distance to existing ones. Removing $L_2$ Regularization changes this behaviour (lower plot).}
     \end{center}
 \end{figure}
 
-\begin{figure}[h]\label{fig:Noreg}
-    \begin{center}
-        \begin{tikzpicture}
-            \begin{axis}[
-                grid=major, 
-                grid style={dashed,gray!30},
-                xlabel=Epoch,
-                ylabel=Distance,
-                ylabel near ticks,
-                xmin=140,
-                width =8cm]
-                \addplot[mark=None, color=blue] 
-                table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f100_noreg_distance0.csv};
-            \end{axis}
-        \end{tikzpicture}
-    \end{center}
-\end{figure}
 
 
 \begin{figure}[h]\label{fig:Results_wrong_lr}
@@ -567,6 +649,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 
             \end{groupplot}
         \end{tikzpicture}
+        \caption{Influence of a suboptimal learning rate on Cosine Decay with Warm Restart without and with distance function.}
     \end{center}
 \end{figure}
 
@@ -591,7 +674,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 			\draw[dashed] ({axis cs:450,0}|-{rel axis cs:0,0}) -- ({axis cs:450,0}|-{rel axis cs:0,1});
 
 			\addplot[mark=None, color=orange] 
-				table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_validation_acuracy.csv};
+				table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_long_validation_acuracy.csv};
 				\addlegendentry{baseline}
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/ensemble/MobileNetV2/MobileNetV2_ensemble_baseline_ensemble_accuracy.csv};
@@ -604,6 +687,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
                 \addlegendentry{distance ensemble}
 			\end{axis}
         \end{tikzpicture}
+        \caption{Ensemble accuracy for different networks against the baseline accuracy of a single network.}
     \end{center}
 \end{figure}
 
@@ -640,6 +724,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
                 \addlegendentry{$s=100$}
 			\end{axis}
         \end{tikzpicture}
+        \caption{Ensemble accuracy for different strength values.}
     \end{center}
 \end{figure}
 
@@ -671,9 +756,6 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_epoch_time.csv};
                 \addlegendentry{baseline}
-            \addplot[mark=None, color=green] 
-                table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_distance_epoch_time.csv};
-                \addlegendentry{one checkpoint}
             \addplot[mark=None, color=blue] 
                 table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/multiple/MobileNetV2/run-mobileNetV2_multiple_3-tag-train_epoch_time.csv};
                 \addlegendentry{multiple checkpoints}
@@ -690,8 +772,6 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 			\draw[dashed] ({axis cs:450,0}|-{rel axis cs:0,0}) -- ({axis cs:450,0}|-{rel axis cs:0,1});
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/baseline/ResNet32/ResNet32_baseline_epoch_time.csv};
-            \addplot[mark=None, color=green] 
-                table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/baseline/ResNet32/ResNet32_baseline_distance_epoch_time.csv};
             \addplot[mark=None, color=blue] 
                 table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/multiple/ResNet32/ResNet32_multiple_epoch_time.csv};
             \end{groupplot}    
