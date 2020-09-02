@@ -17,7 +17,65 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 
 \begin{document}
 
+\begin{figure}[h!]\label{fig:Distance2D}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{groupplot}[
+                group style={
+                group size=2 by 1,
+                horizontal sep=60pt,
+                vertical sep=40pt,
+                group name=G},
+                width=0.5\textwidth,
+            ]
+            \nextgroupplot[grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=x, % Set the labels
+            ylabel=y,
+            xmin=-5,
+            xmax=5,
+            xtick={-2,-1,0,1,2, 3},
+            ymin=0,
+            ymax=5,
+            samples=100,
+            legend pos = north west,
+            %width=0.7\textwidth,
+            legend style={nodes={scale=0.8, transform shape}}]
+            \draw[dashed] ({axis cs:0.66666,0}|-{rel axis cs:0,0}) -- ({axis cs:0.66666,0}|-{rel axis cs:0,1});
+            \node[align=left] at (axis cs: 1.5,-0.5) {local \\ minimum};
+            %\addplot[color=red]{x^3-x^2};
+            \addplot[color=red]{exp(0.5*x)-exp(-x^2)-2*exp(-(x-2)^2)+1};
 
+
+            \nextgroupplot[grid=major, 
+            grid style={dashed,gray!30},
+            xlabel=x, % Set the labels
+            ylabel=y,
+            ylabel near ticks,
+            xmin=-2,
+            xmax=3,
+            xtick={-2,-1,0,1,2, 3},
+            ymin=-2,
+            ymax=3,
+            samples=100,
+            legend pos = north west,
+            %width=0.7\textwidth,
+            legend style={nodes={scale=0.8, transform shape}}]
+            \draw[dashed] ({axis cs:0.66666,0}|-{rel axis cs:0,0}) -- ({axis cs:0.66666,0}|-{rel axis cs:0,1});
+            \addplot[color=red]{x^3-x^2};
+            \addlegendentry{$f(x)=x^3-x^2$}
+            \addplot[color=blue]{exp(-(x-2/3)^2)};
+            \addlegendentry{$g(x)=exp(-(x-\frac{2}{3})^2)$}
+            \addplot[color=black]{x^3-x^2+exp(-(x-2/3)^2)};
+            \addlegendentry{$h(x)=f(x)+g(x)$}
+                
+            \end{groupplot}
+         \end{tikzpicture}
+         \caption{The red function has a local minimum at $x=\frac{2}{3}$. If we place a hill (blue) at this position and add the functions together the local minimum disappears (black).}
+    \end{center}
+\end{figure}
+
+\begin{comment}
 
 \begin{figure}[H]\label{fig:idea}
     \begin{center}
@@ -129,15 +187,15 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
             %xticklabels={,,},
             ymin=0.80,
 			xmin=-10,
-			legend pos=south east,
-            %width=10cm,
-            restrict x to domain=0:450]
+            legend pos=south east,
+            restrict x to domain=0:450,
+            legend style={nodes={scale=0.8, transform shape}}]
             \addplot[mark=None, color=blue] 
 				table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/baseline/MobileNetV2/MobileNetV2_baseline_validation_acuracy.csv};
 				\addlegendentry{baseline}
             \addplot[mark=None, color=red] 
 				table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/scheduler/MobileNetV2/MobileNetV2_scheduler_cosine_validation_acuracy.csv};
-                \addlegendentry{SGD with Warm Restart}
+                \addlegendentry{Cosine Decay with Warm Restart}
                 
             \nextgroupplot[
                     grid=major, 
@@ -242,7 +300,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 \begin{algorithm}\label{alg:Distance_update}
     \begin{algorithmic}[1]
         \caption{Update step with distancing}
-        \REQUIRE learning rate $\lambda$, distance hyperparameters $s$ and $\sigma$
+        \REQUIRE learning rate $\lambda$, distance hyperparameters $s$ and $\sigma^2$
         \ENSURE a trained neural network
         \STATE initialize the network, dataset and training parameters
         \WHILE{stopping criteria is not met}
@@ -265,7 +323,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
                 horizontal sep=10pt,
                 vertical sep=40pt,
                 group name=G},
-                width=10cm,
+                width=\textwidth,
             ]
 
             \nextgroupplot[
@@ -546,7 +604,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 				\addlegendentry{$s=100$}
 
 %---------------------------------------------------------------------------------
-			\begin{comment}	
+			%\begin{comment}	
             \nextgroupplot[
             title=checkpoint 2,
             grid=major, 
@@ -585,7 +643,7 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
                 table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/multiple/MobileNetV2/MobileNetV2_multiple_f100_distance2.csv};
                 \addlegendentry{$s=100$}
 
-			\end{comment}
+			end{comment} here comment ends
 
             \end{groupplot}
         \end{tikzpicture}
@@ -664,9 +722,9 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
 			ylabel=Validation accuracy,
 			xlabel=Epoch,
             ylabel near ticks,
-			legend pos=south east,
+			legend pos=outer north east,
 			width=10cm,
-                ymin=0.8,
+                ymin=0.85,
                 ymax=0.97
 			]
 			\draw[dashed] ({axis cs:150,0}|-{rel axis cs:0,0}) -- ({axis cs:150,0}|-{rel axis cs:0,1});
@@ -679,6 +737,9 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
             \addplot[mark=None, color=red] 
                 table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/ensemble/MobileNetV2/MobileNetV2_ensemble_baseline_ensemble_accuracy.csv};
                 \addlegendentry{baseline ensemble}
+            \addplot[mark=None, color=olive] 
+                table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/scheduler/MobileNetV2/MobileNetV2_scheduler_cosine_validation_acuracy.csv};
+                \addlegendentry{cosine}
             \addplot[mark=None, color=green] 
                 table[x=Step, y=Value, col sep=comma]{../paper/images/network_csv/ensemble/MobileNetV2/MobileNetV2_ensemble_baseline_cosine_ensemble_accuracy.csv};
                 \addlegendentry{cosine ensemble}
@@ -780,11 +841,19 @@ idxtotoc, bibtotoc]{scrreprt}	% Index (soweit vorhanden) und Literaturliste wegg
     \end{center}
 \end{figure}
 
+\begin{table}[H]
+    \centering
+    \resizebox{0.7\columnwidth}{!}{%
+    \begin{tabular}{c|c|c|c|c}\label{tab:Ensemble}
+        baseline & cosine & $s=1$ & $s=10$ & $s=100$ \\
+        \hline
+        7648 & 9130 & 7658& 7739 & 7788 \\
+    \end{tabular}}
+    \caption{Number of test examples where all snapshots agree in their classification for different configurations of MobileNetV2.}
+\end{table}
 
 
-
-
-
+\end{comment}
 
 
 

@@ -506,26 +506,27 @@ but cannot guarantee to solve it.
 An open question is if this suboptimal structure is present in deep neural
 networks. Fengxiang et al. \cite{he2020piecewise} showed that there exist
 infinitly many local minima which are of higher cost than the global one.
-Furthermore, these minima are arranged in cells, where each minima of one cell
-is of same loss as the others and also connected with them by valleys of low
-loss. These cells are seperated by nondifferentiable boundaries. Unfortunally,
-it remains unclear if these cells are of different cost. If this is the case,
-this would propose a major problem. When the training process gets into one of
-these cells, it is likely to get stuck, probably in an area of suboptimal cost.
-A trivial way to recover is not present at the moment.
+Furthermore, these minima are arranged in eclosed areas, where each minima
+within one area has the same loss as the others and also connected with them by
+paths of low loss. These areas are seperated from each other by
+nondifferentiable boundaries. Unfortunally, it remains unclear if different areas 
+are of different cost. If this is the case, this would propose a major problem.
+When the training process gets into one of these areas, it is likely to get
+stuck, probably in an area of suboptimal cost. A trivial way to recover is not
+present at the moment.
 
 Draxler et al. \cite{draxler2018essentially} get to a smiliar result, that local
-minimas are connected by valleys. In these valleys, the training loss stays the
+minimas are connected by paths of low loss. On these paths, the training loss stays the
 same to the one of the connected minima, while the test error rate slighly
 increases.
 
 Fort \& Jastrzebski \cite{fort2019large}  this in a more formal context. For
 each tuple of dimensions, they construct disks to describe the hyperplanes
 defined by them. They calls these hyperplanes wedges. One property is that the
-valleys of low loss described above lay on these wedges. Therefore the
-connecting valley for two points on different wedges has to pass through the
+paths of low loss described above lay on these wedges. Therefore the
+connecting path for two points on different wedges has to pass through the
 intersection of them, and in their direct connection is an area of high loss.
-When viewed from an cross-section, these valleys from a tunnel. Some techniques
+When viewed from an cross-section, these paths from a tunnel. Some techniques
 to improve optimization have similar effects on the size of these tunnels,
 namely they widen them. This happens for example for higher $L_2$ regularization
 \ref{sub:Generalization}, smaller batch sizes \ref{sub:Minibatch} or higher
