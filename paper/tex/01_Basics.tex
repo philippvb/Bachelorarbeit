@@ -1,6 +1,6 @@
 \chapter{Basics}
 
-\section{Optimization in deep learning}
+\section{Optimization in Deep Learning}
 Optimization is a core part of deep learning, as it is the
 foundation of the learning process. However, optimization in the context of deep
 learning differs from traditional optimization in several ways. This section
@@ -379,10 +379,10 @@ In context of deep learning, we use the velocity $v$ rather than only the
 current gradient $g$ to update the parameters.
 
 \begin{align}
-    v_{t+1}=m \cdot v_t - \alpha g
+    v_{t+1}=m \cdot v_t - \lambda g
 \end{align}
 Here, $m$ controls how strong the past gradient is taken into account,
-while $\alpha$ denotes the current learning rate. For the ball to build up
+while $\lambda$ denotes the current learning rate. For the ball to build up
 velocity, it requires a constant downhill motion. The same is true for this
 case. The gradient can only build up, if it points in the same direction for
 some consecutive updates similar to a ball, which only speeds up when rolling
@@ -393,25 +393,25 @@ different orientations of their gradient will level out. Formally, if parameter
 $p$ experiences the same gradient $g$ every time, it will reach a terminal velocity
 of
 \begin{align}
-    \frac{\alpha \lVert g \rVert}{1-m}
+    \frac{\lambda \lVert g \rVert}{1-m}
 \end{align}
 This also shows that $m$ can be used to control the speed up of the
-training. If $\alpha$ is kept constant, the larger $m$, the faster
+training. If $\lambda$ is kept constant, the larger $m$, the faster
 training will become, as long as the gradient is constant for multiple update
 iterations. A value of $0.9$ for example would lead to a speed up factor of
 $10$, while $0.8$ would lead to a speed up of $5$.
 
 \begin{algorithm}
     \begin{algorithmic}[1]
-        \caption{Stochastic gradient descent with Momentum from \cite{Goodfellow-et-al-2016}}
-        \REQUIRE learning rate $\alpha$
+        \caption{Stochastic gradient descent with Momentum from \cite{qian1999momentum}}
+        \REQUIRE learning rate $\lambda$
         \REQUIRE momentum parameter $m$
         \ENSURE a trained neural network
         \STATE initialize the network, dataset and training parameters
         \WHILE{stopping criteria is not met}
             \STATE sample minibatch of $m$ examples ${x^{(1)}, ... ,x^{(n)}}$
             \STATE compute gradient estimate $\hat{g}=\frac{1}{m} \nabla_\theta \sum_i L(f(x^{(i);\theta}),y^{(i)})$
-            \STATE compute velocity update $v=m \cdot v - \alpha \hat{g}$
+            \STATE compute velocity update $v=m \cdot v - \lambda \hat{g}$
             \STATE apply parameter update $\theta=\theta-v$
         \ENDWHILE
         \STATE \textbf{return: the trained network}
@@ -435,12 +435,11 @@ won't stay in a small hole but keep on going, if it's speed is larger enough.
 
 \section{Related work}
 
-last sections focused on general challenges and how to get over them
-this section shows specific knowledge which motivates approach
-wide minima and generalization for similar distance metric
-loss landscape for idea why exploration useful
-sgd as other example for exploration
-ensemble methods as one psooible other area with benefit
+The last sections focused on general challenges of neural network optimization
+and how to overcome them. This section gets into more detail on some of these
+and shows current techniques in neural network optimization, some of which are the basis
+for the methods and results in the following chapters.
+
 
 
 
@@ -506,7 +505,7 @@ but cannot guarantee to solve it.
 An open question is if this suboptimal structure is present in deep neural
 networks. Fengxiang et al. \cite{he2020piecewise} showed that there exist
 infinitly many local minima which are of higher cost than the global one.
-Furthermore, these minima are arranged in eclosed areas, where each minima
+Furthermore, these minima are arranged in enclosed areas, where each minima
 within one area has the same loss as the others and also connected with them by
 paths of low loss. These areas are seperated from each other by
 nondifferentiable boundaries. Unfortunally, it remains unclear if different areas 
@@ -533,7 +532,7 @@ namely they widen them. This happens for example for higher $L_2$ regularization
 learning rates.
 
 
-\subsection{Cosine decay with warm restart}\label{sub:cosine_decay}
+\subsection{Cosine Decay with Warm Restart}\label{sub:cosine_decay}
 
 In section \ref{SGD}, we introduced learning rate schedulers. The idea was to
 have a high learning rate at the beginning for fast improvements, and then an

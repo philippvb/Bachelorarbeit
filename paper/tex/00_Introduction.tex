@@ -21,10 +21,10 @@ happen because most local minima indeed have good performance
 \cite{choromanska2015loss}. In addition, searching for a global minima might not
 be useful, as this quickly leads to overfitting, where the networks memorizes
 the training set rather than learning the data distribution. Currently, it seems
-like the local minima are arranged in cells, where each minima of one cell has
-the same loss and all are connected by areas of low loss \cite{he2020piecewise},
-\cite{draxler2018essentially}. Furthermore, the cells are surrounnded by areas
-of high loss. Therefore when an optimizer reaches one of these cells, it is
+like the local minima are arranged in enclosed areas, where each minima of one area has
+the same loss and is connected to the others by paths of low loss \cite{he2020piecewise},
+\cite{draxler2018essentially}. Furthermore, these areas are surrounnded by walls
+of high loss. Therefore when an optimizer reaches one of these areas, it is
 unlikely to move out of it again. This means, that during training, only a small
 part of the loss landscape is explored.
 

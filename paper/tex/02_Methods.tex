@@ -16,23 +16,24 @@ The follwing section focuses on the dataset \ref{sub:Dataset} and the networks
 
 
 \section{Distance Function}\label{seq:Distance}
-\subsection{Motivation}\label{sub:Motivation}
-In section \ref{loss_landscape}, we got a brief overview over the loss landscape
-of deep neural networks and the resulting challenges for optimization. Although
-there exist a large number of local minima, most of them have low cost.
-Furthermore, they are arranged in eclosed areas, where each minima has low cost and is
-connected to the others via paths of low loss.
+\subsection{Motivation}\label{sub:Motivation} In section \ref{loss_landscape},
+we got a brief overview over the loss landscape of deep neural networks and the
+resulting challenges for optimization. Although there exist a large number of
+local minima, most of them have low cost. Furthermore, they are arranged in
+enclosed areas, where each minima has low cost and is connected to the others
+via paths of low loss.
 
 These areas create a challenge for optimization. Suppose the learning gets into
 one of these areas. As mentioned in section \ref{loss_landscape}, each area is
 surrounded by nondifferential boundaries and walls of higher loss. This will
 likely cause the algorithm to get stuck into this area. As all of the connected
 minimas in it are of approximatly same loss, there will be a boundary until the
-algorithm can improve, which may be higher than the global optimum. This imposes
-the question, if continuing to train is useful. After one of the minima in the
-area is found, the nearby minima it can reach will offer no significant
-improvement. Other possibly better areas however are out of reach, as walls of
-high loss surround the current position.
+algorithm can improve, which may be higher than the global optimum. In addition,
+only a small part of the loss landscape will be explored. This imposes the
+question, if continuing to train is useful. After one of the minima in the area
+is found, the nearby minima it can reach will offer no significant improvement.
+Other possibly better areas however are out of reach, as walls of high loss
+surround the current position.
 
 If we reuse the ball analogy from section \ref{sub:Momentum}, the beginning of
 the training process would probably place the ball at the top of a mountain
@@ -48,14 +49,14 @@ the area, but without guarantee. What is more likely to happen is that after a
 large step, the ball is in an area of higher altitude, which will let him roll
 down to the same valley again in the next step.
 
-In contrast, we try a different approach. Rather than letting the ball make one
-large steps and then allowing him to move on freely, we want to constantly push
-the ball away from it's current position. The idea beeing if the ball is only
-surrounded by hills, we have to push it up one of these until it reaches the top
-and can then roll down into another valley, therefore escaping the area.
-Transferred back to a real network, this translates to repeatedly updating the
-parameter values in a way, that the new values will increase their distance to
-the values we want to get away from.
+In contrast, this work tries a different approach. Rather than letting the ball
+make one large steps and then allowing him to move on freely, the idea is to
+constantly push the ball away from it's current position. If the ball is only
+surrounded by hills, it has to be pushed it up one of these until it reaches the
+top and can then roll down into another valley, therefore escaping the area and
+further exploring the landscape. Transferred back to a real network, this
+translates to repeatedly updating the parameter values in a way, that the new
+values will increase their distance to the values we want to get away from.
 
 
 \begin{algorithm}
@@ -90,16 +91,16 @@ to the standard one at the beginning is how the parameter values are computed.
 Here, the goal is to distance from the checkpoint. This will also result in a
 gradient, which will be applied the same way as above.
 
-How can we encourage a network to distance from a checkpoint, while at the same
-time not sacrificing the networks performance? Back to the ball analogy, instead
-of pushing the ball up a hill, we could place a hill at the current position,
-and let the ball roll down. Figure \ref{fig:Distance2D} shows a graphical
-illustration for the 2D case. The function $f(x)$ has a local minimum, where an
-algorithm might get stuck. If we add a gaussian curve $g(x)$ with the maximum
-aligned to the minimum of $f(x)$, we can see that the minimum disappears. An
-advantage of this technique is that the hill will only change the loss landscape
-locally. So when we have distanced from the hill, we follow the normal loss
-landscape again.
+The question arises how to encourage a network to distance from a checkpoint,
+while at the same time not sacrificing the networks performance. Back to the
+ball analogy, instead of pushing the ball up a hill, it is possible to place a
+hill at the current position, and let the ball roll down. Figure
+\ref{fig:Distance2D} shows a graphical illustration for the 2D case. The
+function $f(x)$ has a local minimum, where an algorithm might get stuck. If we
+add a gaussian curve $g(x)$ with the maximum aligned to the minimum of $f(x)$,
+we can see that the minimum disappears. An advantage of this technique is that
+the hill will only change the loss landscape locally. So when we have distanced
+from the hill, we follow the normal loss landscape again.
 
 \begin{figure}[h!]
     \begin{center}
@@ -137,7 +138,7 @@ landscape again.
 
 Formally, this hill is realised by first computing the distance of the parameter
 values to the checkpoint, and then adding a penalty for small distances. If we
-use and exponential Kernel, the idea of the hill can be taken quite visually.
+use a gaussian kernel, the idea of the hill can be taken quite visually.
 Section \ref{sub:Mathematical_approach} describes the mathematical approach in
 detail.
 
@@ -149,11 +150,11 @@ network would stay in areas with stable minima, which is a desired property.
 
 For ensemble methods, there are other possible benefits of this approach. Recall
 that for an ensemble to perform well, the errors of the participating networks
-should be uncorellated. Cosine Decay with Warm Restart \cite{loshchilov2016sgdr} tried to
-ensure this with warm restarts, where a high learnin rate increases the distance
-of the networks and therefore leads to uncorellated errors. We could use our
-method as an alternative approach, where we ensure the distance between the
-networks not only by high learning rate but by explicitly increasing the
+should be uncorellated. Cosine Decay with Warm Restart \cite{loshchilov2016sgdr}
+tried to ensure this with warm restarts, where a high learnin rate increases the
+distance of the networks and therefore leads to uncorellated errors. We could
+use our method as an alternative approach, where we ensure the distance between
+the networks not only by high learning rate but by explicitly increasing the
 distance. Of course, the underlying idea for both is that networks which are
 more distant in parameter space will behave more differently, and therefore have
 more uncorellated errors.
@@ -185,8 +186,8 @@ but the number of parameters of $\theta_1$ is larger than $\theta_2$ If we
 assume all of the parameters are distributed the same way, then $\theta_1$ would
 output a larger distance than $\theta_2$. However it would be desirable for the
 functions to be in the same bound, as it would make the transfer of
-hyperparameters for example possible. That's why we need a function to let the
-output stay in a certan bound.
+hyperparameters for example possible. In addition, the distance function should
+only change the loss landscape locally.
 
 If we take a look at support vector machines, they use kernels to compute the
 similarity between two samples. One popular choice is the radial basis function
@@ -208,10 +209,10 @@ asymtotically. This leads to a really small gradient for extreme distances.
 Consequently, the Kernel will initially push the parameters away from the
 checkpoint, but when this is achieved, will have little influence on the loss
 function. How far the function encourages to distance from the checkpoint can be
-controlled by the parameter $\sigma$, which defines the width of the function
-and can be tuned as a hyperparamter. As $\sigma$ gets larger, the function
+controlled by the parameter $\sigma^2$, which defines the width of the function
+and can be tuned as a hyperparamter. As $\sigma^2$ gets larger, the function
 becomes wider. Therefore, the influence of the distance function will reach
-further the larger $\sigma$ is.
+further the larger $\sigma^2$ is.
 
 \begin{figure}[h]
     \centering
@@ -499,17 +500,18 @@ network to learn the residuals rather than the full transformation of an input.
 Formally, consider the input $x$. The network transforms $x$ accoring to $H(x)$.
 Rather than letting the network do the full transformation, ResNet produces
 $H(x)= x +f(x)$, where $f(x)$ is the residual transformation learned by the
-network, and x the identity data which is realized by a skip connection. Figure
+network, and $x$ the identity which is realized by a skip connection. Figure
 \ref{fig:Residual_Block} shows a graphical illustration. Beside the assumably
 easier to learn representation, ResNet also solves other problems. The issue of
 the vanishing gradient as discussed in section \ref{sub:Vanishing_gradient} for
 example is tackled, as skip connections backpropagate the gradient better to
 earlier layers of the network. This allows for deeper networks.
 
-\begin{figure}[h]\label{fig:Residual_Block}
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.6\textwidth]{images/Residual_Block.png}
     \caption{Residual Block from \cite[Page 2]{he2016deep}}
+    \label{fig:Residual_Block}
 \end{figure}
 
 ResNet creates basic building blocks by applying a convolution, a Relu and
@@ -549,7 +551,8 @@ way smaller for larger $k$, because of the number of channels only be dependend
 on the lightweight pointwise convolution. For example for $k=10$, depthwise
 seperable only needs 57918 multiplications while a traditional convolution needs
 276480. Figure \ref{fig:DSConv} shows a graphical illustration of this idea.
-\begin{figure}[h!]\label{fig:DSConv}
+
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.6\textwidth]{images/Depthwise_Separable_Convolution.png}
     \caption{Depthwise Separable Convolution from \cite[Page 3]{sandler2018mobilenetv2} \newline On the left,
@@ -558,29 +561,30 @@ seperable only needs 57918 multiplications while a traditional convolution needs
      followed by a pointwise convolution with a 1x1xDepth Kernel. This methods
      saves computation time over the standard method, while also allowing
      interactions between channels.}
+     \label{fig:DSConv}
 \end{figure}
 
 
 With the second iteration called MobileNetV2 \cite{sandler2018mobilenetv2}, they
 added the concept of inverted residuals or as they call it bottlenecks. The
 ideas is, that intermediate representations should be low rather than high
-dimensional. The bottleneck layer starts with a matrix with a small number of
-depth channels. In the first step, the representation is expanded by a pointwise
-convolution, followed by a Relu6. The expansion factor here controls how much
-channels the intermediate representation will have. Then a depthwise convolution
-is applied as an transformation step, followed again by a Relu6. Finally, a
-pointwise convolution is applied again, but this time without a nonlinear
-transformation following afterwards. The idea is that when compressing the data
-back to a low dimensional space, a nonlinearity would only lead to a loss of
-information. Finally, a skip connection from the input to the output is applied
-to get a residual mapping from input to output.
+dimensional \ref{fig:InvRes}. The bottleneck layer starts with a matrix with a
+small number of depth channels. In the first step, the representation is
+expanded by a pointwise convolution, followed by a Relu6. The expansion factor
+here controls how much channels the intermediate representation will have. Then
+a depthwise convolution is applied as an transformation step, followed again by
+a Relu6. Finally, a pointwise convolution is applied again, but this time
+without a nonlinear transformation following afterwards. The idea is that when
+compressing the data back to a low dimensional space, a nonlinearity would only
+lead to a loss of information. Finally, a skip connection from the input to the
+output is applied to get a residual mapping from input to output.
 
 For ImageNet, MobileNetV2 reaches an top-1 accuracy of 72\%, which outperforms
 the competitors like MobileNetV1 or ShuffleNet 1.5 while having a similar number
 of parameters.
 
 
-\begin{figure}[h]\label{fig:InvRes}
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.6\textwidth]{images/Inverted_Residual.png}
     \caption{Inverted Residual Block from \cite[Page 3]{sandler2018mobilenetv2}\newline 
@@ -589,10 +593,11 @@ of parameters.
      applied, followed again by a Relu6. Finally, the data is compressed back to
      the original size. This time, there is no Relu applied to avoid the loss of
      information.}
+     \label{fig:InvRes}
 \end{figure}
 
 
-\subsection{Network hyperparameters and training loop}\label{sub:Hyperparameters}
+\subsection{Network hyperparameters}\label{sub:Hyperparameters}
 For both networks, the base hyperparameters are the same. Note that these
 parameters are only standard configurations and may be changed to investigate
 the effects:
