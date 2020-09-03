@@ -1,6 +1,6 @@
 \chapter{Introduction}\label{cha:Introduction}
 In recent years, deep neural networks have created huge success in a variety of
-tasks ranging from image classification to autonomous driving. However when
+tasks ranging from image classification to autonomous driving. However, when
 viewed from a mathematical standpoint, this success is quite surprising. In
 contrast to traditional optimization, optimization in deep neural networks faces
 some novel challenges.
@@ -11,12 +11,12 @@ which is therefore the global one. However in deep neural networks, there exist
 a large number of local minima. Therefore, finding a minimum does not guarantee
 to achieve optimal performance. In addition, the local structure of the loss
 landscape is not resembling the global structure, meaning that the path taken by
-optimizers mostly is suboptimal and leads away from the global optimum. The high
+optimizers is mostly suboptimal and leads away from the global optimum. The high
 number of parameters and the loss landscape which is expensive to compute
 further imped the task.
 
 Despite these challenges, even simple optimizers like Stochastic Gradient
-Descent lead to string performances. Recent literature suggests this might
+Descent lead to good performances. Recent literature suggests this might
 happen because most local minima indeed have good performance
 \cite{choromanska2015loss}. In addition, searching for a global minima might not
 be useful, as this quickly leads to overfitting, where the networks memorizes
@@ -30,8 +30,8 @@ part of the loss landscape is explored.
 
 Even if minima in other areas might have approximatly the same cost, it can be
 beneficial to explore the loss landscape further. The work of Loshchilov \&
-Hutter \cite{loshchilov2016sgdr} realized this by using warm restarts. Here, the
-learning rate is set back to the initial learning rate after a fixed number of
+Hutter \cite{loshchilov2016sgdr} showed this by using warm restarts. Here, the
+learning rate was set back to the initial learning rate after a fixed number of
 epochs. Therefore, the update steps got larger and the landscape was explored
 further. This lead to an increase in maximum performance after the learning rate
 was decayed again.

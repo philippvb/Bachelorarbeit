@@ -8,11 +8,12 @@ Section \ref{seq:Distance} describes the distance function, which leads to te
 exploration of the loss landscape. First, a quick motvation \ref{sub:Motivation}
 is given for the idea of exploration. Then, the mathematical approach
 \ref{sub:Mathematical_approach} is described in detail. Subsection
-\ref{sub:Implementation} shows how the appraoch is implemented in Pytorch.
+\ref{sub:Implementation} shows how the approach is implemented in Pytorch.
 
-The follwing section focuses on the dataset \ref{sub:Dataset} and the networks
+The following section focuses on the dataset \ref{sub:Dataset} and the networks
 \ref{sub:ResNet} \ref{sub:MobileNetV2} that were used. Subsection
-\ref{sub:Hyperparameters}describes the hyperparameters used in more detail.
+\ref{sub:Hyperparameters}describes the hyperparameters of the networks used in
+the results in more detail.
 
 
 \section{Distance Function}\label{seq:Distance}
@@ -37,12 +38,12 @@ surround the current position.
 
 If we reuse the ball analogy from section \ref{sub:Momentum}, the beginning of
 the training process would probably place the ball at the top of a mountain
-landscape. The initial training let's the ball move into one of the valleys.
+landscape. The initial training lets the ball move into one of the valleys.
 This valley may connect the ball to other points of low altitude, like minima
 within one area are connected. When the ball is only allowed to move downhill
 however, the ball can never reach a spot which he is seperated by a hill. Thus,
 his minimum altitude is bound to the lowest place in his current valley. If we
-add momentum, we have seen that the ball is able to get over hills of certain
+add momentum, the ball is able to get over hills of certain
 size by using his momentum. Warm restarts add the possibility to jump over a
 hill with a high learning rate at each restart. This can lead to an escape of
 the area, but without guarantee. What is more likely to happen is that after a
@@ -51,7 +52,7 @@ down to the same valley again in the next step.
 
 In contrast, this work tries a different approach. Rather than letting the ball
 make one large steps and then allowing him to move on freely, the idea is to
-constantly push the ball away from it's current position. If the ball is only
+constantly push the ball away from its current position. If the ball is only
 surrounded by hills, it has to be pushed it up one of these until it reaches the
 top and can then roll down into another valley, therefore escaping the area and
 further exploring the landscape. Transferred back to a real network, this
@@ -60,6 +61,7 @@ values will increase their distance to the values we want to get away from.
 
 
 \begin{algorithm}
+    \hypertarget{alg:Distancing}{}
     \begin{algorithmic}[1]
         \caption{Machine Learning with distancing}
         \REQUIRE a set of parameters $\theta$ and a dataset
@@ -78,11 +80,10 @@ values will increase their distance to the values we want to get away from.
         \ENDFOR
         \STATE \textbf{return: the final assignment of $\theta$}
     \end{algorithmic}
-    \label{alg:Distance_Motivation}
 \end{algorithm}
 
-Algorithm \ref{alg:Distance_Motivation} shows the formalization of the idea into
-pseudo-code. First, the network is trained the traiditional way - computing the
+Algorithm \hyperlink{alg:Distancing}{3} shows the formalization of the idea into
+pseudo-code. First, the network is trained the traditional way - computing the
 foward and backward pass of the training data with the resulting gradient, and
 then updating the parameter values with an optimizer. After reaching a
 sufficiently low error, the point we want to push away from is stored, which is
@@ -143,7 +144,7 @@ Section \ref{sub:Mathematical_approach} describes the mathematical approach in
 detail.
 
 What happens when our penalty hill is not large enough to get the ball over the
-hill? This means we would get back to the present parameter values. That's not
+hill? This means we would get back to the present parameter values. That is not
 necesarryly a problem, as it would mean that our current position is very
 robust, which would lead to a good generalization capability. Therefore our
 network would stay in areas with stable minima, which is a desired property.
@@ -151,8 +152,8 @@ network would stay in areas with stable minima, which is a desired property.
 For ensemble methods, there are other possible benefits of this approach. Recall
 that for an ensemble to perform well, the errors of the participating networks
 should be uncorellated. Cosine Decay with Warm Restart \cite{loshchilov2016sgdr}
-tried to ensure this with warm restarts, where a high learnin rate increases the
-distance of the networks and therefore leads to uncorellated errors. We could
+tried to ensure this with warm restarts, where a high learning rate increased the
+distance of the networks and therefore lead to uncorellated errors. We could
 use our method as an alternative approach, where we ensure the distance between
 the networks not only by high learning rate but by explicitly increasing the
 distance. Of course, the underlying idea for both is that networks which are
@@ -169,7 +170,7 @@ norm, which is defined as:
 \begin{align}
     \rVert x \lVert_2 = \sqrt{\sum_i \lvert x_i \rvert^2}
 \end{align}
-This norm can also be squared to get rid of the root. Squaring does not change
+This norm can  be squared to get rid of the root. Squaring does not change
 the direction of the gradient, and is therefore possible. To measure the
 distance between two parameter states $\theta_1$ and $\theta_2$ of the networks,
 this results in:
@@ -193,7 +194,7 @@ If we take a look at support vector machines, they use kernels to compute the
 similarity between two samples. One popular choice is the radial basis function
 kernel, defined as:
 \begin{align}\label{eq:RBF}
-    k(\theta_1, \theta_2)=exp(-\frac{\rVert \theta_1 - \theta_2 \lVert_2^2}{\sigma^2})
+    k(x, y)=exp(-\frac{\rVert x -y \lVert^2}{\sigma^2})
 \end{align}
 where $exp$ is the exponential function. With the use of \ref{eq:distance}, we
 can convert this to:
@@ -272,8 +273,8 @@ cross-entropy-loss may be very small. If the values of the distance function a
 too large in comparison, this would cause the parameters to be updated only
 based on the distance, which is undesirable as the performance would not be taken
 into account anymore. The same is also true the other way around, if the
-distance function is too small, it wouldn't affect training at all. That's why
-we introduce a hyperparameters $s$ called strength to control this:
+distance function is too small, it would not affect training at all. That is why
+a hyperparameters $s$ is introduced to control this, which is called strength:
 \begin{align}\label{eq:Loss_strength}
     J(\theta)=\frac{1}{m} \sum_{i=1}^m L(f(x^{(i)}; \theta) + s \frac{1}{c} \sum_c distance(\theta, \theta_c)
 \end{align}
@@ -317,11 +318,12 @@ also has the same effect of the function getting wider as in figure
     \end{center}
 \end{figure}
 
-Algorithm \ref{alg:Distance_update} shows the full update step. The algorithm is
-similar to SGD from \ref{alg:SGD}, only the distance function is added to
+Algorithm \hyperlink{alg:Distancing_Update}{4} shows the full update step. The algorithm is
+similar to SGD from Algorithm \hyperlink{alg:SGD}{1}, only the distance function is added to
 compute the gradients.
 
-\begin{algorithm}\label{alg:Distance_update}
+\begin{algorithm}
+    \hypertarget{alg:Distancing_Update}{}
     \begin{algorithmic}[1]
         \caption{Update step with distancing}
         \REQUIRE learning rate $\lambda$, distance hyperparameters $s$ and $\sigma^2$
@@ -354,6 +356,7 @@ First of all, it influences the direction of the gradient, so that the network
 parameters distance from their checkpoint values. If we take one parameter
 $\theta_i$ and compute the derivative of the distance function with respect to
 the checkpoint $\theta_c$, we end up with:
+
 \begin{align}
     \nabla_{\theta_i} distance(\theta_c, \theta)
     &= \nabla_{\theta_i} exp(-\frac{\sum_j (\theta_{c_j}-\theta_{j})^2}{\sigma^2}) \\
@@ -372,7 +375,7 @@ gradient, the other terms will be $>=0$ for $\forall \theta_i , \theta_{c_i}\in
         It follows that $\nabla_{\theta_i} distance(\theta_{c_i}, \theta_i)$
         will be positive. As we apply the negative gradient to update the
         parameters, $\theta_i$ will get smaller and  $(\theta_{c_i} - \theta_i)^2$
-        will be increase.
+        will increase.
     \item $\theta_{c_i} < \theta_i$\\
         $\nabla_{\theta_i} distance(\theta_{c_i}, \theta_i)$ will be negative
         and the distance $(\theta_{c_i} - \theta_i)^2$ will increase the same as
@@ -384,8 +387,8 @@ gradient, the other terms will be $>=0$ for $\forall \theta_i , \theta_{c_i}\in
 
 For $\theta_{c_i} \neq \theta_i$, the gradient of the distance function will
 successfully increase the distance. For $\theta_{c_i} = \theta_i$ however, it
-will introduce no gradient at all. When a checkpoint is created, before the
-first update this case is true. Therefore, no updates would happen as the
+will introduce no gradient at all. When a checkpoint is created before the
+first update, this case is true. Therefore, no updates would happen as the
 gradient is 0. However, the update is also composed of the normal loss function,
 which will likely introduce an non-zero gradient. In the next iteration,
 $\theta_{c_i} \neq \theta_i$ will then be true and the distance function works
@@ -394,27 +397,28 @@ gradient from becoming 0.
 
 
 Besides the influence of the distance function on the direction of the gradient,
-we expect an influence size of the gradient. Assume that the direction of the
-gradient is stable across multiple iterations, which is likely if we use
-Momentum. After we create a checkpoint, the normal loss function would therefore
-increase the distance to the checkpoint by itself. As we have seen above, the
-gradient of the distance function will also increase the distance, therefore
-both gradients will point in the same direction. For a stable gradient direction
-of the normal loss function, the distance function therefore increases the
-gradient size rather than change the gradient orientation. Only when the
-direction for a parameter changes, the distance term will work against it.
+there should also be an influence on size of the gradient. Assume that the
+direction of the gradient is stable across multiple iterations, which is likely
+if Momentum is used. After the creation of a checkpoint, the normal loss
+function would therefore increase the distance to the checkpoint by itself. As
+we have seen above, the gradient of the distance function will also increase the
+distance, therefore both gradients will point in the same direction. For a
+stable gradient direction of the normal loss function, the distance function
+therefore increases the gradient size rather than change the gradient
+orientation. Only when the direction of the gradient in the normal loss function
+changes, the distance term will work against it.
 
+\pagebreak
 \subsubsection{Computational analysis}\label{sub:Computational_Analysis}
 Although the network performance is one of the most important aspects of a
 neural network, other factors like training time have to be taken into account.
-Here, we will analyze how the distance term affects training time. Algorithm
-\ref{alg:Checkpoint} shows that at the beginning, the network is trained as
-usual. Therefore, there is no additional training time in this stage. After we
-add the checkpoint however, the distance function is added to the loss. In
-section \ref{sub:Effect_on_Gradient} we have seen that there is no interaction
-between the gradient of the cross-entropy-loss and the distance function. The
-same is true for the foward pass. Therefore, the only added computation time
-raises from the distance term itself.
+Algorithm \hyperlink{alg:Distancing}{3} shows that at the beginning, the network is
+trained as usual. Therefore, there is no additional training time in this stage.
+After we add the checkpoint however, the distance function is added to the loss.
+In section \ref{sub:Effect_on_Gradient} we have seen that there is no
+interaction between the gradient of the cross-entropy-loss and the distance
+function. The same is true for the foward pass. Therefore, the only added
+computation time raises from the distance term itself.
 
 The number of parameters of the network stays constant over the epochs.
 Therefore, the number of mathematical operations in the foward and backward pass
@@ -439,23 +443,22 @@ of the additional cost will be discussed in the results, section
 \subsubsection{Checkpoint creation}
 To measure the distance, we have to create the checkpoint. The model parameters
 in pytorch are stored as matrices for each layer and can be accesed via
-$model.parameters()$, which outputs an iterable. We therefore opt to keep this
-structure and safe the parameters in a list of matrices.
+$model.parameters()$, which outputs an iterable. Therefore, this structure is kept and the parameters are stored in a list of matrices.
 \begin{algorithm}[h!]
     \caption{Checkpoint}\label{alg:Checkpoint}
     \lstset{language=Python}
     \lstinputlisting{src/createCheckpoint.py}
 \end{algorithm}
 \newline
-First, the checkpoint list is initialized. Then we iterate over the model
-parameters. For each layer, we have to clone the parameters in order to create
+First, the checkpoint list is initialized. Then it is iterated over the model
+parameters. For each layer, the parameters have to be cloned in order to create
 new variables, and not just pointers to the existing ones. In addition they have
 to be detached, to remove connection of the gradient to the model parameters.
 
 \subsubsection{Distance function}
-The L2 norm is implemented the follwing way: We iterate over the checkpoint and
-the current parameter values. For each layer, we compute the difference, and
-then square and add the values to our distance.
+The L2 norm is implemented the follwing way: First, it is iterated over the checkpoint and
+the current parameter values. For each layer, the difference is computed, 
+then squared and the values are added to current distance.
 \begin{algorithm}[h!]
     \caption{L2 norm}\label{alg:L2Norm}
     \lstset{language=Python}
@@ -463,9 +466,9 @@ then square and add the values to our distance.
 \end{algorithm}
 
 \subsubsection{Loss function}
-Finally, we add our distance term and the regular loss function together. First,
-the standard loss is computed. Then, we iterate over all checkpoints and add
-their resulting distance values to the loss.
+Finally, distance term and the regular loss function are added together. First,
+the standard loss is computed. Then, it is iteratesd over all checkpoints and 
+their resulting distance values are added to the current loss.
 \begin{algorithm}[h!]
     \caption{Loss function}
     \lstset{language=Python}
@@ -495,9 +498,9 @@ normalization.
 \subsection{Networks}
 \subsubsection{ResNet}\label{sub:ResNet}
 The Residual Network (ResNet) architecture was first proposed by He et al.
-\cite{he2016deep}. The idea of the ResNet i, that it is more easy for a
+\cite{he2016deep}. The idea of the ResNet is, that it is more easy for a
 network to learn the residuals rather than the full transformation of an input.
-Formally, consider the input $x$. The network transforms $x$ accoring to $H(x)$.
+Formally, consider the input $x$. The network transforms $x$ according to $H(x)$.
 Rather than letting the network do the full transformation, ResNet produces
 $H(x)= x +f(x)$, where $f(x)$ is the residual transformation learned by the
 network, and $x$ the identity which is realized by a skip connection. Figure
@@ -507,7 +510,7 @@ the vanishing gradient as discussed in section \ref{sub:Vanishing_gradient} for
 example is tackled, as skip connections backpropagate the gradient better to
 earlier layers of the network. This allows for deeper networks.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{images/Residual_Block.png}
     \caption{Residual Block from \cite[Page 2]{he2016deep}}
@@ -518,7 +521,7 @@ ResNet creates basic building blocks by applying a convolution, a Relu and
 another convolution before adding the skip connection with a final Relu. Figure
 \ref{fig:Residual_Block} illustrates this block. The blocks are then stacked
 after each other. To let the network learn a more complex representation, after
-a number of block, they increase the number of channels. Here, the identity
+a number of blocks, they increase the number of channels. Here, the identity
 mapping of the skip connection is replaced by a pointwise convolution to
 increase the number of channels. Alternatively, the new channels are padded with
 0.
@@ -552,7 +555,7 @@ on the lightweight pointwise convolution. For example for $k=10$, depthwise
 seperable only needs 57918 multiplications while a traditional convolution needs
 276480. Figure \ref{fig:DSConv} shows a graphical illustration of this idea.
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{images/Depthwise_Separable_Convolution.png}
     \caption{Depthwise Separable Convolution from \cite[Page 3]{sandler2018mobilenetv2} \newline On the left,
@@ -568,7 +571,7 @@ seperable only needs 57918 multiplications while a traditional convolution needs
 With the second iteration called MobileNetV2 \cite{sandler2018mobilenetv2}, they
 added the concept of inverted residuals or as they call it bottlenecks. The
 ideas is, that intermediate representations should be low rather than high
-dimensional \ref{fig:InvRes}. The bottleneck layer starts with a matrix with a
+dimensional, see Figure \ref{fig:InvRes}. The bottleneck layer starts with a matrix with a
 small number of depth channels. In the first step, the representation is
 expanded by a pointwise convolution, followed by a Relu6. The expansion factor
 here controls how much channels the intermediate representation will have. Then
@@ -584,7 +587,7 @@ the competitors like MobileNetV1 or ShuffleNet 1.5 while having a similar number
 of parameters.
 
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{images/Inverted_Residual.png}
     \caption{Inverted Residual Block from \cite[Page 3]{sandler2018mobilenetv2}\newline 

@@ -1,29 +1,28 @@
 \chapter{Dicussion}
 
-In section \ref{sub:Motivation}, we summarized some of the challenges of
-optimization and described our approach to overcome some of these. The key idea
-was to push the network away from a checkpoint to escape local minima and
-explore the loss landscape further. The following sections described how we
-tried to realize this goal: We expanded the loss function by a term which
-measures the distance between the checkpoint and current state and penalizes
-small distances.
+Section \ref{sub:Motivation} summarized some of the challenges of optimization
+and described the approach to overcome these. The key idea was to push the
+network away from a checkpoint to escape local minima and explore the loss
+landscape further. The following sections described how this goal was realized:
+the loss function was expanded by a term which measures the distance between the
+checkpoint and current state and penalizes small distances.
 
 The results showed that the distance function acted successfull at achieving
-this goal. Whenever we included the distance term, the network distanced further
+this goal. Whenever distance term was included, the network distanced further
 than without, due to the additional gradient. At the beginning, there was a
 larger increase in distance due to the large gradient of the RBF Kernel of the
 distance function. When the gradient becomes small enough in later epochs, the
-distance converges. In section \ref{res:Hyperparameters} we showed, how this
+distance converges. Section \ref{res:Hyperparameters} showed, how this
 distance can be modified. A wider distance function lets the network distance
 further, but at a slower rate. This reflects the shape of the RBF Kernel,
 because a larger width factor lets the function become wider, but also have a
 smaller gradient, see figure \ref{fig:Gaussian}. A larger gradient can be
 created by varying the strength factor. This results in the same effect as
 above, but at a much faste rate, because of the larger gradient. In summary, the
-distance behaves like we would predict from the shape of the distance function.
+distance behaves like predicted from the shape of the distance function.
 
 
-Another interesting fact was that even without a distance Kernel,
+Another interesting fact was that without a distance Kernel,
 SGD also increases the distance, even when the validation accuracy seems to
 converge. This gives evidence for another difference between neural networks and
 traditional optimization. Where in traditional optimization, the goal normally
@@ -49,20 +48,20 @@ cross-entropy-loss. Therefore, the gradient of the cross-entropy-loss will be
 neglected, the networks does not follow the path of low loss any more and the
 accuracy drops, as a minima is surrounded by areas of high loss.
 
-However, after further epochs, the accuracy recovered to the same level as
+However, after further epochs, the accuracy recovers to the same level as
 before. Combined with the distancing, this means that areas of low loss can be
 found everywhere on the landscape. This is consistent with current literature
 like in \cite{he2020piecewise}. But in most cases, the network with distance
 function does not top the network without. This means that even if there are
-areas of low loss everywhere on the landscape, no area seems to be much better
-than the other. Therefore, distancing is possible, but does not seem to be
+areas of low loss everywhere on the landscape, no area seems to be generally better
+than the others. Therefore, distancing is possible, but does not seem to be
 useful. If this is the case, the question if the large exploration of the loss
 landscape is useful also arises, because a new area seems to not be able to
 achieve better performance. 
 \newline
 
 The addition of multiple checkpoints leads to an increase in performance.
-Furthermore, the same pattern as in cosine decay arises, where new cycles top
+Furthermore, the same pattern as in cosine decay with warm restart arises, where new cycles top
 the maximum accuracy of the previous. The results of section
 \ref{sub:Effect_on_Gradient} suggested that this might relate to the simliar
 influence on the gradient, that the parameter updates just get larger at the
@@ -82,7 +81,7 @@ drops as we have seen in the results, section \ref{res:Scheduler}. But if a
 parameter still returns to the same minimum as before, the minimum is robust in
 the sense that the surrounding boundaries of large loss are high and wide. For
 parameters whose local minima is very narrow and another area of low loss is
-nearby, the values may switch to these dueto high learning rate. Therefore,
+nearby, the values may switch to these due to a high learning rate. Therefore,
 parameters which have reached good minima will stay in their position, while
 unstable minima may be left. Here also lies a key difference to the distance
 function. As the distance term acts the same on all parameters, the distance
@@ -96,8 +95,8 @@ rate. At first, it seems that a cosine decay should let the network be more
 robust to a suboptimal learning rate because it is decayed until 0, irrelevant of the
 inital learning rate. In section \ref{res:Learning_rate}, this was the case
 until the first warm restart. But after it was performed, both ResNet32 and
-MobileNetV2 started diverging for a initial learning rate of 0.01 in a way that
-the maximum learning rate of each new cycle decreased compared to the previous
+MobileNetV2 started decreasing their performance for a initial learning rate of 0.01 in a way that
+the maximum validation accuracy of each new cycle decreased compared to the previous
 one. In contrast when adding a distance function, the maximum accuracy stayed
 constant for MobileNetV2, and decreases significantly less for ResNet32.
 
@@ -105,10 +104,10 @@ A simple explanation would be, that cosine decay with warm restart walks into an
 area of high loss, and is not able to recover. The distance function then helps
 to distance from this point and return to areas of lower loss, leading to a
 stable performance. The distance plot of figure \ref{fig:Results_wrong_lr}
-conformed to this idea, as normal cosine decay was not able to distance from the
+confirmed this explanation, as normal cosine decay was not able to distance from the
 checkpoint, in contrast to configurations with the optimal learning rate.
-However, this would contradict from the remaining results. As the distance
-function had no impact on the valdiation accuracy in section \ref{res:Baseline},
+However, this would contradict the remaining results. As the distance
+function had no impact on the validation accuracy in section \ref{res:Baseline},
 it was argued thats this happens because areas of low loss exist everywhere,
 which would contradict this explanation. Furthermore, it is unlikely that both
 networks would walk into an area of high loss by chance. Because the effect also
@@ -126,9 +125,9 @@ The results showed that although the corellation is an important factor, a low
 corellation can not recover if the network performs worse. It seems like a low
 corellation leads to much larger benefits of the ensemble in comparison to the
 single network. Cosine decay had a much larger corellation and this resulted
-only in a small increase of 1\%, where for our distance function, the
+only in a small increase of 1\%, where for the distance function, the
 ensemble gained over 4\% in accuracy against the single network. However, cosine
-decay still performs much better when compared to our network due to the better
+decay still performs much better when compared to the network with distance due to the better
 single network performance. One further aspect to keep in mind is that a better
 network performance automatically means higher corellation. Consider a network
 which performs at 100\% accuracy. Then all its snapshots have a corellation of
@@ -138,9 +137,9 @@ many examples where the snapshots predict wrong and can disagree. Therefore, a
 higher corellation often automatically arises and may rather predict the
 relative gain to a single network than the absolute performance.
 
-For networks with lower accuracy, we tried to reduce the corellation by using
-our distance function. Theoretically, the ensemble should then perform better,
-since we have seen in the other results that a larger distance does not harm the
+For networks with lower accuracy, the distance function tried to reduce the
+corellation. Theoretically, the ensemble should then perform better, since we
+have seen in the other results that a larger distance does not harm the
 accuracy, at least in long term. However, the results showed that even for
 larger distances, the corellation between the snapshots stayed the same. The
 implications for the loss landscape remain unclear.
@@ -166,7 +165,7 @@ to the samne wrong predictions of every snapshot.
 No matter the explanation, the results question the underlying idea of snapshot
 ensembles. A high learning rate increases the distance, but does not result in a
 lower corellation. Therefore, the benefits may be doubtful from a theoretical
-viewpoint. Nevertheless, in practice our network with suboptimal accuracy
+viewpoint. Nevertheless, in practice the network with distance which had suboptimal accuracy
 achieved a much higher accuracy as ensemble. 
 \newline
 
